@@ -1,0 +1,58 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../src"
+		}
+	],
+	"settings": {
+		"C_Cpp.default.includePath": [
+				"${workspaceFolder}/**",
+				"${env:ARDUINO_BASE_SOURCE}/cores/arduino",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/EEPROM/src",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/HID/src",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/SoftwareSerial/src",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/Wire/src",
+                "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
+                "${env:ARDUINO_BASE_SOURCE}/variants/standard",
+				"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
+				"${env:AVR_BASE_SOURCE}/include",
+				"${env:AVR_BASE_SOURCE}/include/avr",
+				"${env:AVR_BASE_SOURCE}/include/compat",
+				"${env:AVR_BASE_SOURCE}/include/sys",
+				"${env:AVR_BASE_SOURCE}/include/util",
+                "${workspaceFolder}/../../src",
+		],
+		"C_Cpp.default.defines": [
+			"_DEBUG",
+			"UNICODE",
+			"_UNICODE",
+			"F_CPU=16000000L",
+			"ARDUINO=10805",
+			"ARDUINO_AVR_UNO",
+			"ARDUINO_ARCH_AVR",
+			"USBCON"
+		],
+		"C_Cpp.default.browse.path": [
+			"${env:ARDUINO_BASE_SOURCE}",
+			"${env:AVR_BASE_SOURCE}",
+            "${workspaceRoot}/**"
+		],
+		"files.associations": {
+			"__bit_reference": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"initializer_list": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"ranges": "cpp"
+		}
+	}
+}

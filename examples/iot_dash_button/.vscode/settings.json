@@ -1,0 +1,13 @@
+{
+    "ARDUINO_BOOTLOADER_VARIANT":"atmega328old", // This version using the old arduino bootloader
+    "ARDUINO_SERIAL_PORT":"/dev/cu.usbserial-143240",
+    "ARDUINO_SKETCH_NAME": "iot_dash_button.ino",
+    "DWIRE_EXECUTABLE":"${env:DWIRE_PATH}",
+    "AVR-GDB_EXECUTABLE":"${env:AVR_GDB_PATH}",
+    "QEMU_AVR_BIN":"${env:QEMU_AVR_PATH}",
+    "EBV_LIB":"../../lib",
+    "cSpell.ignoreWords": [
+        "println",
+        "serprintbuf"
+    ]
+}
