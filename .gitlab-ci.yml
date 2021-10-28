@@ -4,7 +4,8 @@ test:
   stage: test
   script:
   - pip install -U sphinx
-  - sphinx-build -b html ./source build
+  - pip install -U sphinx-rtd-theme
+  - sphinx-build -b html ./docs/source ./docs/build
   rules:
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
     
@@ -12,9 +13,12 @@ pages:
   stage: deploy
   script:
   - pip install -U sphinx
-  - sphinx-build -b html ./source build
+  - pip install -U sphinx-rtd-theme
+  - sphinx-build -b html ./docs/source ./docs/build
+  - mkdir public
+  - cp -r ./docs/build/* public
   artifacts:
     paths:
-    - build
+    - public
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
