@@ -17,8 +17,8 @@ instructions, following `this <https://www.sphinx-doc.org/en/master/usage/instal
 
 Source code
 -----------
-|EIOT| releases are available from `here <https://embever.com>`_.
-|EIOT| development code is available from `here <https://embever.com>`_.
+|EIOT| releases are available from `here <https://gitlab.com/embever-public/embever-iot-library>`_.
+|EIOT| development code is available from `here <https://gitlab.com/embever-public/embever-iot-library>`_.
 
 Overview
 --------
