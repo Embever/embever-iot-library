@@ -241,15 +241,14 @@ With this modification, the Embever IoT library will be able to send the right m
 
 Setting up the Embever IoT library in Arduino IDE
 --------------------------------------------------
-To be able to work with the Embever IoT library, 2 external libraries need to be added, the Embever IoT library and a dependency as the CWPack library.
-Both libraries are deployed as a compressed zip file in order to easily work with them in the Arduino IDE.
-Follow the steps below to add the external libraries.
-Download the libraries from the following link:
-.. TODO: External Link, libraries
+To be able to work with the Embever IoT library, 2 external libraries need to be added to the Arduino IDE. Thise are the Embever IoT library and its dependency the CWPack library.
+
+Download the libraries from the following links by the download source code button and select the .zip option:
+  * `Embever IoT Library <https://gitlab.com/embever-public/embever-iot-library>`_
 
 Add the downloaded files to the Arduino IDE:
   * 1 Open Arduino ID
-  * 2 Select Sketch / Include Library / Add .ZIP Library…
+  * 2 Select: ``Sketch / Include Library / Add .ZIP Library…``
   * 3 Add both downloaded files in this way
   
 To open an example from the Embever IoT library from the Arduino IDE select ``File / Examples / Embever IoT Library / Hello_Cloud``.
