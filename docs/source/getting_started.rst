@@ -1,8 +1,8 @@
 Getting Started
 ================
 
-This document serves as a guide through the basic steps that are necessary to start building  IoT applications with the Embever Cloud as a Module Development Kit and gives a brief overview of our stack. 
-The goal is to provide just enough information to be able to get familiar with the IoT world without being too overwhelming. To be able to complete this guide, an Arduino compatible hardware will be necessary. 
+This document serves as a guide through the basic steps that are necessary to start building  IoT applications with the Embever Cloud as a Module Development Kit and gives a brief overview of our stack.
+The goal is to provide just enough information to be able to get familiar with the IoT world without being too overwhelming. To be able to complete this guide, an Arduino compatible hardware will be necessary.
 
 The Embever CaaM development board
 ------------------------------------
@@ -49,7 +49,7 @@ Recommended Operating Conditions
      - 85
      - °C
    * - Peak Power Consumption
-     - 
+     -
      - 1
      - A
 
@@ -73,31 +73,31 @@ The solder jumpers have the following functionalities:
    * - Solder jumper
      - Functionality
    * - SJ1
-     - Short to activate the external SIM card. 
+     - Short to activate the external SIM card.
 
        If this solder jumper is shorted, the modem starts using the nanoSIM instead of the eSIM.
    * - SJ3
      - Short to set the GPIO logic level to 3.3V.
-       
+
        There is the option to select the voltage level of the GPIO pins, which can be anything between 1.8v and VCC.
-       
+
        It can be useful when you wish to interface with a device which is running on a lower voltage level than 3.3v.
    * - SJ2
      - Short to connect the board VCC with the TAG connector VCC pin.
-       
+
        It might be required by an external programmer if the firmware of the modem is to be updated manually.
    * - SJ4
      - Short to activate pullup resistors on i2c lines.
-       
+
        The pullup resistors are necessary to communicate with the device.
-     
+
        Use external pullup resistors if you do not wish to use the internal ones.
 
 .. _getting-started-hw-wiring:
 
 Wiring up the hardware
 -----------------------
-For using the Embever CaaM development board, it has to be connected to an external device. To establish digital communication with the CaaM development board, there are a few necessary signals that need to be connected. 
+For using the Embever CaaM development board, it has to be connected to an external device. To establish digital communication with the CaaM development board, there are a few necessary signals that need to be connected.
 The following figure shows the location of these signals:
 
 .. figure:: ./img/ESP_HL.png
@@ -147,17 +147,15 @@ Digital communication logic level
 It is necessary to match the logic level between an external device and the Embever CaaM development board to establish stable communication.
 This is possible by supplying any voltage in the supported voltage range to the VDD_IO pin.
 To omit the wiring for this pin, the SJ2 solder jumper can be used to set the logic voltage level to VCC which is 3.3 Volt.
- 
+
 Communication with the Embever CaaM development board
 --------------------------------------------------------
-To address digital communication with the Embever CaaM development board, the Embever Serial Protocol (ESP) is utilized.
-This is a lightweight serial protocol, which can also be used to instruct the CaaM development board to send and receive data from the Cloud.
-The ESP is based on the Inter-Integrated Circuit protocol (I2C) with 2 additional signals.
-For more information about the Embever Serial Protocol, see the DOCXXYYZZ.
+To address digital communication with the Embever CaaM development board a lightweight protocol is used, the Embever Serial Protocol (ESP).
+For more information about it, see :ref:`esp-prot-drv`.
 
 To use the Embever Serial Protocol, connect an external device based on the following table:
 
-.. list-table::ESP Wiring
+.. list-table:: ESP Wiring
    :widths: 25 25
    :header-rows: 1
    :align: center
@@ -250,7 +248,7 @@ Add the downloaded files to the Arduino IDE:
   * 1 Open Arduino ID
   * 2 Select: ``Sketch / Include Library / Add .ZIP Library…``
   * 3 Add both downloaded files in this way
-  
+
 To open an example from the Embever IoT library from the Arduino IDE select ``File / Examples / Embever IoT Library / Hello_Cloud``.
 Compile the Sketch and Upload to the device and open the Serial Terminal from the Arduino IDE to see the logs.
 
@@ -268,5 +266,5 @@ ebv_iot_addGenericPayload("description", "first_demo");
   :alt: The modified hello_cloud sketch
 
 Verify the result in the cloud system after the sketch was uploaded to the device.
-Working with the Embever IoT solution is fun because it has a lot of potential to build and deploy the IoT applications of the future. 
+Working with the Embever IoT solution is fun because it has a lot of potential to build and deploy the IoT applications of the future.
 To see more examples, dig deeper in the library and read about the whole API, check the Embever IoT library documentation here.
