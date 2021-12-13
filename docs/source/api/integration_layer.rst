@@ -43,4 +43,4 @@ The example below shows how to set it up for the Arduino Wire Library.
     }
 
 To get more information about how to set up and use the |INT_LAYER| please refer
-the :ref:`integration-layer` topic.
+the :ref:`integration-guide` topic.

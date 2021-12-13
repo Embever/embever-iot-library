@@ -1,3 +1,5 @@
+.. _integration-guide:
+
 Integration Guide
 =====================
 
@@ -124,7 +126,7 @@ Copy ``data`` to the internal buffer. Not sending anything to the bus yet. Retur
     little bit confusing, this function copy only 1 byte of data to the buffer, so this is why we can say,
     that it is returning with the amount of copied data. If the buffer is full, then it was not able to do the copy,
     so return with 0.
-    TODO: Revisit 
+    TODO: Revisit
 
 void wire_end ()
 **************************************
