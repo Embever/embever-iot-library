@@ -33,6 +33,17 @@
 
 #include "ebv_delay.h"
 
+#if defined(ESP32)
+void (*ebv_delay_f)(uint32_t);
+
+void ebv_delay_register(void (*delay)(uint32_t ms)){
+    ebv_delay_f = delay;
+}
+
+void ebv_delay(uint32_t ms){
+    (*ebv_delay_f)(ms);
+}
+#else
 void (*ebv_delay_f)(unsigned long);
 
 void ebv_delay_register(void (*delay)(unsigned long ms)){
@@ -42,3 +53,4 @@ void ebv_delay_register(void (*delay)(unsigned long ms)){
 void ebv_delay(unsigned long ms){
     (*ebv_delay_f)(ms);
 }
+#endif
