@@ -200,7 +200,7 @@ bool ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
                     // // p("Unkown CMD: 0x%x\n\r", trigger_cmd);
                     break;
                 default:
-                    // Serial.print("Not Handled\n\r");
+                    // p("Not Handled\n\r");
                     break;
             }
         } else {

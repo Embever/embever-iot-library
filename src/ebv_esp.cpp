@@ -144,7 +144,7 @@ void ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
             #if (TESTSUITE_DEBUG == 1)
             // p("PKG Received: SOP:%x CMD:%x LEN:%d\n\r", resp->sop, resp->command, resp->len);
             for(uint8_t i = 0; i < resp->len; i++){
-                if( !(i % 8)){ Serial.print("\n\r"); }
+                if( !(i % 8)){ p("\n\r"); }
                 // p("0x%x ",resp->response[i]);
             }
             #endif
@@ -176,12 +176,12 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
         cw_unpack_next(&uc);
         switch( uc.item.type ){
             case CWP_ITEM_ARRAY:
-                Serial.print("[");
+                p("[");
                 nested_level_index++;
                 nested_level[nested_level_index] = uc.item.as.array.size + 1;
                 break;
             case CWP_ITEM_MAP:
-                Serial.print("{");
+                p("{");
                 nested_level_index++;
                 nested_level[nested_level_index] = ((uc.item.as.map.size * 2) + 1) | 0xC0;      // Use the upper 2 bits to store the type
                 break;
@@ -191,7 +191,7 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
             case CWP_ITEM_STR: {
                 uint8_t str_len = uc.item.as.str.length;
                 for (uint8_t i = 0; i < str_len; i++){
-                    Serial.print( ((char *) (uc.item.as.str.start))[i] );
+                    // p( ((const char *) (uc.item.as.str.start))[i] );
                 }
                 break;
             }
@@ -201,25 +201,25 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
         // Print the termination, based on obj kind
         if( (uc.item.type == CWP_ITEM_ARRAY) || (uc.item.type == CWP_ITEM_MAP) ){
             if(uc.item.as.array.size){
-                Serial.print("\n\r");
+                p("\n\r");
                  for (uint8_t i = 0; i <= nested_level_index; i++){
-                    Serial.print("   ");
+                    p("   ");
                 }
             }
         } else {
             if(nested_level[nested_level_index] & (1 << 6)){
-                Serial.print(" : ");
+                p(" : ");
                 nested_level[nested_level_index] &= ~(1 << 6);
             } else {
                 if((nested_level[nested_level_index] & 0x3F) <= 1){
-                    Serial.print("\n\r");
+                    p("\n\r");
                     for (uint8_t i = 0; i <= nested_level_index - 1; i++){
-                       Serial.print("   ");
+                       p("   ");
                     }
                 } else {
-                    Serial.print(",\n\r");
+                    p(",\n\r");
                     for (uint8_t i = 0; i <= nested_level_index; i++){
-                       Serial.print("   ");
+                       p("   ");
                     }
                 }
             }
