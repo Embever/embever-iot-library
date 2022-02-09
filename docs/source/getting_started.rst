@@ -246,6 +246,7 @@ To be able to use the Embever IoT library, it need to be installed to the Arduin
 
 Download the libraries from the following links by the download source code button and select the .zip option:
   * `Embever IoT Library <https://gitlab.com/embever-public/embever-iot-library>`_
+  * `CWPack Library <https://gitlab.com/embever-public/cwpack>`_
 
 Add the downloaded files to the Arduino IDE:
   * 1 Open Arduino ID
