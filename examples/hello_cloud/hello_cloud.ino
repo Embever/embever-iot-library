@@ -6,17 +6,21 @@
 
 #include <Arduino.h>
 #include <HardwareSerial.h>
-#include <Wire.h>
 #include <extcwpack.h>
+
+// Usefull definitions
+#define ARDUINO_AVR_PIN_A0 14
+#define ARDUINO_AVR_PIN_A1 15
+#define ARDUINO_AVR_PIN_A2 16
+#define ARDUINO_AVR_PIN_A3 17
+
+// Uncomment this macros to assign custom GPIO pins
+// #define PIN_EBV_IRQ     ARDUINO_AVR_PIN_A0
+// #define PIN_EBV_READY   ARDUINO_AVR_PIN_A1
 
 #include "ebv_iot.h"
 #include "print_serial.h"
-
-#define ARDUINO_PIN_A2  16
-#define ARDUINO_PIN_A3  17
-#define PIN_EBV_IRQ     ARDUINO_PIN_A2
-#define PIN_EBV_READY   ARDUINO_PIN_A3
-
+#include "Wire/EBV_Wire.h"
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
@@ -26,10 +30,11 @@ void setup() {
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
     p("\n\rHello Cloud starting...\n\r");
+    p("\n\rPreparing hello_cloud event...\n\r");
+    ebv_iot_initGenericEvent("Hi_Cloud");                           // Set the event type
+    ebv_iot_addGenericPayload("source", "ESP");                     // Set payload
     p("\n\rSending hello_cloud event...\n\r");
-    ebv_iot_initGenericEvent("Hello_Cloud");                // Set the event type
-    ebv_iot_addGenericPayload("source", "ebv_demo");        // Set payload
-    bool ret = ebv_iot_submitGenericEvent();                // Send event
+    bool ret = ebv_iot_submitGenericEvent();                        // Send event
     if(ret){
         p("Event sent to the cloud\n\r");
     } else {
