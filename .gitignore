@@ -5,3 +5,5 @@
 *.DS_STORE
 docs/build/*
 docs/source/_build/*
+
+/env
