@@ -186,13 +186,16 @@ In our mind, the Arduino Framework is a great tool to show how things work and t
 Summary
 --------
 To summarize the above topics before starting to work with the examples:
-  * Configure the hardware by shorting the right solder jumpers based on the required behaviour
+  * Configure the hardware by shorting the right solder jumpers based on the required behavior
   * Connect the CaaM board with an external device
-  * Provide power to the system, the easiest way is to use a lipo battery with a JST connector
+  * Supply power to the system, the easiest way is to use a lithium polymer battery with a JST connector
 
 
 Introducing the Embever Cloud System
 ----------------------------------------
+Embever IoT Core is responsible to handle all messaging to and from a device. The Embever IoT Core provides an API to easily send and receive data from a device.
+Besides this, it can also be used to manage resources like devices and firmwares.
+
 .. include:: ./activate_cloud_acount.rst
 .. include:: ./cloud_device_connect.rst
 
@@ -239,7 +242,7 @@ With this modification, the Embever IoT library will be able to send the right m
 
 Setting up the Embever IoT library in Arduino IDE
 --------------------------------------------------
-To be able to work with the Embever IoT library, 2 external libraries need to be added to the Arduino IDE. Thise are the Embever IoT library and its dependency the CWPack library.
+To be able to use the Embever IoT library, it need to be installed to the Arduino IDE first. The Embever IoT library is depends on the CWPack library.
 
 Download the libraries from the following links by the download source code button and select the .zip option:
   * `Embever IoT Library <https://gitlab.com/embever-public/embever-iot-library>`_
