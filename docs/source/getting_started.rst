@@ -6,7 +6,7 @@ The goal is to provide just enough information to be able to get familiar with t
 
 The Embever CaaM development board
 ------------------------------------
-In the process of getting to know the CaaM board, let’s start with a feature highlight.
+In the process of getting to know the CaaM board, let it start with a feature highlight.
 
 .. figure:: ./img/CaaM_overview.png
   :width: 600
@@ -98,8 +98,51 @@ The solder jumpers have the following functionalities:
 Wiring up the hardware
 -----------------------
 For using the Embever CaaM development board, it has to be connected to an external device. To establish digital communication with the CaaM development board, there are a few necessary signals that need to be connected.
-The following figure shows the location of these signals:
+The following figure shows the location of these signals by board versions:
 
+.. raw:: html
+
+   <details>
+   <summary><a>CaaM board revision 2</a></summary>
+.. figure:: ./img/ESP_HL_Rev1.png
+  :width: 400
+  :align: center
+  :alt: Embever CaaM Development Board ESP Signals
+
+.. list-table:: ESP Pinout
+   :widths: 25 25
+   :header-rows: 1
+   :align: center
+
+   * - Signal Name
+     - Description
+   * - VIN
+     - Supply Voltage input
+   * - GND
+     - Ground
+   * - PWR_EN
+     - Enable power, active LOW, enabled by default
+   * - VDD_IO
+     - Supply Voltage for GPIO Pins
+   * - 3V3
+     - Internal voltage regulator output
+   * - SDA
+     - ESP data line
+   * - SCL
+     - ESP clock line
+   * - IRQ
+     - ESP logic line, active low
+   * - READY
+     - ESP logic line, active high
+  
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <details>
+   <summary><a>CaaM board revision 2.1</a></summary>
 .. figure:: ./img/ESP_HL.png
   :width: 400
   :align: center
@@ -113,23 +156,31 @@ The following figure shows the location of these signals:
    * - Signal Name
      - Description
    * - VIN
-     - Supply Voltage
+     - Supply Voltage input
    * - GND
      - Ground
    * - PWR_EN
-     - Pull HIGH to enable the board
+     - Enable power, active LOW
    * - VDD_IO
      - Supply Voltage for GPIO Pins
    * - 3V3
      - Internal voltage regulator output
    * - SDA
-     - ESP communication data line
+     - ESP data line
    * - SCL
-     - ESP communication clock line
+     - ESP clock line
    * - IRQ
-     - ESP communication logic line
+     - ESP logic line, active low
    * - READY
-     - ESP communication logic line
+     - ESP logic line, active high
+
+.. raw:: html
+
+   </details>
+   <br></br>
+
+
+
 
 Powering the Embever CaaM development board
 --------------------------------------------
