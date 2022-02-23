@@ -34,9 +34,6 @@
 #endif
 #include "Stream.h"
 
-#ifndef I2C_BUFFER_LENGTH
-    #define I2C_BUFFER_LENGTH 128
-#endif
 typedef void(*user_onRequest)(void);
 typedef void(*user_onReceive)(uint8_t*, int);
 
@@ -47,11 +44,11 @@ protected:
     int8_t sda;
     int8_t scl;
 
-    uint8_t rxBuffer[I2C_BUFFER_LENGTH];
+    uint8_t rxBuffer[I2C_BUFFER_LEN];
     size_t rxIndex;
     size_t rxLength;
 
-    uint8_t txBuffer[I2C_BUFFER_LENGTH];
+    uint8_t txBuffer[I2C_BUFFER_LEN];
     size_t txLength;
     uint16_t txAddress;
 

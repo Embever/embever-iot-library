@@ -23,24 +23,26 @@
 
 #if defined(__AVR__)
 
+#include "../EBV_Wire.h"
+
 extern "C" {
   #include <stdlib.h>
   #include <string.h>
   #include <inttypes.h>
+  #define TWI_BUFFER_LENGTH I2C_BUFFER_LEN
   #include "utility/twi_AVR.h"
 }
 
 
-#include "Wire_AVR.h"
 
 // Initialize Class Variables //////////////////////////////////////////////////
 
-uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::rxBuffer[I2C_BUFFER_LEN];
 uint8_t TwoWire::rxBufferIndex = 0;
 uint8_t TwoWire::rxBufferLength = 0;
 
 uint8_t TwoWire::txAddress = 0;
-uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::txBuffer[I2C_BUFFER_LEN];
 uint8_t TwoWire::txBufferIndex = 0;
 uint8_t TwoWire::txBufferLength = 0;
 
@@ -157,8 +159,8 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
   }
 
   // clamp to buffer length
-  if(quantity > BUFFER_LENGTH){
-    quantity = BUFFER_LENGTH;
+  if(quantity > I2C_BUFFER_LEN){
+    quantity = I2C_BUFFER_LEN;
   }
   // perform blocking read into buffer
   uint8_t read = twi_readFrom(address, rxBuffer, quantity, sendStop);
@@ -245,7 +247,7 @@ size_t TwoWire::write(uint8_t data)
   if(transmitting){
   // in master transmitter mode
     // don't bother if buffer is full
-    if(txBufferLength >= BUFFER_LENGTH){
+    if(txBufferLength >= I2C_BUFFER_LEN){
       setWriteError();
       return 0;
     }
