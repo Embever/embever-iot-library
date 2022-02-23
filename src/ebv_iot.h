@@ -63,21 +63,21 @@ typedef struct{
     bool result;
 } ebv_iot_event;
 
-bool _ebv_iot_addUnsignedPayload(char * k, unsigned int v);
-bool _ebv_iot_addSignedPayload(char * k, int v);
-bool _ebv_iot_addFloatPayload(char * k, float v);
-bool _ebv_iot_addDoublePayload(char * k, double v);
-bool _ebv_iot_addStringPayload(char * k, char * v);
-bool _ebv_iot_addCharPayload(char * k, char v);
+bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
+bool _ebv_iot_addSignedPayload(const char * k, int v);
+bool _ebv_iot_addFloatPayload(const char * k, float v);
+bool _ebv_iot_addDoublePayload(const char * k, double v);
+bool _ebv_iot_addStringPayload(const char * k, char * v);
+bool _ebv_iot_addCharPayload(const char * k, char v);
 
 // Overloaded payload packer
 #ifdef __cplusplus
-    void ebv_iot_addGenericPayload(char * key, unsigned int value);
-    void ebv_iot_addGenericPayload(char * key, int value);
-    void ebv_iot_addGenericPayload(char * key, float value);
-    void ebv_iot_addGenericPayload(char * key, double value);
-    void ebv_iot_addGenericPayload(char * key, char * value);
-    void ebv_iot_addGenericPayload(char * key, char value);
+    void ebv_iot_addGenericPayload(const char * key, unsigned int value);
+    void ebv_iot_addGenericPayload(const char * key, int value);
+    void ebv_iot_addGenericPayload(const char * key, float value);
+    void ebv_iot_addGenericPayload(const char * key, double value);
+    void ebv_iot_addGenericPayload(const char * key, const char * value);
+    void ebv_iot_addGenericPayload(const char * key, const char value);
 #else
     #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                  \
                                                     unsigned int:   _ebv_iot_addUnsignedPayload,      \
@@ -88,13 +88,14 @@ bool _ebv_iot_addCharPayload(char * k, char v);
                                                     char :          _ebv_iot_addCharPayload               \
                                                     )(key,value)
 #endif
-void ebv_iot_receiveAction(esp_response_t *response);
+void ebv_iot_init();
+bool ebv_iot_receiveAction(esp_response_t *response);
 bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action );
 bool ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response);
 bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response);
 bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
-bool ebv_iot_initGenericEvent(char * evnt_type);
+bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
 
 #endif
