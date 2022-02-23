@@ -42,7 +42,7 @@ typedef void    (*_ebv_i2c_beginTransaction)(uint8_t device_address);
 typedef void    (*_ebv_i2c_stopTransaction)();
 typedef int     (*_ebv_i2c_available)();
 typedef size_t  (*_ebv_i2c_write)(uint8_t data);
-typedef void    (*_ebv_i2c_request)(uint8_t device_address, uint8_t nof_bytes);
+typedef size_t    (*_ebv_i2c_request)(uint8_t device_address, uint8_t nof_bytes);
 typedef int     (*_ebv_i2c_read)();
 
 struct ebv_i2c_cb{
@@ -59,27 +59,27 @@ void    ebv_i2c_I2cBeginTransaction(uint8_t device_address);
 void    ebv_i2c_I2cFinishTransaction();
 int     ebv_i2c_I2cAvailable();
 size_t  ebv_i2c_I2cWrite(uint8_t data);
-void    ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes);
+size_t  ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes);
 int     ebv_i2c_I2cRead();
 
-#define EBV_SETUP_ARDUINO_WIRE_CB                               \
-    void wire_begin(uint8_t address){                           \
-        Wire.beginTransmission(address);                        \
-    }                                                           \
-    void wire_end(){                                            \
-        Wire.endTransmission();                                 \
-    }                                                           \
-    int wire_available(){                                       \
-        return Wire.available();                                \
-    }                                                           \
-    size_t wire_write(uint8_t data){                            \
-        return Wire.write(data);                                \
-    }                                                           \
-    void wire_requestFrom(uint8_t address, uint8_t nof_bytes){  \
-        Wire.requestFrom(address, nof_bytes);                   \
-    }                                                           \
-    int wire_read(){                                            \
-        return Wire.read();                                     \
+#define EBV_SETUP_ARDUINO_WIRE_CB                                   \
+    void wire_begin(uint8_t address){                               \
+        Wire.beginTransmission(address);                            \
+    }                                                               \
+    void wire_end(){                                                \
+        Wire.endTransmission();                                     \
+    }                                                               \
+    int wire_available(){                                           \
+        return Wire.available();                                    \
+    }                                                               \
+    size_t wire_write(uint8_t data){                                \
+        return Wire.write(data);                                    \
+    }                                                               \
+    size_t wire_requestFrom(uint8_t address, uint8_t nof_bytes){    \
+       return Wire.requestFrom(address, nof_bytes);                 \
+    }                                                               \
+    int wire_read(){                                                \
+        return Wire.read();                                         \
     }                                                           
 
 #define EBV_I2C_REGISTER_ARDUINO_WIRE                           \

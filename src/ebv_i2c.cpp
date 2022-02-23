@@ -59,8 +59,8 @@ size_t ebv_i2c_I2cWrite(uint8_t data){
     return _ebv_i2c_cb.dataWrite(data);
 }
 
-void ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes){
-    _ebv_i2c_cb.dataReqest(address, nof_bytes);
+size_t ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes){
+    return _ebv_i2c_cb.dataReqest(address, nof_bytes);
 }
 
 int ebv_i2c_I2cRead(){
