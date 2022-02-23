@@ -165,7 +165,7 @@ bool TwoWire::begin(uint8_t addr, int sdaPin, int sclPin, uint32_t frequency)
         goto end;
     }
     i2cSlaveAttachCallbacks(num, onRequestService, onReceiveService, this);
-    if(i2cSlaveInit(num, sda, scl, addr, frequency, I2C_BUFFER_LENGTH, I2C_BUFFER_LENGTH) != ESP_OK){
+    if(i2cSlaveInit(num, sda, scl, addr, frequency, I2C_BUFFER_LEN, I2C_BUFFER_LEN) != ESP_OK){
         log_e("Slave Init ERROR");
         goto end;
     }
@@ -397,7 +397,7 @@ size_t TwoWire::requestFrom(uint16_t address, size_t size, bool sendStop)
 
 size_t TwoWire::write(uint8_t data)
 {
-    if(txLength >= I2C_BUFFER_LENGTH) {
+    if(txLength >= I2C_BUFFER_LEN) {
         return 0;
     }
     txBuffer[txLength++] = data;
