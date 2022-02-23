@@ -40,7 +40,6 @@
 
 #define DEFAULT_DEVICE_ADDRESS 0x35
 
-
 #define ESP_CMD_NO_COMMAND 0x00
 #define ESP_CMD_READ_DELAYED_RESP 0xA1
 #define ESP_CMD_GET_ACTIONS 0xA2
@@ -100,7 +99,7 @@ typedef struct esp_response_s esp_response_t;
 void ebv_esp_setDeviceAddress(uint8_t addr);
 void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint8_t data_len);
 void ebv_esp_sendCommand(esp_packet_t *pkg);
-void ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp);
+bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp);
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
 void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t *mpack_response_details, uint8_t response_details_len, bool isActionSucceed);

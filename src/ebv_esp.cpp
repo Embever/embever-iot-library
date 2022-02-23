@@ -41,11 +41,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define UNUSED(x) (void)(x)
+
 #define PKG_CRC_LEN 4
 #define USE_CRC 0
+#define EBV_ESP_CONNECTIVITY_TIMEOUT 60
+#define EBV_ESP_RESPONSE_TIMEOUT_MS 200
 
-// You can use this macro to kick the debuging in 
-#define TESTSUITE_DEBUG 0
+// You can use this macro to kick in the logging
+#define MODULE_DEBUG 0
+#if MODULE_DEBUG == 1
+    #define DEBUG_MSG_TRACE(...) p("%s:%d in %s() --> ", __FILENAME__, __LINE__, __FUNCTION__); p(__VA_ARGS__); p("\n\r")
+    #define DEBUG_MSG(...) p(__VA_ARGS__)
+#else
+    #define DEBUG_MSG_TRACE(...)
+    #define DEBUG_MSG(...)
+#endif
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
@@ -100,71 +111,107 @@ void ebv_esp_sendCommand(esp_packet_t *pkg){
                 }
             }
             ebv_i2c_I2cWrite( (uint8_t) pkg->crc32);
-            ebv_i2c_I2cWrite( (uint8_t) pkg->crc32 >> 8);
-            ebv_i2c_I2cWrite( (uint8_t) pkg->crc32 >> 16);
-            ebv_i2c_I2cWrite( (uint8_t) pkg->crc32 >> 24);
+            ebv_i2c_I2cWrite( (uint8_t) (pkg->crc32 >> 8));
+            ebv_i2c_I2cWrite( (uint8_t) (pkg->crc32 >> 16));
+            ebv_i2c_I2cWrite( (uint8_t) (pkg->crc32 >> 24));
             ebv_i2c_I2cFinishTransaction();
             break;
     }
 }
 
-void ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
+bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
+    uint8_t timeout_ms;
+    size_t recv_len;
     switch(pkg->command){
         case ESP_CMD_READ_DELAYED_RESP:
             // Read response packet header for get the packet length
-            ebv_i2c_I2cRequest(DEVICE_ADDRESS, 4);
-            while(ebv_i2c_I2cAvailable() >= 4){
-                resp->sop = ebv_i2c_I2cRead();
-                resp->command = ebv_i2c_I2cRead();
-                resp->len = ebv_i2c_I2cRead();
-                resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
+            recv_len = ebv_i2c_I2cRequest(DEVICE_ADDRESS, 4);
+            if(recv_len == 0){
+                DEBUG_MSG_TRACE("Error: Failure during read.");
+                ebv_i2c_I2cFinishTransaction();
+                return false;
             }
-            #if (TESTSUITE_DEBUG == 1)
-            // p("PKG Header Received: SOP:%x CMD:%x LEN:%d\n\r", resp->sop, resp->command, resp->len);
-            #endif
+            timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
+            // waiting for receiving data
+            while(ebv_i2c_I2cAvailable() < 4 && timeout_ms){
+                timeout_ms--;
+                ebv_delay(10);
+            }
+            if(!timeout_ms){
+                // Timeout occurred
+                DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP header.");
+                DEBUG_MSG_TRACE("Number of received bytes : %d", ebv_i2c_I2cAvailable());
+                return false;
+            }
+            resp->sop = ebv_i2c_I2cRead();
+            resp->command = ebv_i2c_I2cRead();
+            resp->len = ebv_i2c_I2cRead();
+            resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
+            DEBUG_MSG_TRACE("PKG header received: SOP:%x CMD:%x LEN:%d", resp->sop, resp->command, resp->len);
             if ( resp->len > EBV_ESP_MAX_PAYLOAD_SIZE){
-                return;
+                DEBUG_MSG_TRACE("Error: response packet size invalid (too big: %d)", resp->len);
+                return false;
             }
             if(resp->len){
                 // Read the whole response packet
                 uint8_t pkg_len = ESP_DELAYED_RESPONSE_HEADER_LEN + resp->len;
                 ebv_i2c_I2cRequest(DEVICE_ADDRESS, pkg_len);
+                // Allocating memory for it
                 if(resp->response){ free(resp->response); }
                 resp->response = (uint8_t *) malloc(resp->len);
-                while(ebv_i2c_I2cAvailable() >= pkg_len){
-                    resp->sop = ebv_i2c_I2cRead();
-                    resp->command = ebv_i2c_I2cRead();
-                    resp->len = ebv_i2c_I2cRead();
-                    resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
-                    for(uint8_t i = 0; i< resp->len; i++){
-                        resp->response[i] = ebv_i2c_I2cRead();
-                    }
+                if(resp->response == NULL){
+                    DEBUG_MSG_TRACE("Error: Memory allocation failed");
+                    return false;
                 }
-            }
-            #if (TESTSUITE_DEBUG == 1)
-            // p("PKG Received: SOP:%x CMD:%x LEN:%d\n\r", resp->sop, resp->command, resp->len);
-            for(uint8_t i = 0; i < resp->len; i++){
-                if( !(i % 8)){ p("\n\r"); }
-                // p("0x%x ",resp->response[i]);
-            }
-            #endif
-            break;
-        default:
-            // ACK PKG in case of unknown packet
-            ebv_i2c_I2cRequest(DEVICE_ADDRESS, 2);
-            while(ebv_i2c_I2cAvailable() >= 2){
+                // Receive the rest of the packet
+                timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
+                while(ebv_i2c_I2cAvailable() < pkg_len && timeout_ms){
+                    timeout_ms--;
+                    ebv_delay(1);
+                }
+                if(timeout_ms){
+                     DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
+                    free(resp->response);
+                    return false;
+                }
                 resp->sop = ebv_i2c_I2cRead();
                 resp->command = ebv_i2c_I2cRead();
+                resp->len = ebv_i2c_I2cRead();
+                resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
+                for(uint8_t i = 0; i< resp->len; i++){
+                    resp->response[i] = ebv_i2c_I2cRead();
+                }
             }
-            #if (TESTSUITE_DEBUG == 1)
-            // p("Response SOP: 0x%x CMD:0x%x\n\r", resp->sop, resp->command);
-            #endif
+            DEBUG_MSG_TRACE("PKG Received: SOP:%x CMD:%x LEN:%d", resp->sop, resp->command, resp->len);
+            for(uint8_t i = 0; i < resp->len; i++){
+                if( !(i % 8)){ DEBUG_MSG("\n\r"); }
+                DEBUG_MSG("0x%x ",resp->response[i]);
+            }
+            break;
+        default:
+            // ACK PKG
+            DEBUG_MSG_TRACE("Reading back ACK packet...");
+            ebv_i2c_I2cRequest(DEVICE_ADDRESS, 2);
+            timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
+            while(ebv_i2c_I2cAvailable() < 2 && timeout_ms){
+                timeout_ms--;
+                ebv_delay(1);
+            }
+            if(!timeout_ms){
+                 DEBUG_MSG_TRACE("Timeout: No ack response");
+                return false;
+            }
+            resp->sop = ebv_i2c_I2cRead();
+            resp->command = ebv_i2c_I2cRead();
+            DEBUG_MSG_TRACE("Response SOP: 0x%x CMD:0x%x", resp->sop, resp->command);
             break;
     }
+
+    return true;
 }
 
 // MSGPack decoder
- #if (TESTSUITE_DEBUG == 1)
+ #if (MODULE_DEBUG == 1)
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
     uint8_t parent_kind;
     uint8_t nested_level[10] = {0};
@@ -186,12 +233,12 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
                 nested_level[nested_level_index] = ((uc.item.as.map.size * 2) + 1) | 0xC0;      // Use the upper 2 bits to store the type
                 break;
             case CWP_ITEM_POSITIVE_INTEGER:
-                // p("%d", uc.item.as.u64);
+                p("%d", uc.item.as.u64);
                 break;
             case CWP_ITEM_STR: {
                 uint8_t str_len = uc.item.as.str.length;
                 for (uint8_t i = 0; i < str_len; i++){
-                    // p( ((const char *) (uc.item.as.str.start))[i] );
+                    p( (const char *) (uc.item.as.str.start) );
                 }
                 break;
             }
@@ -246,15 +293,15 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
             if(nested_level[nested_level_index] & 0x80){
                 // Check if this is the last one
                 if((nested_level[nested_level_index - 1] & 0x3F) < 1){
-                    // p("}\n\r");
+                    p("}\n\r");
                 } else {
-                    // p("},\n\r");
+                    p("},\n\r");
                 }
             } else {
                 if((nested_level[nested_level_index - 1] & 0x3F) < 1){
-                    // p("]");
+                    p("]");
                 } else {
-                    // p("],\n\r");
+                    p("],\n\r");
                 }
             }
             
@@ -262,22 +309,20 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
             nested_level_index--;
             if(nested_level_index || nested_level[nested_level_index]){
                 for (uint8_t i = 0; i <= nested_level_index; i++){
-                    // p("   ");
+                    p("   ");
                 }
             } else {
                 // This case if for the upper tree element closing
-                // p("\n\r]\n\r");
+                p("\n\r]\n\r");
             }
         }
     } while( uc.item.type != CWP_NOT_AN_ITEM);
 }
-#else
-void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
-    return;
-}
 #endif
 
 uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len ){
+    UNUSED(len);
+    UNUSED(data);
     return 0;
 }
 
@@ -336,7 +381,7 @@ bool isDeviceBusy(){
 }
 
 bool waitForDevice(){
-    uint8_t timeout = 30;
+    uint8_t timeout = EBV_ESP_CONNECTIVITY_TIMEOUT;
     while(isDeviceBusy() && timeout){
         timeout--;
         ebv_delay(1000);
