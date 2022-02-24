@@ -34,9 +34,9 @@ void setup() {
     p("\n\rSending hello_cloud event...\n\r");
     bool ret = ebv_iot_submitGenericEvent();                       // Send event
     if(ret){
-        p("Event sent to the cloud\n\r");
+        p("Event sent\n\r");
     } else {
-        p("No response from device\n\r");
+       p("Sending event failed\n\r");
     }
 }
 
