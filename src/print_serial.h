@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-#define SERIAL_PRINT_MAX_BUFF_SIZE 128
+#define SERIAL_PRINT_MAX_BUFF_SIZE 150
 
 void p(const char *fmt, ... );
 void p_registerPrint( void (*print)(const char *) );
