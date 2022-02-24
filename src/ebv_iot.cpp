@@ -36,9 +36,14 @@
 #include "print_serial.h"
 #include "ebv_delay.h"
 #include "extcwpack.h"
+#include "ebv_conf.h"
 
 #include <string.h>
 #include <stdlib.h>
+
+#include "ebv_log_conf.h"
+#define LOG_MODULE_NAME EBV_IOT_LOG_NAME
+#include "ebv_log.h"
 
 #define LOW 0
 #define  HI 1
@@ -54,11 +59,11 @@
 #define MODULE_DEBUG 0
 
 typedef struct{
-    uint8_t *buff;          // This is the mapack buffer
-    uint8_t size;           // The current size of the buffer
-    uint8_t elements;       // Count of the elements in the mpacked content
-    bool isBufferReady;     // Flag for indicating the budder status
-    cw_pack_context c;      // mpack struct for keep track about the packing
+    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
+    uint8_t size;                           // The current size of the buffer
+    uint8_t elements;                       // Count of the elements in the mpacked content
+    bool isBufferReady;                     // Flag for indicating the budder status
+    cw_pack_context c;                      // mpack struct for keep track about the packing
 } ebv_mpack;
 
 ebv_mpack _ebv_mpack;
@@ -67,7 +72,6 @@ ebv_mpack _ebv_mpack;
 
 // Static functions
 static int8_t __ebv_iot_strlen(const char * s);
-static bool _ebv_iot_allocateBufferFor(uint8_t n_item_size);
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i);
 static uint8_t _ebv_mpack_getSignedLen(int long long i);
 
@@ -279,12 +283,20 @@ bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response
     } else {            // Set the right map size was unsuccessfull
         ret = false;
     }
-    free(_ebv_mpack.buff);
     _ebv_mpack.isBufferReady = false;
     return ret;
 }
 
 bool ebv_iot_submitEvent(ebv_iot_event *e){
+#if DEBUG_EN == 1
+    DEBUG_MSG_TRACE("Submitting event, len : %d", e->len);
+    uint8_t i;
+    for(i = 0; i < e->len; i++){
+        if((i % 8) == 0){DEBUG_MSG("\n\r");}
+        DEBUG_MSG("%X ", e->body[i]);
+    }
+    DEBUG_MSG("\n\r");
+#endif
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PUT_EVENTS, e->body, e->len);
     if( !waitForDevice() ){
@@ -312,6 +324,10 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
     if(!ret){
         return false;
     }
+    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS);
+    if(res != EBV_ESP_RESP_RES_OK){
+        return false;
+    }
     return true;
 }
 
@@ -320,7 +336,7 @@ bool ebv_iot_submitGenericEvent(){
     e.body = _ebv_mpack.buff;
     e.len = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
-    uint8_t i = 3; // We know that the first 3 item will be static
+    uint8_t i = 3; // We know that the first 3 item is static
     while(i < e.len){
         if(e.body[i] == 0x81){
             e.body[i] = 0x80 + _ebv_mpack.elements;
@@ -335,23 +351,16 @@ bool ebv_iot_submitGenericEvent(){
     } else {            // Set the right map size was unsuccessfull
         ret = false;
     }
-    free(_ebv_mpack.buff);
     _ebv_mpack.isBufferReady = false;
     return ret;
 }
 
 bool ebv_iot_initGenericEvent(const char * evnt_type){
-    if(_ebv_mpack.buff){
-        free(_ebv_mpack.buff);
-    }
-    _ebv_mpack.buff = (uint8_t *) malloc(EBV_MPACK_DEFAULT_SIZE);
-    if (!_ebv_mpack.buff){
-        return false;
-    }
-    _ebv_mpack.size = EBV_MPACK_DEFAULT_SIZE;
+    memset(_ebv_mpack.buff, 0, sizeof(_ebv_mpack.buff));
+    _ebv_mpack.size = sizeof(_ebv_mpack.buff);
     _ebv_mpack.elements = 0;
     _ebv_mpack.isBufferReady = true;
-    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, EBV_MPACK_DEFAULT_SIZE, NULL);
+    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), NULL);
     cw_pack_array_size(&_ebv_mpack.c, 1);
     cw_pack_array_size(&_ebv_mpack.c, 2);
     // TODO Need to check if the next string fit in the mem or not
@@ -361,26 +370,17 @@ bool ebv_iot_initGenericEvent(const char * evnt_type){
 }
 
 bool ebv_iot_initGenericResponse(){
-    if(_ebv_mpack.buff){
-        free(_ebv_mpack.buff);
-    }
-    _ebv_mpack.buff = (uint8_t *) malloc(EBV_MPACK_DEFAULT_SIZE);
-    if (!_ebv_mpack.buff){
-        return false;
-    }
-    _ebv_mpack.size = EBV_MPACK_DEFAULT_SIZE;
+    memset(_ebv_mpack.buff, 0, sizeof(_ebv_mpack.buff));
+    _ebv_mpack.size = sizeof(_ebv_mpack.buff);
     _ebv_mpack.elements = 0;
     _ebv_mpack.isBufferReady = true;
-    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, EBV_MPACK_DEFAULT_SIZE, NULL);
+    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), NULL);
     cw_pack_map_size(&_ebv_mpack.c, 1);     // Preparing it for only one element
     return true;
 }
 
 bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + _ebv_mpack_getUnsignedLen(v) + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_unsigned(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
@@ -389,9 +389,6 @@ bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v){
 
 bool _ebv_iot_addSignedPayload(const char * k, int v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + _ebv_mpack_getSignedLen(v) + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_signed(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
@@ -400,9 +397,6 @@ bool _ebv_iot_addSignedPayload(const char * k, int v){
 
 bool _ebv_iot_addFloatPayload(const char * k, float v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + EBV_MPACK_FLOAT_LEN + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_float(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
@@ -411,9 +405,6 @@ bool _ebv_iot_addFloatPayload(const char * k, float v){
 
 bool _ebv_iot_addDoublePayload(const char * k, double v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + EBV_MPACK_DOUBLE_LEN + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_double(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
@@ -423,9 +414,6 @@ bool _ebv_iot_addDoublePayload(const char * k, double v){
 bool _ebv_iot_addStringPayload(const char * k, const char * v){
     uint8_t k_len = __ebv_iot_strlen(k);
     uint8_t v_len = __ebv_iot_strlen(v);
-    if( !_ebv_iot_allocateBufferFor(k_len + v_len + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     // TODO: Check remaining space in buffer 
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, v, v_len);
@@ -435,9 +423,6 @@ bool _ebv_iot_addStringPayload(const char * k, const char * v){
 
 bool _ebv_iot_addCharPayload(const char * k, const char v){
     uint8_t k_len = __ebv_iot_strlen(k);
-     if( !_ebv_iot_allocateBufferFor(k_len + 1 + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, &v, 1);
     _ebv_mpack.elements++;
@@ -450,21 +435,6 @@ static int8_t __ebv_iot_strlen(const char * s){
         c++;
     }
     return c >= EBV_STRLEN_MAXLEN ? -1 : c;
-}
-
-static bool _ebv_iot_allocateBufferFor(uint8_t n_item_size){
-    // Check if we need allocate more memory or not
-    uint16_t free_space  = _ebv_mpack.c.end - _ebv_mpack.c.current; 
-    if(n_item_size > free_space ){
-        _ebv_mpack.size += n_item_size - free_space;
-        _ebv_mpack.buff = (uint8_t *) realloc(_ebv_mpack.buff, _ebv_mpack.size);
-        if(!_ebv_mpack.buff){
-            return false;
-        }
-        _ebv_mpack.c.end = _ebv_mpack.c.start + _ebv_mpack.size;
-    }
-
-    return true;
 }
 
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i){
