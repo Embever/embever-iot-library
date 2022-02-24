@@ -222,6 +222,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                     DEBUG_MSG_TRACE("Look for %d bytes got %d", pkg_len, ebv_i2c_I2cAvailable());
                     return false;
                 }
+
                 resp->sop = ebv_i2c_I2cRead();
                 resp->command = ebv_i2c_I2cRead();
                 resp->len = ebv_i2c_I2cRead();
