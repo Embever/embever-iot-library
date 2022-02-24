@@ -48,15 +48,10 @@
 #define EBV_ESP_CONNECTIVITY_TIMEOUT 60
 #define EBV_ESP_RESPONSE_TIMEOUT_MS 200
 
-// You can use this macro to kick in the logging
-#define MODULE_DEBUG 0
-#if MODULE_DEBUG == 1
-    #define DEBUG_MSG_TRACE(...) p("%s:%d in %s() --> ", __FILENAME__, __LINE__, __FUNCTION__); p(__VA_ARGS__); p("\n\r")
-    #define DEBUG_MSG(...) p(__VA_ARGS__)
-#else
-    #define DEBUG_MSG_TRACE(...)
-    #define DEBUG_MSG(...)
-#endif
+#include "ebv_log_conf.h"
+#define LOG_MODULE_NAME EBV_ESP_LOG_NAME
+#include "ebv_log.h"
+
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
@@ -148,7 +143,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
             resp->len = ebv_i2c_I2cRead();
             resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
             DEBUG_MSG_TRACE("PKG header received: SOP:%x CMD:%x LEN:%d", resp->sop, resp->command, resp->len);
-            if ( resp->len > EBV_ESP_MAX_PAYLOAD_SIZE){
+            if ( resp->len > IOT_MSG_MAX_LEN){
                 DEBUG_MSG_TRACE("Error: response packet size invalid (too big: %d)", resp->len);
                 return false;
             }
@@ -163,17 +158,14 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                     DEBUG_MSG_TRACE("Error: Memory allocation failed");
                     return false;
                 }
-                // Receive the rest of the packet
-                timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
-                while(ebv_i2c_I2cAvailable() < pkg_len && timeout_ms){
-                    timeout_ms--;
-                    ebv_delay(1);
-                }
-                if(timeout_ms){
-                     DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
+
+                if(ebv_i2c_I2cAvailable() < pkg_len){
+                    DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
+                    DEBUG_MSG_TRACE("Look for %d bytes got %d", pkg_len, ebv_i2c_I2cAvailable());
                     free(resp->response);
                     return false;
                 }
+
                 resp->sop = ebv_i2c_I2cRead();
                 resp->command = ebv_i2c_I2cRead();
                 resp->len = ebv_i2c_I2cRead();
@@ -187,6 +179,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                 if( !(i % 8)){ DEBUG_MSG("\n\r"); }
                 DEBUG_MSG("0x%x ",resp->response[i]);
             }
+            DEBUG_MSG("\n\r");
             break;
         default:
             // ACK PKG
@@ -374,6 +367,42 @@ void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t 
     } else {
         pkg->flags = 1;
     }
+}
+
+ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd){
+    // verify the header
+    if( resp->sop != ESP_RESPONSE_SOP_SOR_ID ||
+        resp->command != ESP_CMD_READ_DELAYED_RESP )
+    {
+        return EBV_ESP_RESP_RES_INVALID;
+    }
+    switch (trigger_esp_cmd){
+    case ESP_CMD_PUT_EVENTS:{
+        if(resp->len < 4){
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
+            resp->response[1] != ESP_CMD_PUT_EVENTS)
+        {
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->len == 4 &&
+            resp->response[2] == 0x00 &&
+            resp->response[3] == 0x00)
+        {
+            return EBV_ESP_RESP_RES_OK;
+        } 
+        else
+        {
+            // TODO: Continue msg evaluation, not just claim it was an error
+            return EBV_ESP_RESP_RES_ERR;
+        }
+        break;
+        }
+    default:
+        break;
+    }
+    return EBV_ESP_RESP_RES_INVALID;
 }
 
 bool isDeviceBusy(){

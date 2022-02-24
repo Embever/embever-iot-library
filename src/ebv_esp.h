@@ -38,6 +38,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "ebv_conf.h"
+
 #define DEFAULT_DEVICE_ADDRESS 0x35
 
 #define ESP_CMD_NO_COMMAND 0x00
@@ -53,13 +55,6 @@
 #define ESP_DL_PAYLOAD_KIND_ERROR   0xB3A5
 #define ESP_ERR_INVALID_CMD_ID      0x0101
 #define ESP_ERR_INVALID_CMD_DATA    0x0102
-
-#define ESP_DELAYED_RESPONSE_HEADER_LEN 4
-#define EBV_TMP_BUFF_MAXSIZE            255
-#define EBV_ESP_MAX_PAYLOAD_SIZE 512
-
-#define ESP_CRC_LEN 4
-#define ESP_FLAGS_LEN 1
 
 struct esp_packet_s{
     uint8_t command;
@@ -91,6 +86,12 @@ enum {
     ARDUINO_ESP_MASTER_I2C_MAX_MPACK_SIZE = 128,
 };
 
+typedef enum {
+    EBV_ESP_RESP_RES_OK,
+    EBV_ESP_RESP_RES_ERR,
+    EBV_ESP_RESP_RES_INVALID,
+} ebv_esp_resp_res_t;
+
 
 typedef struct esp_packet_s esp_packet_t;
 typedef struct esp_response_s esp_response_t;
@@ -103,6 +104,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp);
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
 void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t *mpack_response_details, uint8_t response_details_len, bool isActionSucceed);
+ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd);
 bool waitForResponse();
 bool isResponseAvailable();
 bool waitForDevice();
