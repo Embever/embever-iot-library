@@ -27,6 +27,8 @@
 #define DASHBTN_EVNT_TYPE   "buttonPressed"
 #define DASHBTN_EVNT_KEY    "name"
 
+bool send_dash_event(char btn_id);
+
 void set_led(bool state){
     digitalWrite(LED_PIN, state);
 }
@@ -51,16 +53,19 @@ void loop(){
     while( digitalRead(PIN_FETCH_BTN) );
     p("Sending event...\n\r");
     set_led(true);
-    send_dash_event('1');
+    bool ret = send_dash_event('1');
+    if(ret){
+        p("Event sent\n\r");
+    } else {
+        p("Sending event failed\n\r");
+    }
     waitForDevice();
-    delay(5000);
-    delay(5000);
-    delay(5000);
+    delay(1000);
     set_led(false);
 }
 
-void send_dash_event(char btn_id){
+bool send_dash_event(char btn_id){
     ebv_iot_initGenericEvent(DASHBTN_EVNT_TYPE);
     ebv_iot_addGenericPayload(DASHBTN_EVNT_KEY, btn_id);
-    ebv_iot_submitGenericEvent();
+    return ebv_iot_submitGenericEvent();
 }
