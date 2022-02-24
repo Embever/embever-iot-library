@@ -1,15 +1,10 @@
 #ifndef INC_EBV_WIRE_H
 #define INC_EBV_WIRE_H
 
-#define DEFAULT_EBV_I2C_BUFFER_LEN      512
-#define DEFAULT_EBV_I2C_BUFFER_LEN_AVR  64
+#include "../ebv_conf.h"
 
-#if defined(ESP32) && !defined(I2C_BUFFER_LEN)
-#define I2C_BUFFER_LEN DEFAULT_EBV_I2C_BUFFER_LEN
-#endif
-
-#if defined(__AVR__) && !defined(I2C_BUFFER_LEN)
-#define I2C_BUFFER_LEN DEFAULT_EBV_I2C_BUFFER_LEN_AVR
+#if !defined(I2C_BUFFER_LEN)
+    #define I2C_BUFFER_LEN DEFAULT_EBV_I2C_BUFFER_LEN
 #endif
 
 #if defined(ESP32)
