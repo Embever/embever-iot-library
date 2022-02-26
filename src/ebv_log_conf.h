@@ -5,8 +5,8 @@
 // CONFIGURATION AREA
 // ------------------
 
-#define EBV_ESP_LOG_EN      0
-#define EBV_IOT_LOG_EN      0
+#define EBV_ESP_LOG_EN      1
+#define EBV_IOT_LOG_EN      1
 
 // -------------------------
 // END OF CONFIGURATION AREA

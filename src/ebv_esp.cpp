@@ -69,11 +69,9 @@ void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* d
         pkg->flags = 1;
     }
     if(data_len){
-        pkg->data = (uint8_t *) malloc(data_len);
         memcpy(pkg->data, data, data_len);
         pkg->len = data_len + PKG_CRC_LEN;
     } else {
-        pkg->data = NULL;
         pkg->len = 0;
     }
     if(USE_CRC){
@@ -83,18 +81,21 @@ void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* d
     }
 }
 
-void ebv_esp_sendCommand(esp_packet_t *pkg){
+bool ebv_esp_sendCommand(esp_packet_t *pkg){
     switch(pkg->command){
         case ESP_CMD_READ_DELAYED_RESP:
-        case ESP_CMD_GET_ACTIONS:
+        case ESP_CMD_GET_ACTIONS:{
             ebv_i2c_I2cBeginTransaction(DEVICE_ADDRESS);
-            ebv_i2c_I2cWrite(pkg->command);
-            // Wire.write(0x00);
+            size_t ret = ebv_i2c_I2cWrite(pkg->command);
             ebv_i2c_I2cFinishTransaction();
+            if(ret == 1){
+                return true;
+            }
             break;
-        default:
+        }
+        default:{
             ebv_i2c_I2cBeginTransaction(DEVICE_ADDRESS);
-            ebv_i2c_I2cWrite(pkg->command);
+            size_t ret = ebv_i2c_I2cWrite(pkg->command);
             ebv_i2c_I2cWrite(pkg->flags);
             ebv_i2c_I2cWrite( (uint8_t) pkg->len);
             ebv_i2c_I2cWrite( (uint8_t) pkg->len >> 8);
@@ -110,8 +111,15 @@ void ebv_esp_sendCommand(esp_packet_t *pkg){
             ebv_i2c_I2cWrite( (uint8_t) (pkg->crc32 >> 16));
             ebv_i2c_I2cWrite( (uint8_t) (pkg->crc32 >> 24));
             ebv_i2c_I2cFinishTransaction();
+            
+            if(ret == 1){
+                return true;
+            }
             break;
+        }
     }
+
+    return false;
 }
 
 bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
@@ -151,21 +159,11 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                 // Read the whole response packet
                 uint8_t pkg_len = ESP_DELAYED_RESPONSE_HEADER_LEN + resp->len;
                 ebv_i2c_I2cRequest(DEVICE_ADDRESS, pkg_len);
-                // Allocating memory for it
-                if(resp->response){ free(resp->response); }
-                resp->response = (uint8_t *) malloc(resp->len);
-                if(resp->response == NULL){
-                    DEBUG_MSG_TRACE("Error: Memory allocation failed");
-                    return false;
-                }
-
                 if(ebv_i2c_I2cAvailable() < pkg_len){
                     DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
                     DEBUG_MSG_TRACE("Look for %d bytes got %d", pkg_len, ebv_i2c_I2cAvailable());
-                    free(resp->response);
                     return false;
                 }
-
                 resp->sop = ebv_i2c_I2cRead();
                 resp->command = ebv_i2c_I2cRead();
                 resp->len = ebv_i2c_I2cRead();
@@ -357,7 +355,6 @@ void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t 
     }
     
     pkg->len = c.current - c.start;
-    pkg->data = (uint8_t *) malloc(pkg->len);
     memcpy(pkg->data, mpack_buff, pkg->len);
     pkg->len += ESP_CRC_LEN;
 

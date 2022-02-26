@@ -42,6 +42,7 @@
 #include "ebv_delay.h"
 #include "ebv_i2c.h"
 #include "ebv_esp_gpio.h"
+#include "ebv_conf.h"
 
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
@@ -89,10 +90,10 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
                                                     )(key,value)
 #endif
 void ebv_iot_init();
-bool ebv_iot_receiveAction(esp_response_t *response);
+ebv_ret_t ebv_iot_receiveAction(esp_response_t *response);
 bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action );
-bool ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response);
-bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response);
+ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response);
+ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response);
 bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
 bool ebv_iot_initGenericEvent(const char * evnt_type);

@@ -60,7 +60,7 @@
 
 typedef struct{
     uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
-    uint8_t size;                           // The current size of the buffer
+    uint16_t size;                           // The current size of the buffer
     uint8_t elements;                       // Count of the elements in the mpacked content
     bool isBufferReady;                     // Flag for indicating the budder status
     cw_pack_context c;                      // mpack struct for keep track about the packing
@@ -79,83 +79,94 @@ void ebv_iot_init(){
     memset(&_ebv_mpack, 0, sizeof(ebv_mpack));
 }
 
-bool ebv_iot_receiveAction(esp_response_t *response){
+ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
     esp_packet_t pkg;
     esp_response_t resp;
     // Get Action
-#if MODULE_DEBUG == 1
-    p("Submitting GET ACTION...\n\r");
-#endif
+    DEBUG_MSG_TRACE("Receiving actions...\n\r");
+    memset(pkg.data, 0, sizeof(pkg.data));
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_GET_ACTIONS, NULL, 0);
-    if ( !waitForDevice() ){ return false; }
-    ebv_esp_sendCommand(&pkg);
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+    if( !ebv_esp_sendCommand(&pkg)){
+        DEBUG_MSG_TRACE("Failed to send GET_ACTION command\n\r");
+        return EBV_RET_ERROR;
+    }
     ebv_delay(10);
-    // p("Reading response...\n\r");
+    DEBUG_MSG_TRACE("Reading ACK response\n\r");
     bool ret = ebv_esp_receiveResponse(&pkg, &resp);
     if(!ret){
-        return false;
+        DEBUG_MSG_TRACE("Failed to receive ACK response");
+        return EBV_RET_ERROR;
     }
-    if(resp.command == ESP_CMD_GET_ACTIONS && resp.sop == ESP_RESPONSE_SOP_SOA_ID){
-        // p("ACK Response received successfully\n\r");
-    } else {
-       // p("ACK Response is wrong\n\r");
+    if( resp.command != ESP_CMD_GET_ACTIONS ||
+        resp.sop != ESP_RESPONSE_SOP_SOA_ID
+    ){
+       DEBUG_MSG_TRACE("Invalid ACK resp\n\r");
+       return EBV_RET_INV_ACK;
     }
+    DEBUG_MSG_TRACE("ACK Response received successfully\n\r");
     //IRQ going to low because the GET_ACTIONS command generated a delayed response
-    if ( !waitForResponse() ){ return false; }
-    if ( !waitForDevice() ){ return false; }
+    if ( !waitForResponse() ){ return EBV_RET_TIMEOUT; }
     if(ebv_esp_gpio_readIRQ() == LOW){    // Check it again
-        // Read delayed response
+        DEBUG_MSG_TRACE("Reading delayed resp\n\r");
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
-        ebv_esp_sendCommand(&pkg);
-        while( !ebv_esp_gpio_readReady() );   // Wait until READY goes HI
-        bool ret = ebv_esp_receiveResponse(&pkg, &resp);
+        bool ret = ebv_esp_sendCommand(&pkg);
         if(!ret){
-            return false;
+            DEBUG_MSG_TRACE("Failed to send READ_DEL_RESP packet\n\r");
+            return EBV_RET_I2C_NO_RESP;
         }
-        // Parsing respose, this is will be the delayed response header
+        if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+        ret = ebv_esp_receiveResponse(&pkg, &resp);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to receive resp\n\r");
+            return EBV_RET_ERROR;
+        }
+        // Parsing respose, this will be the delayed response header
         // uint8_t trigger_cmd = resp.response[1];                                                                 // This is the cmd which created the delayed response
         uint16_t response_len = (uint16_t) resp.response[2] | (uint16_t) resp.response[3] << 8;
-        uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload
+        uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload in case of error
         if(response_len == 4 && payload_id == ESP_DL_PAYLOAD_KIND_ERROR){                                       // We got an error, let it see what kind of
-#if MODULE_DEBUG == 1
-            p("Pkg received: TR_CMD: 0x%x LEN: 0x%x P_ID: 0x%x\n\r", trigger_cmd, response_len, payload_id);
-            p("Response result: ");
-#endif
+            DEBUG_MSG_TRACE("Pkg received: LEN: %X P_ID: %X\n\r", response_len, payload_id);
+            DEBUG_MSG_TRACE("Response result: ");
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
-#if MODULE_DEBUG == 1
-                    p("Invalid data for CMD: 0x%x\n\r", trigger_cmd);
-#endif
+                    DEBUG_MSG_TRACE("Invalid data\n\r");
                     break;
                 case ESP_ERR_INVALID_CMD_ID:
-#if MODULE_DEBUG == 1
-                    p("Unkown CMD: 0x%x\n\r", trigger_cmd);
-#endif
+                    DEBUG_MSG_TRACE("Unkown CMD\n\r");
                     break;
                 default:
-#if MODULE_DEBUG == 1
-                    p("Not Handled\n\r");
-#endif
+                    DEBUG_MSG_TRACE("Unknown error\n\r");
                     break;
             }
-        } else {
-#if MODULE_DEBUG == 1
-            p("\n\rPkg received: SOP: 0x%x, RESP_CMD: 0x%x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
-            ebv_esp_dumpPayload(&resp.response[4], response_len - ESP_CRC_LEN - ESP_FLAGS_LEN);
 #endif
-            if(payload_id > ESP_CRC_LEN + ESP_FLAGS_LEN){
+            return EBV_RET_OK_WITH_ERROR;
+        } else {
+            DEBUG_MSG_TRACE("Pkg received: SOP: %x, CMD: %x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
+            response->has_error_code = false;
+            if(response_len > ESP_CRC_LEN + ESP_FLAGS_LEN){
                 response->response_len = response_len - ESP_CRC_LEN - ESP_FLAGS_LEN;
-                response->response = (uint8_t *) malloc(response->response_len);
                 memcpy(response->response, &resp.response[4], response->response_len);
+                if(response->response_len == 1){
+                    return EBV_RET_NO_ACTION;
+                } else {
+                    return EBV_RET_OK;
+                }
             } else {
                 response->response_len = 0;
+                return EBV_RET_INV_PAYLOAD;
             }
-            free(resp.response);
         }
+    } else {
+        DEBUG_MSG_TRACE("Timeout, no del_resp\n\r");
+        return EBV_RET_TIMEOUT;
     }
-
-    return true;
+    // Should be never reached
+    return EBV_RET_ERROR;
 }
 
 bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
@@ -192,80 +203,83 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
     return true;
 }
 
-bool ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
+ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
     esp_packet_t pkg;
     esp_response_t resp;
     ebv_esp_buildActionResponse(&pkg, a->id, a->response_payload, a->response_payload_size, a->result);
-    if ( !waitForDevice() ){ return false; }
-    ebv_esp_sendCommand(&pkg);
-    ebv_delay(10);
-    p("Reading response...");
-    bool ret = ebv_esp_receiveResponse(&pkg, &resp);
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+    bool ret = ebv_esp_sendCommand(&pkg);
     if(!ret){
-        return false;
+        DEBUG_MSG_TRACE("Failed to send action result");
+        return EBV_RET_I2C_NO_RESP;
     }
-    if(resp.command == ESP_CMD_GET_ACTIONS && resp.sop == ESP_RESPONSE_SOP_SOA_ID){
-#if MODULE_DEBUG == 1
-        p("ACK Response received successfully");
-#endif
-    } else {
-       return false;
+    ebv_delay(10);
+    ret = ebv_esp_receiveResponse(&pkg, &resp);
+    if(!ret){
+        return EBV_RET_ESP_NO_ACK;
+    }
+    if( resp.command != ESP_CMD_PUT_RESULTS ||
+        resp.sop != ESP_RESPONSE_SOP_SOA_ID
+    ){
+        DEBUG_MSG_TRACE("Invalid ACK resp");
+        return EBV_RET_INV_ACK;
     }
     //IRQ going to low because the GET_ACTIONS command generated a delayed response
-    if ( !waitForResponse() ){ return false; }
-    if ( !waitForDevice() ){ return false; }
+    if ( !waitForResponse() ){ return EBV_RET_TIMEOUT; }
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
     if(ebv_esp_gpio_readIRQ() == LOW){    // Check it again
         // Read delayed response
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
-        ebv_esp_sendCommand(&pkg);
-        while( ebv_esp_gpio_readReady() );   // Wait until READY goes HI
+        ret = ebv_esp_sendCommand(&pkg);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to get delayed response");
+        }
+        if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
         bool ret = ebv_esp_receiveResponse(&pkg, &resp);
         if(!ret){
-            return false;
+            DEBUG_MSG_TRACE("Failed to receive delayed response");
+            return EBV_RET_ESP_NO_DEL_RESP;
         }
         // Parsing respose, this is will be the delayed response header
         uint16_t response_len = (uint16_t) resp.response[2] | (uint16_t) resp.response[3] << 8;
         uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload
         if(response_len == 4 && payload_id == ESP_DL_PAYLOAD_KIND_ERROR){                                       // We got an error, let it see what kind of
-#if MODULE_DEBUG == 1
-            p("Pkg received: LEN: 0x%x P_ID: 0x%x\n\r", response_len, payload_id);
-            p("Response result: ");
-#endif
+            DEBUG_MSG_TRACE("Pkg received: LEN: 0x%x P_ID: 0x%x\n\r", response_len, payload_id);
+            DEBUG_MSG_TRACE("Error result: ");
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
-#if MODULE_DEBUG == 1
-                    p("Invalid data for CMD: 0x%x\n\r", trigger_cmd);
-#endif
+                    DEBUG_MSG_TRACE("Invalid data\n\r");
                     break;
                 case ESP_ERR_INVALID_CMD_ID:
-#if MODULE_DEBUG == 1
-                    p("Unkown CMD: 0x%x\n\r", trigger_cmd);
-#endif
+                    DEBUG_MSG_TRACE("Unkown CMD\n\r");
                     break;
                 default:
-#if MODULE_DEBUG == 1
-                    p("Not Handled\n\r");
-#endif
+                    DEBUG_MSG_TRACE("Unknown error\n\r");
                     break;
             }
+#endif
         } else {
-            // p("\n\rPkg received: SOP: 0x%x, RESP_CMD: 0x%x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
-            // ebv_esp_dumpPayload(&resp.response[4], payload_len - ESP_CRC_LEN - ESP_FLAGS_LEN);
-            if(payload_id > ESP_CRC_LEN + ESP_FLAGS_LEN){
-                response->response_len = payload_id - ESP_CRC_LEN - ESP_FLAGS_LEN;
-                response->response = (uint8_t *) malloc(response->response_len);
-                memcpy(response->response, &resp.response[4], response->response_len);
+            DEBUG_MSG_TRACE("\n\rPkg received: SOP: %x, CMD: %x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
+            response->has_error_code = false;
+            if(response_len > ESP_CRC_LEN + ESP_FLAGS_LEN){
+                // We should get nothing as payload
+                DEBUG_MSG_TRACE("Payload len more that expecred LEN : %d", response_len);
+                return EBV_RET_ERROR;
             } else {
                 response->response_len = 0;
+                return EBV_RET_OK;
             }
-            free(resp.response);
         }
     }
-    return true;
+    // Should never reached
+    return EBV_RET_ERROR;
 }
 
-bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
+ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
     a->response_payload = _ebv_mpack.buff;
     a->response_payload_size = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
@@ -277,11 +291,11 @@ bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response
         }
         i++;
     }
-    bool ret;
+    ebv_ret_t ret;
     if( i > a->response_payload_size){     // Set the right map size was successfull
         ret = ebv_iot_submitActionResult(a, response);
     } else {            // Set the right map size was unsuccessfull
-        ret = false;
+        ret = EBV_RET_ERROR;
     }
     _ebv_mpack.isBufferReady = false;
     return ret;
