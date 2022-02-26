@@ -20,7 +20,7 @@
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
 
-#define PIN_FETCH_BTN           2
+#define PIN_FETCH_BTN           14
 
 #define LED_PIN                 BUILDING_LED_PIN
 #define LED_ACTION_TYPE         "setLED"
@@ -56,49 +56,46 @@ void setup() {
 void loop(){
     p("Fetching...\n\r");
     esp_response_t response;
-    ebv_iot_receiveAction(&response);
-    uint8_t i;
-    // for(i = 0; i < response.response_len; i++){
-    //     if( !(i % 8 )){ Serial.print("\n\r"); }
-    //     // p("%x ", response.response[i]);
-    // }
-    if(response.response_len == 0){
-        // p("No action for this device\n\r");
-        return;
+    bool ret;
+    ebv_ret_t ebv_ret;
+    ebv_ret = ebv_iot_receiveAction(&response);
+    if( ebv_ret == EBV_RET_NO_ACTION ){
+        p("No action for this device\n\t");
+        goto end;
+    } else if( ebv_ret != EBV_RET_OK ){
+        p("Failed to read actions\n\t");
+        goto end;
     }
     ebv_action_t action;
-    // // p("\n\rActions received\n\r");
-    bool ret = ebv_iot_parseAction(&response, &action);
+    p("Actions received\n\r");
+    ret = ebv_iot_parseAction(&response, &action);
     if(!ret){
-        // p("Error during parsing action\n\r");
-        return;
+        p("Error during parsing action\n\r");
+        goto end;
     }
     if( !strncmp(action.type, LED_ACTION_TYPE, strlen(LED_ACTION_TYPE)) ){
         ret = parseLEDstate(&action, &LED_state);
         if(!ret){
-            // p("Error during parsing led action payload\n\r");
-            return;
+            p("Error during parsing led action payload\n\r");
+            goto end;
         }
-        // p("Payload parsed\n\r");
-        // LED_state = !LED_state;
+        p("Payload parsed\n\r");
         set_led( LED_state );
+        p("Submitting action result\n\r");
         submitLEDstate(&action, LED_state);
     } else {
         if( action.type[0] != 0){
-            // p("Another action received : %s\n\r", action.type);
+            p("Another action received : %s\n\r", action.type);
         }
     }
-
+end:
     memset(&action, 0, sizeof(ebv_action_t));
     waitForDevice();
-    delay(5000);
-    delay(5000);
-    delay(5000);
+    delay(2000);
+    while( digitalRead(PIN_FETCH_BTN) );
 }
 
 esp_response_t resp;
-
-
 
 bool parseLEDstate(ebv_action_t *a, bool *led_state){
     cw_unpack_context uc;
@@ -123,16 +120,15 @@ bool parseLEDstate(ebv_action_t *a, bool *led_state){
 bool submitLEDstate(ebv_action_t *a, bool isLedOn){
     a->result = true;
     ebv_iot_initGenericResponse();
-    p("init GR\n\r");
     if(isLedOn){
         ebv_iot_addGenericPayload("LED", "on");
     } else {
         ebv_iot_addGenericPayload("LED", "off");
     }
     esp_response_t resp;
-    bool res = ebv_iot_submitGenericActionResult(a, &resp);
-    if(!res){
-        // p("FAIL\n\r");
+    ebv_ret_t res = ebv_iot_submitGenericActionResult(a, &resp);
+    if(res == EBV_RET_OK){
+        return true;
     }
-    return res;
+    return false;
 }
