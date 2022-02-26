@@ -2,12 +2,12 @@
 #include <HardwareSerial.h>
 #include <extcwpack.h>
 
-// Usefull definitions
+// Usefull definitions for Arduino boards
 #define ARDUINO_AVR_PIN_A0 14
 #define ARDUINO_AVR_PIN_A1 15
 #define ARDUINO_AVR_PIN_A2 16
 #define ARDUINO_AVR_PIN_A3 17
-#define BUILDING_LED_PIN   13
+#define ONBOARD_LED_PIN    13
 
 // Define the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
@@ -22,7 +22,7 @@
 
 #define PIN_FETCH_BTN           14
 
-#define LED_PIN                 BUILDING_LED_PIN
+#define LED_PIN                 12
 #define LED_ACTION_TYPE         "setLED"
 #define LED_ACTION_KEY          "state"
 #define LED_ACTION_VALUE_TRUE   "on"
