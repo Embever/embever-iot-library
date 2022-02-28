@@ -50,4 +50,5 @@ Features
    integration_guide
    samples/index
    tools
+   salesforce/connector
    license
