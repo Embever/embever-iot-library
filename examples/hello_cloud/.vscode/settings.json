@@ -8,7 +8,6 @@
     // -----------------------------------------
     "ARDUINO_SKETCH_NAME": "hello_cloud.ino",            
     "DWIRE_EXECUTABLE":"${env:DWIRE_PATH}",
-    "ARDUINO_AVRDUDE_PATH":"${env:ARDUINO_AVRDUDE_PATH}",
     "AVR-GDB_EXECUTABLE":"${env:AVR_GDB_PATH}",
     "QEMU_AVR_BIN":"${env:QEMU_AVR_PATH}",
     "EBV_LIB":"../../lib",

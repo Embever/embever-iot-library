@@ -234,7 +234,7 @@
 			{
 				"label": "Serial monitor",
 				"type": "shell",
-				"command": "minicom -D ${config:ARDUINO_SERIAL_PORT} -b 115200 ",
+				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
 				"group": "build",
 				"isBackground": false,
 				"presentation": {
