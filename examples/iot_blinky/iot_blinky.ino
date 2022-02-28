@@ -20,9 +20,10 @@
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
 
-#define PIN_FETCH_BTN           14
+#define PIN_FETCH_BTN           2
 
-#define LED_PIN                 12
+// #define LED_PIN                 12
+#define LED_PIN                 ONBOARD_LED_PIN
 #define LED_ACTION_TYPE         "setLED"
 #define LED_ACTION_KEY          "state"
 #define LED_ACTION_VALUE_TRUE   "on"
@@ -60,10 +61,10 @@ void loop(){
     ebv_ret_t ebv_ret;
     ebv_ret = ebv_iot_receiveAction(&response);
     if( ebv_ret == EBV_RET_NO_ACTION ){
-        p("No action for this device\n\t");
+        p("No action for this device\n\r");
         goto end;
     } else if( ebv_ret != EBV_RET_OK ){
-        p("Failed to read actions\n\t");
+        p("Failed to read actions\n\r");
         goto end;
     }
     ebv_action_t action;
@@ -91,8 +92,9 @@ void loop(){
 end:
     memset(&action, 0, sizeof(ebv_action_t));
     waitForDevice();
-    delay(2000);
-    while( digitalRead(PIN_FETCH_BTN) );
+    delay(5000);
+    delay(5000);
+    // while( digitalRead(PIN_FETCH_BTN) );
 }
 
 esp_response_t resp;
