@@ -23,6 +23,8 @@ typedef enum{
     EBV_RET_TIMEOUT                     // Timeout durring waiting for device
 } ebv_ret_t;
 
+#define EBV_ESP_CONNECTIVITY_TIMEOUT    60
+
 #if defined(ESP32)
     #define IOT_MSG_MAX_LEN MAX_IOT_MSG_MAX_LEN
 #elif defined(__AVR__)

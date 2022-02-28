@@ -45,9 +45,10 @@
 
 #define PKG_CRC_LEN 4
 #define USE_CRC 0
-#define EBV_ESP_CONNECTIVITY_TIMEOUT 60
-#define EBV_ESP_RESPONSE_TIMEOUT_MS 200
+#define EBV_ESP_DEVICE_BUSY_TIMEOUT_S 120
+#define EBV_ESP_COM_TIMEOUT_MS 200
 
+#include "ebv_conf.h"
 #include "ebv_log_conf.h"
 #define LOG_MODULE_NAME EBV_ESP_LOG_NAME
 #include "ebv_log.h"
@@ -134,7 +135,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                 ebv_i2c_I2cFinishTransaction();
                 return false;
             }
-            timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
+            timeout_ms = EBV_ESP_COM_TIMEOUT_MS;
             // waiting for receiving data
             while(ebv_i2c_I2cAvailable() < 4 && timeout_ms){
                 timeout_ms--;
@@ -183,7 +184,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
             // ACK PKG
             DEBUG_MSG_TRACE("Reading back ACK packet...");
             ebv_i2c_I2cRequest(DEVICE_ADDRESS, 2);
-            timeout_ms = EBV_ESP_RESPONSE_TIMEOUT_MS;
+            timeout_ms = EBV_ESP_COM_TIMEOUT_MS;
             while(ebv_i2c_I2cAvailable() < 2 && timeout_ms){
                 timeout_ms--;
                 ebv_delay(1);
@@ -407,7 +408,7 @@ bool isDeviceBusy(){
 }
 
 bool waitForDevice(){
-    uint8_t timeout = EBV_ESP_CONNECTIVITY_TIMEOUT;
+    uint8_t timeout = EBV_ESP_DEVICE_BUSY_TIMEOUT_S;
     while(isDeviceBusy() && timeout){
         timeout--;
         ebv_delay(1000);
@@ -420,7 +421,7 @@ bool isResponseAvailable(){
 }
 
 bool waitForResponse(){
-    uint8_t timeout = 30;
+    uint8_t timeout = EBV_ESP_CONNECTIVITY_TIMEOUT;
     while( !isResponseAvailable() && timeout){
         timeout--;
         ebv_delay(1000);
