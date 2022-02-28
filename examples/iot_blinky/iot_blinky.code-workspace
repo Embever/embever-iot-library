@@ -58,6 +58,15 @@
 	},
 	"tasks": {
 		"version": "2.0.0",
+		"inputs": [
+			{
+			  "id": "target_hw",
+			  "type":"pickString",
+			  "description": "Pick your target",
+			  "options": ["arduino:avr:nano", "esp32:esp32:pico32"],
+			  "default": "arduino:avr:nano"
+			}
+		],
 		"tasks": [
 			{
 				"label": "Clean Build",
@@ -68,7 +77,7 @@
 					"--output-dir",
 					"${workspaceFolder}/build",
 					"-b",
-					"arduino:avr:nano:cpu=${config:ARDUINO_BOOTLOADER_VARIANT}",
+					"${input:target_hw}",
 					"--warnings",
 					"all",
 					"--clean"
@@ -93,7 +102,7 @@
 					"--output-dir",
 					"${workspaceFolder}/build",
 					"-b",
-					"arduino:avr:nano:cpu=${config:ARDUINO_BOOTLOADER_VARIANT}",
+					"${input:target_hw}",
 					"--warnings",
 					"all"
 				],
@@ -118,7 +127,7 @@
 					"--output-dir",
 					"${workspaceFolder}/build",
 					"-b",
-					"arduino:avr:nano:cpu=${config:ARDUINO_BOOTLOADER_VARIANT}"
+					"${input:target_hw}"
 				],
 				"group": "build",
 				"isBackground": false,
@@ -129,10 +138,10 @@
 					"panel": "shared",
 					"showReuseMessage": true
 				},
-				"problemMatcher": []
+				"problemMatcher":"$gcc"
 			},
 			{
-				"label": "Flash with Arduino bootloader",
+				"label": "Flash using bootloader",
 				"type": "shell",
 				"command": "arduino-cli",
 				"args": [
@@ -141,9 +150,9 @@
 					"--input-dir",
 					"${workspaceFolder}/build",
 					"-p",
-					"${config:ARDUINO_SERIAL_PORT}",
+					"${config:TARGET_SERIAL_PORT}",
 					"-b",
-					"arduino:avr:nano:cpu=${config:ARDUINO_BOOTLOADER_VARIANT}",
+					"${input:target_hw}",
 				],
 				"group": "build",
 				"isBackground": false,
@@ -187,25 +196,6 @@
 				"problemMatcher": []
 			},
 			{
-				"label": "Build and Flash with Usbtiny DWIRE",
-				"type": "shell",
-				"group": "build",
-				"dependsOrder": "sequence",
-				"dependsOn": [
-					"Build",
-					"Flash with Usbtiny DWIRE"
-				],
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
 				"label": "Build and Flash",
 				"type": "shell",
 				"group": "build",
@@ -227,7 +217,7 @@
 			{
 				"label": "Serial monitor",
 				"type": "shell",
-				"command": "minicom -D ${config:ARDUINO_SERIAL_PORT} -b 115200 ",
+				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
 				"group": "build",
 				"isBackground": false,
 				"presentation": {
@@ -247,103 +237,9 @@
 				"dependsOrder": "sequence",
 				"dependsOn": [
 					"Build",
-					"Flash with Arduino bootloader",
+					"Flash using bootloader",
 					"Serial monitor"
 				],
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Build ESP32",
-				"type": "shell",
-				"command": "arduino-cli",
-				"args": [
-					"compile",
-					"--output-dir",
-					"${workspaceFolder}/build",
-					"-b",
-					"esp32:esp32:pico32",
-					"--warnings",
-					"all"
-				],
-				"group": "build",
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Rebuild all ESP32",
-				"type": "shell",
-				"command": "arduino-cli",
-				"args": [
-					"compile",
-					"--output-dir",
-					"${workspaceFolder}/build",
-					"-b",
-					"esp32:esp32:pico32",
-					"--warnings",
-					"all",
-					"--clean"
-				],
-				"group": "build",
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Upload ESP32",
-				"type": "shell",
-				"command": "arduino-cli",
-				"args": [
-					"upload",
-					"--input-dir",
-					"${workspaceFolder}/build",
-					"-p",
-					"${config:ARDUINO_SERIAL_PORT}",
-					"-b",
-					"esp32:esp32:pico32",
-					"-v"
-				],
-				"group": "build",
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Build, Flash and Monitor ESP32",
-				"type": "shell",
-			   "dependsOrder": "sequence",
-			   "dependsOn":[
-				   "Build ESP32",
-				   "Upload ESP32",
-				   "Serial monitor"
-			   ],
-				"group": "build",
 				"isBackground": false,
 				"presentation": {
 					"echo": true,
