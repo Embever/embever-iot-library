@@ -1,6 +1,19 @@
-Platform Events in Embever IoT Core Package
-===========================================
-Embever IoT Core Application Package contains three different Platform Events definition, which is used to communicate between your salesforece organisatio 
+Embever IoT Core Salesforce App
+===============================
+Embever IoT Core Salesforce App contains the necessary salesforce components that are used to connect the salesforce organisation to Embever IoT Core.
+This app should be installed in the salesforce organistion to be able to communicate with the Embever IoT Core from salesforce. You can install this app
+while creating a salesforce connection in the Embever IoT Core console.
+
+The package contents can be categorized into mainly two groups. 
+
+    1. :ref:`platform_events`
+    2. :ref:`utility_functions`
+
+.. _platform_events:
+
+Platform Events
++++++++++++++++
+Embever IoT Core Salesforce App Package contains three different Platform Events definition, which is used to communicate between your salesforece organisatio 
 and Embever IoT Core.
 
 The platform events are defined are as follows:
@@ -256,3 +269,30 @@ Outbound Platfrom event body when sending IoT core Action from Salesforce.
     }
 
 
+.. _utility_functions:
+
+Utility Functions
++++++++++++++++++
+Apart from the platform events IoT core salesforce app also contains some utility functions which can be used to transform data.
+The utilty functions defined on the IoT Core salesforce app as an Apex Class are shown below.
+
+.. list-table:: Apex Classes in IoT core saelesforce App
+    :widths: 20 80
+    :header-rows: 1
+
+    * - Name
+      - Description
+    * - GetJsonBoolean
+      - Returns the value for a specific key with Boolean type from a JSON string
+    * - GetJsonDateTime
+      - Returns the value for a specific key wtih DateTime type from a JSON string
+    * - GetJsonDecimal
+      - Returns the value for a specific key wtih Decimal type from a JSON string
+    * - GetJsonKeyExists
+      - Returns true if a specific key exists in a JSON string else returns false
+    * - GetJsonString
+      - Returns the value for a specific key wtih string type from a JSON string
+    * - GetJsonValue
+      - Returns a valid JSON object as a JSON string
+    
+   
