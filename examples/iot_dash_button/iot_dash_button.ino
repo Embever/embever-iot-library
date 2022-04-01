@@ -7,7 +7,7 @@
 #define ARDUINO_AVR_PIN_A1 15
 #define ARDUINO_AVR_PIN_A2 16
 #define ARDUINO_AVR_PIN_A3 17
-#define BUILDING_LED_PIN   13
+#define BUILTIN_LED_PIN   13
 
 // Define the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
@@ -21,9 +21,10 @@
 #include "Wire/EBV_Wire.h"
 
 
-#define PIN_FETCH_BTN       2
+#define PIN_FETCH_BTN       14
 
-#define LED_PIN             BUILDING_LED_PIN
+// #define LED_PIN             BUILTIN_LED_PIN
+#define LED_PIN             12
 #define DASHBTN_EVNT_TYPE   "buttonPressed"
 #define DASHBTN_EVNT_KEY    "name"
 

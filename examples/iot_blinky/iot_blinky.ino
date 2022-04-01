@@ -20,10 +20,11 @@
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
 
-#define PIN_FETCH_BTN           2
+//#define PIN_FETCH_BTN           2
+#define PIN_FETCH_BTN           14
 
-// #define LED_PIN                 12
-#define LED_PIN                 ONBOARD_LED_PIN
+#define LED_PIN                 12
+// #define LED_PIN                 ONBOARD_LED_PIN
 #define LED_ACTION_TYPE         "setLED"
 #define LED_ACTION_KEY          "state"
 #define LED_ACTION_VALUE_TRUE   "on"
@@ -93,7 +94,6 @@ end:
     memset(&action, 0, sizeof(ebv_action_t));
     waitForDevice();
     delay(5000);
-    delay(5000);
     // while( digitalRead(PIN_FETCH_BTN) );
 }
 
@@ -123,9 +123,9 @@ bool submitLEDstate(ebv_action_t *a, bool isLedOn){
     a->result = true;
     ebv_iot_initGenericResponse();
     if(isLedOn){
-        ebv_iot_addGenericPayload("LED", "on");
+        ebv_iot_addGenericPayload("led", "on");
     } else {
-        ebv_iot_addGenericPayload("LED", "off");
+        ebv_iot_addGenericPayload("led", "off");
     }
     esp_response_t resp;
     ebv_ret_t res = ebv_iot_submitGenericActionResult(a, &resp);
