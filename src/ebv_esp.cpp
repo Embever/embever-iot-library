@@ -46,6 +46,7 @@
 #define PKG_CRC_LEN 4
 #define USE_CRC 0
 #define EBV_ESP_DEVICE_BUSY_TIMEOUT_S 120
+#define EBV_ESP_RESPONSE_AVAILABLE_TIMEOUT_S 120
 #define EBV_ESP_COM_TIMEOUT_MS 200
 
 #include "ebv_conf.h"
@@ -56,6 +57,7 @@
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
+static bool wait_response_available();
 uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len );
 
 void ebv_esp_setDeviceAddress(uint8_t addr){
@@ -83,6 +85,18 @@ void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* d
 }
 
 bool ebv_esp_sendCommand(esp_packet_t *pkg){
+#ifdef DEBUG_EN
+    DEBUG_MSG_TRACE("Sending packet: (len: %d)", pkg->len);
+    uint16_t pkg_len = 0;
+    if(pkg->len > PKG_CRC_LEN){
+        pkg_len = pkg->len - PKG_CRC_LEN;
+    }
+    for(uint16_t i = 0; i < pkg_len; i++){
+        if( (i % 8) == 0){DEBUG_MSG("\n\r");}
+        DEBUG_MSG("0x%x ", pkg->data[i]);
+    }
+    DEBUG_MSG("\n\r");
+#endif
     switch(pkg->command){
         case ESP_CMD_READ_DELAYED_RESP:
         case ESP_CMD_GET_ACTIONS:{
@@ -121,6 +135,49 @@ bool ebv_esp_sendCommand(esp_packet_t *pkg){
     }
 
     return false;
+}
+
+bool ebv_esp_submitPacket(esp_packet_t *pkg){
+    if( !waitForDevice() ){
+        DEBUG_MSG_TRACE("Timeout while waiting for device");
+        return false;
+    }
+    ebv_esp_sendCommand(pkg);
+    esp_response_t response;
+    ebv_delay(10);
+    bool ret = ebv_esp_receiveResponse(pkg, &response);
+    if(!ret){
+        DEBUG_MSG_TRACE("No ACK response received");
+        return false;
+    }
+    ebv_delay(20);
+    if( !waitForDevice() ){
+        DEBUG_MSG_TRACE("Timeout while waiting for device");
+        return false;
+    }
+    return true;
+}
+
+bool ebv_esp_queryDelayedResponse(esp_response_t *resp){
+    if( !wait_response_available() ){
+        DEBUG_MSG_TRACE("Timeout while waiting for device");
+        return false;
+    }
+    esp_packet_t pkg;
+    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
+    ebv_esp_sendCommand(&pkg);
+    ebv_delay(20);
+    if( !waitForDevice() ){
+        DEBUG_MSG_TRACE("Timeout while waiting for device");
+        return false;
+    }
+    bool ret = ebv_esp_receiveResponse(&pkg, resp);
+    if(!ret){
+        DEBUG_MSG_TRACE("No delayed response received");
+        return false;
+    }
+
+    return true;
 }
 
 bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
@@ -173,12 +230,14 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                     resp->response[i] = ebv_i2c_I2cRead();
                 }
             }
+#ifdef DEBUG_EN
             DEBUG_MSG_TRACE("PKG Received: SOP:%x CMD:%x LEN:%d", resp->sop, resp->command, resp->len);
-            for(uint8_t i = 0; i < resp->len; i++){
+            for(uint16_t i = 0; i < resp->len; i++){
                 if( !(i % 8)){ DEBUG_MSG("\n\r"); }
                 DEBUG_MSG("0x%x ",resp->response[i]);
             }
             DEBUG_MSG("\n\r");
+#endif
             break;
         default:
             // ACK PKG
@@ -372,22 +431,27 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
     if( resp->sop != ESP_RESPONSE_SOP_SOR_ID ||
         resp->command != ESP_CMD_READ_DELAYED_RESP )
     {
+        DEBUG_MSG_TRACE("Verifing delayed response header failed: SOP: 0x%x, CMD: 0x%x", resp->sop, resp->command);
         return EBV_ESP_RESP_RES_INVALID;
     }
     switch (trigger_esp_cmd){
     case ESP_CMD_PUT_EVENTS:{
+        DEBUG_MSG_TRACE("Verifing PUT_EVENT response");
         if(resp->len < 4){
+            DEBUG_MSG_TRACE("Response too short : %d", resp->len);
             return EBV_ESP_RESP_RES_INVALID;
         }
         if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
             resp->response[1] != ESP_CMD_PUT_EVENTS)
         {
+            DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
             return EBV_ESP_RESP_RES_INVALID;
         }
         if( resp->len == 4 &&
             resp->response[2] == 0x00 &&
             resp->response[3] == 0x00)
         {
+            DEBUG_MSG_TRACE("Verification done");
             return EBV_ESP_RESP_RES_OK;
         } 
         else
@@ -397,6 +461,23 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         }
         break;
         }
+    case ESP_CMD_UPDATE_GNSS_LOCATION:
+        DEBUG_MSG_TRACE("Verifing UPDATE_GNSS_LOCATION response");
+        if(resp->len < 4){
+            DEBUG_MSG_TRACE("Response too short : %d", resp->len);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
+            resp->response[1] != ESP_CMD_UPDATE_GNSS_LOCATION)
+        {
+            DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+        resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        DEBUG_MSG_TRACE("Verification done");
+        return EBV_ESP_RESP_RES_OK;
+        break;                      // dummy break
     default:
         break;
     }
@@ -410,6 +491,15 @@ bool isDeviceBusy(){
 bool waitForDevice(){
     uint8_t timeout = EBV_ESP_DEVICE_BUSY_TIMEOUT_S;
     while(isDeviceBusy() && timeout){
+        timeout--;
+        ebv_delay(1000);
+    }
+    return timeout ? true : false;
+}
+
+static bool wait_response_available(){
+    uint8_t timeout = EBV_ESP_RESPONSE_AVAILABLE_TIMEOUT_S;
+    while(!isResponseAvailable() && timeout){
         timeout--;
         ebv_delay(1000);
     }

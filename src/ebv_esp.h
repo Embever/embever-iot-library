@@ -49,6 +49,9 @@
 #define ESP_CMD_PUT_EVENTS 0xA4
 #define ESP_CMD_PERFORM_ACTIONS 0xA6
 #define ESP_CMD_READ_LOCAL_FILE 0xA7
+#define ESP_CMD_READ_LOCAL_FILE 0xA7
+#define ESP_CMD_UPDATE_GNSS_LOCATION 0xA8
+
 #define ESP_RESPONSE_SOP_SOA_ID 0x56
 #define ESP_RESPONSE_SOP_SOR_ID 0x55
 
@@ -70,6 +73,8 @@ struct esp_response_s{
     uint16_t len;
     uint8_t response[IOT_MSG_MAX_LEN];
     uint8_t response_len;
+    uint8_t *payload;
+    uint8_t payload_len;
     bool    has_error_code;
 };
 
@@ -101,6 +106,8 @@ typedef struct esp_response_s esp_response_t;
 void ebv_esp_setDeviceAddress(uint8_t addr);
 void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint8_t data_len);
 bool ebv_esp_sendCommand(esp_packet_t *pkg);
+bool ebv_esp_submitPacket(esp_packet_t *pkg);
+bool ebv_esp_queryDelayedResponse(esp_response_t *resp);
 bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp);
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
