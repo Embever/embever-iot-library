@@ -2,6 +2,7 @@
 #define INC_EBV_LOG_H
 
 #include "ebv_log_conf.h"
+#include "print_serial.h"
 
 #if LOG_MODULE_NAME == EBV_ESP_LOG_NAME
     #if EBV_ESP_LOG_EN == 1
@@ -11,6 +12,12 @@
     #endif
 #elif LOG_MODULE_NAME == EBV_IOT_LOG_NAME
     #if EBV_IOT_LOG_EN == 1
+        #define MODULE_LOG_EN 1
+    #else
+        #define MODULE_LOG_EN 0
+    #endif
+#elif LOG_MODULE_NAME == EBV_LOCAL_LOG_NAME
+    #if EBV_LOCAL_LOG_EN == 1
         #define MODULE_LOG_EN 1
     #else
         #define MODULE_LOG_EN 0
