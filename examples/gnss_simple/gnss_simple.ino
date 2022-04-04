@@ -60,6 +60,7 @@ void loop(){
     } else {
         p("Failed to receive GNSS data\n\r");
     }
+    delay(5 * 1000);
     p("\n\rQuery SPEED and DATE_TIME only\n\r");
     memset(&gnss_data, 0, sizeof(ebv_gnss_data_t));
     ebv_local_query_gnss_custom_init();
@@ -80,5 +81,5 @@ void loop(){
         );
     }
 
-    delay(1000 * 10);
+    delay(10 * 1000);
 }
