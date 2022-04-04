@@ -28,11 +28,12 @@ void setup() {
 }
 
 void loop(){
-    while( digitalRead(PIN_BTN) );
+    // while( digitalRead(PIN_BTN) );
     ebv_gnss_data_t gnss_data;
     bool ret = ebv_local_query_gnss(&gnss_data);
     if(ret){
         if(gnss_data.has_fix){
+            p("\n\rGNSS data:\n\r");
             p("Lat: %lf, Lon: %lf, ALT: %f, ACC: %f\n\r",
                 gnss_data.lat,
                 gnss_data.lon,
@@ -53,11 +54,13 @@ void loop(){
             );
         } else {
             p("GPS position not available\n\r");
+            delay(5 * 1000);
+            return;
         }
     } else {
         p("Failed to receive GNSS data\n\r");
     }
-    p("Query SPEED and DATE_TIME only\n\r");
+    p("\n\rQuery SPEED and DATE_TIME only\n\r");
     memset(&gnss_data, 0, sizeof(ebv_gnss_data_t));
     ebv_local_query_gnss_custom_init();
     ebv_local_query_gnss_custom_add(EBV_GNSS_REQUEST_SPEED);
@@ -77,5 +80,5 @@ void loop(){
         );
     }
 
-    delay(2000);
+    delay(1000 * 10);
 }
