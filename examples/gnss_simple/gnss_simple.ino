@@ -44,7 +44,7 @@ void loop(){
                 gnss_data.speed,
                 gnss_data.heading
             );
-            p("Date: %d:%d:%d Time: %d:%d:%d\n\r",
+            p("Date: %02d:%02d:%d Time: %02d:%02d:%02d\n\r",
                 gnss_data.datetime.day,
                 gnss_data.datetime.month,
                 gnss_data.datetime.year,
@@ -71,7 +71,7 @@ void loop(){
                 gnss_data.speed,
                 gnss_data.heading
         );
-        p("Date: %d:%d:%d Time: %d:%d:%d\n\r",
+        p("Date: %02d:%02d:%d Time: %02d:%02d:%02d\n\r",
                 gnss_data.datetime.day,
                 gnss_data.datetime.month,
                 gnss_data.datetime.year,
