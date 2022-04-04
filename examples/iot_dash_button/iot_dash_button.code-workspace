@@ -202,7 +202,7 @@
 				"dependsOrder": "sequence",
 				"dependsOn": [
 					"Build",
-					"Flash with Arduino bootloader"
+					"Flash using bootloader"
 				],
 				"isBackground": false,
 				"presentation": {

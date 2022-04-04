@@ -1,11 +1,19 @@
 {
     "configurations": [
         {
-            "name": "Arduino MAC",
+            "name": "Embever IoT Library AVR",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "defines": [
-                "ESP32=y"
+                "__AVR__"
+            ]
+        },
+        {
+            "name": "Embever IoT Library ESP32",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [
+                "ESP32"
             ]
         }
     ],
