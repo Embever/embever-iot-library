@@ -1,24 +1,21 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
-// Usefull definitions
-#define ARDUINO_AVR_PIN_A0 14
-#define ARDUINO_AVR_PIN_A1 15
-#define ARDUINO_AVR_PIN_A2 16
-#define ARDUINO_AVR_PIN_A3 17
-
-// Define the following macros to assign custom GPIO pins for READY and IRQ lines
+// Uncomment the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
 // Arduino pin A3 -- ESP READY
 // Arduino pin A2 -- ESP IRQ
-// #define PIN_EBV_IRQ     ARDUINO_AVR_PIN_A0       // ESP IRQ signal connected here
-// #define PIN_EBV_READY   ARDUINO_AVR_PIN_A1       // ESP IRQ signal connected here
+// #define PIN_EBV_IRQ     ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
+// #define PIN_EBV_READY   ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
 
-#define PIN_FETCH_BTN       14
+// Uncomment the following macros to assign custom GPIO pins for button and led lines
+// #define PIN_LED 1
+// #define PIN_BTN 2
 
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
+#include "ebv_boards.h"
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
@@ -31,7 +28,7 @@ void setup() {
 }
 
 void loop(){
-    while( digitalRead(PIN_FETCH_BTN) );
+    while( digitalRead(PIN_BTN) );
     ebv_gnss_data_t gnss_data;
     bool ret = ebv_local_query_gnss(&gnss_data);
     if(ret){
