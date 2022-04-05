@@ -2,13 +2,6 @@
 #include <HardwareSerial.h>
 #include <extcwpack.h>
 
-// Usefull definitions for Arduino boards
-#define ARDUINO_AVR_PIN_A0 14
-#define ARDUINO_AVR_PIN_A1 15
-#define ARDUINO_AVR_PIN_A2 16
-#define ARDUINO_AVR_PIN_A3 17
-#define ONBOARD_LED_PIN    13
-
 // Define the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
 // Arduino pin A3 -- ESP READY
@@ -19,12 +12,8 @@
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
+#include "ebv_boards.h"
 
-//#define PIN_FETCH_BTN           2
-#define PIN_FETCH_BTN           14
-
-#define LED_PIN                 12
-// #define LED_PIN                 ONBOARD_LED_PIN
 #define LED_ACTION_TYPE         "setLED"
 #define LED_ACTION_KEY          "state"
 #define LED_ACTION_VALUE_TRUE   "on"
@@ -35,7 +24,7 @@ static bool LED_state;
 bool parseLEDstate(ebv_action_t *a, bool *led_state);
 
 void set_led(bool state){
-    digitalWrite(LED_PIN, state);
+    digitalWrite(PIN_LED, state);
 }
 
 EBV_SETUP_ARDUINO_CB;
@@ -46,13 +35,13 @@ void setup() {
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
     p("\n\rIoT Blinky starting...\n\r");
-    pinMode(PIN_FETCH_BTN, INPUT);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(PIN_BTN, INPUT);
+    pinMode(PIN_LED, OUTPUT);
     set_led(true);
     delay(1000);
     set_led(false);
     LED_state = false;
-    while( digitalRead(PIN_FETCH_BTN) );
+    while( digitalRead(PIN_BTN) );
 }
 
 void loop(){
@@ -94,7 +83,7 @@ end:
     memset(&action, 0, sizeof(ebv_action_t));
     waitForDevice();
     delay(5000);
-    // while( digitalRead(PIN_FETCH_BTN) );
+    // while( digitalRead(PIN_BTN) );
 }
 
 esp_response_t resp;
