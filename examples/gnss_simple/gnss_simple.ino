@@ -14,11 +14,13 @@
 
 #include "ebv_iot.h"
 #include "print_serial.h"
-#include "Wire/EBV_Wire.h"
+#include "Wire.h"
 #include "ebv_boards.h"
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
+
+
 
 void setup() {
     Serial.begin(115200);

@@ -11,7 +11,7 @@
 
 #include "ebv_iot.h"
 #include "print_serial.h"
-#include "Wire/EBV_Wire.h"
+#include "Wire.h"
 #include "ebv_boards.h"
 
 #define DASHBTN_EVNT_TYPE   "buttonPressed"
