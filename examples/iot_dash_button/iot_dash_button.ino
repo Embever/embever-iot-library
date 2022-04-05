@@ -2,13 +2,6 @@
 #include <HardwareSerial.h>
 #include <extcwpack.h>
 
-// Usefull definitions
-#define ARDUINO_AVR_PIN_A0 14
-#define ARDUINO_AVR_PIN_A1 15
-#define ARDUINO_AVR_PIN_A2 16
-#define ARDUINO_AVR_PIN_A3 17
-#define BUILTIN_LED_PIN   13
-
 // Define the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
 // Arduino pin A3 -- ESP READY
@@ -19,19 +12,15 @@
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
+#include "ebv_boards.h"
 
-
-#define PIN_FETCH_BTN       14
-
-// #define LED_PIN             BUILTIN_LED_PIN
-#define LED_PIN             12
 #define DASHBTN_EVNT_TYPE   "buttonPressed"
 #define DASHBTN_EVNT_KEY    "name"
 
 bool send_dash_event(char btn_id);
 
 void set_led(bool state){
-    digitalWrite(LED_PIN, state);
+    digitalWrite(PIN_LED, state);
 }
 
 EBV_SETUP_ARDUINO_CB;
@@ -42,8 +31,8 @@ void setup() {
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
     p("\n\rDashButton demo starting...\n\r");
-    pinMode(PIN_FETCH_BTN, INPUT);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(PIN_BTN, INPUT);
+    pinMode(PIN_LED, OUTPUT);
     set_led(true);
     delay(1000);
     set_led(false);
@@ -51,7 +40,7 @@ void setup() {
 }
 
 void loop(){
-    while( digitalRead(PIN_FETCH_BTN) );
+    while( digitalRead(PIN_BTN) );
     p("Sending event...\n\r");
     set_led(true);
     bool ret = send_dash_event('1');
