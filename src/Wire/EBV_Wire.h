@@ -1,7 +1,7 @@
 #ifndef INC_EBV_WIRE_H
 #define INC_EBV_WIRE_H
 
-#include "../ebv_conf.h"
+#include "ebv_conf.h"
 
 #if !defined(I2C_BUFFER_LEN)
     #define I2C_BUFFER_LEN DEFAULT_EBV_I2C_BUFFER_LEN
