@@ -2,12 +2,6 @@
 #include <HardwareSerial.h>
 #include <extcwpack.h>
 
-// Usefull definitions
-#define ARDUINO_AVR_PIN_A0 14
-#define ARDUINO_AVR_PIN_A1 15
-#define ARDUINO_AVR_PIN_A2 16
-#define ARDUINO_AVR_PIN_A3 17
-
 // Define the following macros to assign custom GPIO pins for READY and IRQ lines
 // The default configuration is the following:
 // Arduino pin A3 -- ESP READY
@@ -18,6 +12,7 @@
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire/EBV_Wire.h"
+#include "ebv_boards.h"
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
@@ -29,10 +24,10 @@ void setup() {
     LOG_REGISTER_ARDUINO;
     p("\n\rHello Cloud starting...\n\r");
     p("\n\rPreparing hello_cloud event...\n\r");
-    ebv_iot_initGenericEvent("Hi_Cloud");                          // Set the event type
-    ebv_iot_addGenericPayload("source", "AppMCU");             // Set payload
+    ebv_iot_initGenericEvent("Hi_Cloud");               // Set the event type
+    ebv_iot_addGenericPayload("source", "AppMCU");      // Set payload
     p("\n\rSending hello_cloud event...\n\r");
-    bool ret = ebv_iot_submitGenericEvent();                       // Send event
+    bool ret = ebv_iot_submitGenericEvent();            // Send event
     if(ret){
         p("Event sent\n\r");
     } else {
