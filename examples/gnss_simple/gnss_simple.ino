@@ -24,7 +24,7 @@ void setup() {
     Serial.begin(115200);
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
-    p("\n\rSimple GNSS sample starting...\n\r");
+    p("\n\rSimple GNSS sample starting\n\r");
 }
 
 void loop(){

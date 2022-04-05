@@ -30,7 +30,7 @@ void setup() {
     Serial.begin(115200);  // start serial for output
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
-    p("\n\rDashButton demo starting...\n\r");
+    p("\n\rDashButton demo starting\n\r");
     pinMode(PIN_BTN, INPUT);
     pinMode(PIN_LED, OUTPUT);
     set_led(true);
@@ -41,7 +41,7 @@ void setup() {
 
 void loop(){
     while( digitalRead(PIN_BTN) );
-    p("Sending event...\n\r");
+    p("Sending event\n\r");
     set_led(true);
     bool ret = send_dash_event('1');
     if(ret){

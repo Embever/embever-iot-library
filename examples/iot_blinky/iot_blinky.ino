@@ -34,7 +34,7 @@ void setup() {
     Serial.begin(115200);  // start serial for output
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
-    p("\n\rIoT Blinky starting...\n\r");
+    p("\n\rIoT Blinky starting\n\r");
     pinMode(PIN_BTN, INPUT);
     pinMode(PIN_LED, OUTPUT);
     set_led(true);
@@ -45,7 +45,7 @@ void setup() {
 }
 
 void loop(){
-    p("Fetching...\n\r");
+    p("Fetching\n\r");
     esp_response_t response;
     bool ret;
     ebv_ret_t ebv_ret;
