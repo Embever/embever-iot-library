@@ -37,6 +37,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "ebv_boards.h"
 
 typedef bool    (*_ebv_esp_gpio_readReady)();
 typedef bool    (*_ebv_esp_gpio_readIRQ)();
@@ -49,24 +50,6 @@ struct ebv_esp_gpio_cb{
 void    ebv_esp_gpio_registerGpio(struct ebv_esp_gpio_cb *cb);
 bool    ebv_esp_gpio_readReady();
 bool    ebv_esp_gpio_readIRQ();
-
-#if defined(ESP32)
-    #define DEFAULT_PIN_EBV_READY   23
-    #define DEFAULT_PIN_EBV_IRQ     19
-#elif defined (__AVR__)
-    #define ARDUINO_NANO_PIN_A2  16
-    #define ARDUINO_NANO_PIN_A3  17
-    #define DEFAULT_PIN_EBV_READY   ARDUINO_NANO_PIN_A3
-    #define DEFAULT_PIN_EBV_IRQ     ARDUINO_NANO_PIN_A2
-#endif
-
-#ifndef PIN_EBV_READY
-#define PIN_EBV_READY DEFAULT_PIN_EBV_READY
-#endif
-
-#ifndef PIN_EBV_IRQ
-#define PIN_EBV_IRQ DEFAULT_PIN_EBV_IRQ
-#endif
 
 #define EBV_ESP_SETUP_ARDUINO_GPIO_CB                    \
     bool gpio_readReady(){                               \

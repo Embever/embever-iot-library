@@ -1,16 +1,17 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
-// Uncomment the following macros to assign custom GPIO pins for READY and IRQ lines
+// Define the following macros to assign custom GPIO pins for each functions
 // The default configuration is the following:
-// Arduino pin A3 -- ESP READY
-// Arduino pin A2 -- ESP IRQ
-// #define PIN_EBV_IRQ     ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
-// #define PIN_EBV_READY   ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
+// Arduino pin A3 -- PIN_ESP READY
+// Arduino pin A2 -- PIN_ESP_IRQ
+// Arduino pin  2 -- PIN_BTN
+// Arduino pin 13 -- PIN_LED
 
-// Uncomment the following macros to assign custom GPIO pins for button and led lines
-// #define PIN_LED 1
-// #define PIN_BTN 2
+// #define PIN_EBV_IRQ      ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
+// #define PIN_EBV_READY    ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
+// #define PIN_BTN                           2       // Push button, with pullup resistor, the btn pulling the signal low
+// #define PIN_LED                          13       // LED, active HIGH
 
 #include "ebv_iot.h"
 #include "print_serial.h"
