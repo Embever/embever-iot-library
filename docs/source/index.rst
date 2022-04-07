@@ -1,6 +1,5 @@
 Embever IoT library
 ===================
-
 ..
     cannot use defs.rst here, as PyPi wants a standalone file.
     most of the links points to our website (I know it's temporary, but just need to remember it)
