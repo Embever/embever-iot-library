@@ -6,13 +6,13 @@
 // The default configuration is the following:
 // Arduino pin A3 -- PIN_ESP READY
 // Arduino pin A2 -- PIN_ESP_IRQ
-// Arduino pin  2 -- PIN_BTN
-// Arduino pin 13 -- PIN_LED
+// Arduino pin  5 -- PIN_BTN
+// Arduino pin  4 -- PIN_BTN
 
 // #define PIN_EBV_IRQ      ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
 // #define PIN_EBV_READY    ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
-// #define PIN_BTN                           2       // Push button, with pullup resistor, the btn pulling the signal low
-// #define PIN_LED                          13       // LED, active HIGH
+// #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
+// #define PIN_LED                           4       // LED, active HIGH
 
 #include "ebv_iot.h"
 #include "print_serial.h"

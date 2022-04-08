@@ -17,8 +17,8 @@
 #elif defined (__AVR__)
     #define DEFAULT_PIN_EBV_READY   ARDUINO_AVR_PIN_A3
     #define DEFAULT_PIN_EBV_IRQ     ARDUINO_AVR_PIN_A2
-    #define DEFAULT_PIN_BTN         2
-    #define DEFAULT_PIN_LED         13
+    #define DEFAULT_PIN_BTN         5
+    #define DEFAULT_PIN_LED         4
 #endif
 
 
