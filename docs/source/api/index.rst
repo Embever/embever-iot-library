@@ -22,6 +22,7 @@ each modules with examples and hinting recommendations.
    :glob:
 
    ebv_iot_msg
+   ebv_esp_gnss
    esp_drv
    integration_layer
    logging

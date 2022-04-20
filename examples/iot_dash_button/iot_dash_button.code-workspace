@@ -4,12 +4,13 @@
 			"path": "."
 		},
 		{
-			"path": "../../lib"
+			"path": "../../src"
 		}
 	],
 	"settings": {
 		"C_Cpp.default.includePath": [
 				"${workspaceFolder}/**",
+				"${workspaceFolder}/Wire",
 				"${env:ARDUINO_BASE_SOURCE}/cores/arduino",
                 "${env:ARDUINO_BASE_SOURCE}/libraries/EEPROM/src",
                 "${env:ARDUINO_BASE_SOURCE}/libraries/HID/src",
@@ -19,12 +20,13 @@
                 "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
                 "${env:ARDUINO_BASE_SOURCE}/variants/standard",
 				"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
+				"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
 				"${env:AVR_BASE_SOURCE}/include",
 				"${env:AVR_BASE_SOURCE}/include/avr",
 				"${env:AVR_BASE_SOURCE}/include/compat",
 				"${env:AVR_BASE_SOURCE}/include/sys",
 				"${env:AVR_BASE_SOURCE}/include/util",
-                "${workspaceFolder}/../../src"
+                "${workspaceFolder}/../../src",
 		],
 		"C_Cpp.default.defines": [
 			"_DEBUG",
@@ -54,5 +56,249 @@
 			"vector": "cpp",
 			"ranges": "cpp"
 		}
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"inputs": [
+			{
+			  "id": "target_hw",
+			  "type":"pickString",
+			  "description": "Pick your target",
+			  "options": ["arduino:avr:nano", "esp32:esp32:pico32"],
+			  "default": "arduino:avr:nano"
+			}
+		],
+		"tasks": [
+			{
+				"label": "Clean Build",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}",
+					"--warnings",
+					"all",
+					"--clean"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher":"$gcc"
+			},
+			{
+				"label": "Build",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}",
+					"--warnings",
+					"all"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher":"$gcc"
+			},
+			{
+				"label": "Build For Debug",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--optimize-for-debug",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher":"$gcc"
+			},
+			{
+				"label": "Flash using bootloader",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"upload",
+					"-v",
+					"--input-dir",
+					"${workspaceFolder}/build",
+					"-p",
+					"${config:TARGET_SERIAL_PORT}",
+					"-b",
+					"${input:target_hw}",
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Flash with Usbtiny ISP",
+				"type": "shell",
+				"command": "${config:ARDUINO_AVRDUDE_PATH}/bin/avrdude -p atmega328p -c usbtiny -C ${config:ARDUINO_AVRDUDE_PATH}/etc/avrdude.conf -V -U flash:w:${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex:i",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Flash with Usbtiny DWIRE",
+				"type": "shell",
+				"command": "echo l ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf | ${config:DWIRE_EXECUTABLE} device usbtiny1",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Build and Flash",
+				"type": "shell",
+				"group": "build",
+				"dependsOrder": "sequence",
+				"dependsOn": [
+					"Build",
+					"Flash using bootloader"
+				],
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Serial monitor",
+				"type": "shell",
+				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true,
+					"clear": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Build, Flash and Monitor",
+				"type": "shell",
+				"group": "build",
+				"dependsOrder": "sequence",
+				"dependsOn": [
+					"Build",
+					"Flash using bootloader",
+					"Serial monitor"
+				],
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Unit test -- Build",
+				"type": "shell",
+				"options": {
+					"cwd": "${workspaceFolder}/unit_test"
+				},
+				"group": "build",
+				"command": "make",
+				"problemMatcher": {
+					"owner": "cpp",
+					"fileLocation": [
+						"relative",
+						"${workspaceFolder}/build"
+					],
+					"pattern": {
+						"regexp": "^([^:]*):([0-9]*):([0-9]*):(.warning|.error):(.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				}
+			},
+			{
+				"label": "Unit test -- Build and Run",
+				"type": "shell",
+				"options": {
+					"cwd": "${workspaceFolder}/unit_test"
+				},
+				"group": "build",
+				"command": "make && ./build/testrunner",
+				"problemMatcher": {
+					"owner": "cpp",
+					"fileLocation": [
+						"relative",
+						"${workspaceFolder}/build"
+					],
+					"pattern": {
+						"regexp": "^([^:]*):([0-9]*):([0-9]*):(.warning|.error):(.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				}
+			}
+		]
 	}
 }

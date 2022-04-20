@@ -1,42 +1,43 @@
-// To make this sketch work, you need to change the following C macros
-//
-// Wire.h #define BUFFER_LENGTH 32      --> #define BUFFER_LENGTH 128
-// twi.h  #define TWI_BUFFER_LENGTH 32  --> #define TWI_BUFFER_LENGTH 128
-// The predefined buffers for sending data are just too small, and there is no way to change them
-
 #include <Arduino.h>
 #include <HardwareSerial.h>
-#include <Wire.h>
 #include <extcwpack.h>
+
+// Define the following macros to assign custom GPIO pins for each functions
+// The default configuration is the following:
+// Arduino pin A3 -- PIN_ESP READY
+// Arduino pin A2 -- PIN_ESP_IRQ
+// Arduino pin  5 -- PIN_BTN
+// Arduino pin  4 -- PIN_BTN
+
+// #define PIN_EBV_IRQ      ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
+// #define PIN_EBV_READY    ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
+// #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
+// #define PIN_LED                           4       // LED, active HIGH
 
 #include "ebv_iot.h"
 #include "print_serial.h"
+#include "Wire.h"
+#include "ebv_boards.h"
 
-#define PIN_FETCH_BTN  2
+#define DASHBTN_EVNT_TYPE   "buttonPressed"
+#define DASHBTN_EVNT_KEY    "name"
 
-#define LED_PIN                 3
-#define DASHBTN_EVNT_TYPE         "buttonPressed"
-#define DASHBTN_EVNT_KEY          "name"
-
-#define ARDUINO_PIN_A2  16
-#define ARDUINO_PIN_A3  17
-#define PIN_EBV_IRQ     ARDUINO_PIN_A2
-#define PIN_EBV_READY   ARDUINO_PIN_A3
+bool send_dash_event(char btn_id);
 
 void set_led(bool state){
-    digitalWrite(LED_PIN, state);
+    digitalWrite(PIN_LED, state);
 }
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
 
 void setup() {
-    Serial.begin(9600);  // start serial for output
+    Serial.begin(115200);  // start serial for output
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
-    p("\n\rDashButton demo starting...\n\r");
-    pinMode(PIN_FETCH_BTN, INPUT);
-    pinMode(LED_PIN, OUTPUT);
+    p("\n\rDashButton demo starting\n\r");
+    pinMode(PIN_BTN, INPUT);
+    pinMode(PIN_LED, OUTPUT);
     set_led(true);
     delay(1000);
     set_led(false);
@@ -44,19 +45,22 @@ void setup() {
 }
 
 void loop(){
-    while( digitalRead(PIN_FETCH_BTN) );
-    p("Sending event...\n\r");
+    while( digitalRead(PIN_BTN) );
+    p("Sending event\n\r");
     set_led(true);
-    send_dash_event('1');
+    bool ret = send_dash_event('1');
+    if(ret){
+        p("Event sent\n\r");
+    } else {
+        p("Sending event failed\n\r");
+    }
     waitForDevice();
-    delay(5000);
-    delay(5000);
-    delay(5000);
+    delay(1000);
     set_led(false);
 }
 
-void send_dash_event(char btn_id){
+bool send_dash_event(char btn_id){
     ebv_iot_initGenericEvent(DASHBTN_EVNT_TYPE);
     ebv_iot_addGenericPayload(DASHBTN_EVNT_KEY, btn_id);
-    ebv_iot_submitGenericEvent();
+    return ebv_iot_submitGenericEvent();
 }

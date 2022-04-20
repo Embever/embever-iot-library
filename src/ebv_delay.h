@@ -36,8 +36,17 @@
 
 #include <stdint.h>
 
+#if defined(ESP32)
+
+void ebv_delay_register(void (*delay)(uint32_t ms));
+void ebv_delay(uint32_t ms);
+
+#else
+
 void ebv_delay_register(void (*delay)(unsigned long ms));
 void ebv_delay(unsigned long ms);
+
+#endif
 
 
 #define EBV_DELAY_REGISTER_ARDUINO  ebv_delay_register(delay);
