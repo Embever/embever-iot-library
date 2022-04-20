@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../src"
+		},
+		{
+			"path": "../../unit_test"
 		}
 	],
 	"settings": {
@@ -20,12 +23,12 @@
                 "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
                 "${env:ARDUINO_BASE_SOURCE}/variants/standard",
 				"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
-				"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
 				"${env:AVR_BASE_SOURCE}/include",
 				"${env:AVR_BASE_SOURCE}/include/avr",
 				"${env:AVR_BASE_SOURCE}/include/compat",
 				"${env:AVR_BASE_SOURCE}/include/sys",
 				"${env:AVR_BASE_SOURCE}/include/util",
+				"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
                 "${workspaceFolder}/../../src",
 		],
 		"C_Cpp.default.defines": [
@@ -41,6 +44,7 @@
 		"C_Cpp.default.browse.path": [
 			"${env:ARDUINO_BASE_SOURCE}",
 			"${env:AVR_BASE_SOURCE}",
+			"${env:ARDUINO_USR_LIB_SOURCE}",
             "${workspaceRoot}/**"
 		],
 		"files.associations": {
@@ -54,7 +58,8 @@
 			"string_view": "cpp",
 			"unordered_map": "cpp",
 			"vector": "cpp",
-			"ranges": "cpp"
+			"ranges": "cpp",
+			"test_ebv_local.h": "c"
 		}
 	},
 	"tasks": {
@@ -203,7 +208,7 @@
 				"dependsOrder": "sequence",
 				"dependsOn": [
 					"Build",
-					"Flash with Arduino bootloader"
+					"Flash using bootloader"
 				],
 				"isBackground": false,
 				"presentation": {

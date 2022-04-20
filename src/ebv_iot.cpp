@@ -36,12 +36,14 @@
 #include "print_serial.h"
 #include "ebv_delay.h"
 #include "extcwpack.h"
+#include "ebv_conf.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-#define LOW 0
-#define  HI 1
+#include "ebv_log_conf.h"
+#define LOG_MODULE_NAME EBV_IOT_LOG_NAME
+#include "ebv_log.h"
 
 #define UNUSED(...) (void)(__VA_ARGS__)
 
@@ -51,81 +53,117 @@
 #define EBV_MPACK_FLOAT_LEN              4
 #define EBV_MPACK_DOUBLE_LEN             8
 
+#define MODULE_DEBUG 0
+
 typedef struct{
-    uint8_t *buff;          // This is the mapack buffer
-    uint8_t size;           // The current size of the buffer
-    uint8_t elements;       // Count of the elements in the mpacked content
-    bool isBufferReady;     // Flag for indicating the budder status
-    cw_pack_context c;      // mpack struct for keep track about the packing
+    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
+    uint16_t size;                           // The current size of the buffer
+    uint8_t elements;                       // Count of the elements in the mpacked content
+    bool isBufferReady;                     // Flag for indicating the budder status
+    cw_pack_context c;                      // mpack struct for keep track about the packing
 } ebv_mpack;
 
-ebv_mpack _ebv_mpack = {0};
+ebv_mpack _ebv_mpack;
 
 
 
 // Static functions
-static int8_t __ebv_iot_strlen(char * s);
-static bool _ebv_iot_allocateBufferFor(uint8_t n_item_size);
+static int8_t __ebv_iot_strlen(const char * s);
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i);
 static uint8_t _ebv_mpack_getSignedLen(int long long i);
 
-void ebv_iot_receiveAction(esp_response_t *response){
+void ebv_iot_init(){
+    memset(&_ebv_mpack, 0, sizeof(ebv_mpack));
+}
+
+ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
     esp_packet_t pkg;
     esp_response_t resp;
     // Get Action
-    // p("Submitting GET ACTION...\n\r");
+    DEBUG_MSG_TRACE("Receiving actions...");
+    memset(pkg.data, 0, sizeof(pkg.data));
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_GET_ACTIONS, NULL, 0);
-    if ( !waitForDevice() ){ return; }
-    ebv_esp_sendCommand(&pkg);
-    ebv_delay(10);
-    // p("Reading response...\n\r");
-    ebv_esp_receiveResponse(&pkg, &resp);
-    if(resp.command == ESP_CMD_GET_ACTIONS && resp.sop == ESP_RESPONSE_SOP_SOA_ID){
-        // p("ACK Response received successfully\n\r");
-    } else {
-       // p("ACK Response is wrong\n\r");
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+    if( !ebv_esp_sendCommand(&pkg)){
+        DEBUG_MSG_TRACE("Failed to send GET_ACTION command");
+        return EBV_RET_ERROR;
     }
+    ebv_delay(10);
+    DEBUG_MSG_TRACE("Reading ACK response");
+    bool ret = ebv_esp_receiveResponse(&pkg, &resp);
+    if(!ret){
+        DEBUG_MSG_TRACE("Failed to receive ACK response");
+        return EBV_RET_ERROR;
+    }
+    if( resp.command != ESP_CMD_GET_ACTIONS ||
+        resp.sop != ESP_RESPONSE_SOP_SOA_ID
+    ){
+       DEBUG_MSG_TRACE("Invalid ACK resp");
+       return EBV_RET_INV_ACK;
+    }
+    DEBUG_MSG_TRACE("ACK Response received successfully");
     //IRQ going to low because the GET_ACTIONS command generated a delayed response
-    if ( !waitForResponse() ){ return; }
-    if ( !waitForDevice() ){ return; }
+    if ( !waitForResponse() ){ return EBV_RET_TIMEOUT; }
     if(ebv_esp_gpio_readIRQ() == LOW){    // Check it again
-        // Read delayed response
+        DEBUG_MSG_TRACE("Reading delayed resp");
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
-        ebv_esp_sendCommand(&pkg);
-        while( !ebv_esp_gpio_readReady() );   // Wait until READY goes HI
-        ebv_esp_receiveResponse(&pkg, &resp);
-        // Parsing respose, this is will be the delayed response header
-        uint8_t trigger_cmd = resp.response[1];                                                                 // This is the cmd which created the delayed response
+        bool ret = ebv_esp_sendCommand(&pkg);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to send READ_DEL_RESP packet");
+            return EBV_RET_I2C_NO_RESP;
+        }
+        if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+        ret = ebv_esp_receiveResponse(&pkg, &resp);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to receive resp");
+            return EBV_RET_ERROR;
+        }
+        // Parsing respose, this will be the delayed response header
+        // uint8_t trigger_cmd = resp.response[1];                                                                 // This is the cmd which created the delayed response
         uint16_t response_len = (uint16_t) resp.response[2] | (uint16_t) resp.response[3] << 8;
-        uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload
+        uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload in case of error
         if(response_len == 4 && payload_id == ESP_DL_PAYLOAD_KIND_ERROR){                                       // We got an error, let it see what kind of
-            // p("Pkg received: TR_CMD: 0x%x LEN: 0x%x P_ID: 0x%x\n\r", trigger_cmd, response_len, payload_id);
-            // p("Response result: ");
+            DEBUG_MSG_TRACE("Pkg received: LEN: %X P_ID: %X", response_len, payload_id);
+            DEBUG_MSG_TRACE("Response result: ");
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
-                    // p("Invalid data for CMD: 0x%x\n\r", trigger_cmd);
+                    DEBUG_MSG_TRACE("Invalid data");
                     break;
                 case ESP_ERR_INVALID_CMD_ID:
-                    // p("Unkown CMD: 0x%x\n\r", trigger_cmd);
+                    DEBUG_MSG_TRACE("Unkown CMD");
                     break;
                 default:
-                    // p("Not Handled\n\r");
+                    DEBUG_MSG_TRACE("Unknown error");
                     break;
             }
+#endif
+            return EBV_RET_OK_WITH_ERROR;
         } else {
-            // p("\n\rPkg received: SOP: 0x%x, RESP_CMD: 0x%x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
-            // ebv_esp_dumpPayload(&resp.response[4], response_len - ESP_CRC_LEN - ESP_FLAGS_LEN);
-            if(payload_id > ESP_CRC_LEN + ESP_FLAGS_LEN){
+            DEBUG_MSG_TRACE("Pkg received: SOP: %x, CMD: %x, LEN: %d",resp.response[0], resp.response[1], response_len);
+            response->has_error_code = false;
+            if(response_len > ESP_CRC_LEN + ESP_FLAGS_LEN){
                 response->response_len = response_len - ESP_CRC_LEN - ESP_FLAGS_LEN;
-                response->response = (uint8_t *) malloc(response->response_len);
                 memcpy(response->response, &resp.response[4], response->response_len);
+                if(response->response_len == 1){
+                    return EBV_RET_NO_ACTION;
+                } else {
+                    return EBV_RET_OK;
+                }
             } else {
                 response->response_len = 0;
+                return EBV_RET_INV_PAYLOAD;
             }
-            free(resp.response);
         }
+    } else {
+        DEBUG_MSG_TRACE("Timeout, no del_resp");
+        return EBV_RET_TIMEOUT;
     }
+    // Should be never reached
+    return EBV_RET_ERROR;
 }
 
 bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
@@ -162,64 +200,83 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
     return true;
 }
 
-bool ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
+ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
     esp_packet_t pkg;
     esp_response_t resp;
     ebv_esp_buildActionResponse(&pkg, a->id, a->response_payload, a->response_payload_size, a->result);
-    if ( !waitForDevice() ){ return false; }
-    ebv_esp_sendCommand(&pkg);
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+    bool ret = ebv_esp_sendCommand(&pkg);
+    if(!ret){
+        DEBUG_MSG_TRACE("Failed to send action result");
+        return EBV_RET_I2C_NO_RESP;
+    }
     ebv_delay(10);
-    p("Reading response...");
-    ebv_esp_receiveResponse(&pkg, &resp);
-    if(resp.command == ESP_CMD_GET_ACTIONS && resp.sop == ESP_RESPONSE_SOP_SOA_ID){
-        // p("ACK Response received successfully");
-    } else {
-       return false;
+    ret = ebv_esp_receiveResponse(&pkg, &resp);
+    if(!ret){
+        return EBV_RET_ESP_NO_ACK;
+    }
+    if( resp.command != ESP_CMD_PUT_RESULTS ||
+        resp.sop != ESP_RESPONSE_SOP_SOA_ID
+    ){
+        DEBUG_MSG_TRACE("Invalid ACK resp");
+        return EBV_RET_INV_ACK;
     }
     //IRQ going to low because the GET_ACTIONS command generated a delayed response
-    if ( !waitForResponse() ){ return false; }
-    if ( !waitForDevice() ){ return false; }
+    if ( !waitForResponse() ){ return EBV_RET_TIMEOUT; }
+    if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
     if(ebv_esp_gpio_readIRQ() == LOW){    // Check it again
         // Read delayed response
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
-        ebv_esp_sendCommand(&pkg);
-        while( ebv_esp_gpio_readReady() );   // Wait until READY goes HI
-        ebv_esp_receiveResponse(&pkg, &resp);
+        ret = ebv_esp_sendCommand(&pkg);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to get delayed response");
+        }
+        if ( !waitForDevice() ){ return EBV_RET_TIMEOUT; }
+        bool ret = ebv_esp_receiveResponse(&pkg, &resp);
+        if(!ret){
+            DEBUG_MSG_TRACE("Failed to receive delayed response");
+            return EBV_RET_ESP_NO_DEL_RESP;
+        }
         // Parsing respose, this is will be the delayed response header
         uint16_t response_len = (uint16_t) resp.response[2] | (uint16_t) resp.response[3] << 8;
         uint16_t payload_id = (uint16_t) resp.response[4] | (uint16_t) resp.response[5] << 8;                   // This is for identifying the payload
         if(response_len == 4 && payload_id == ESP_DL_PAYLOAD_KIND_ERROR){                                       // We got an error, let it see what kind of
-            // p("Pkg received: LEN: 0x%x P_ID: 0x%x\n\r", response_len, payload_id);
-            // p("Response result: ");
+            DEBUG_MSG_TRACE("Pkg received: LEN: 0x%x P_ID: 0x%x", response_len, payload_id);
+            DEBUG_MSG_TRACE("Error result: ");
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
-                    // // p("Invalid data for CMD: 0x%x\n\r", trigger_cmd);
+                    DEBUG_MSG_TRACE("Invalid data");
                     break;
                 case ESP_ERR_INVALID_CMD_ID:
-                    // // p("Unkown CMD: 0x%x\n\r", trigger_cmd);
+                    DEBUG_MSG_TRACE("Unkown CMD");
                     break;
                 default:
-                    // Serial.print("Not Handled\n\r");
+                    DEBUG_MSG_TRACE("Unknown error");
                     break;
             }
+#endif
         } else {
-            // p("\n\rPkg received: SOP: 0x%x, RESP_CMD: 0x%x, LEN: %d\n\r",resp.response[0], resp.response[1], response_len);
-            // ebv_esp_dumpPayload(&resp.response[4], payload_len - ESP_CRC_LEN - ESP_FLAGS_LEN);
-            if(payload_id > ESP_CRC_LEN + ESP_FLAGS_LEN){
-                response->response_len = payload_id - ESP_CRC_LEN - ESP_FLAGS_LEN;
-                response->response = (uint8_t *) malloc(response->response_len);
-                memcpy(response->response, &resp.response[4], response->response_len);
+            DEBUG_MSG_TRACE("Pkg received: SOP: %x, CMD: %x, LEN: %d",resp.response[0], resp.response[1], response_len);
+            response->has_error_code = false;
+            if(response_len > ESP_CRC_LEN + ESP_FLAGS_LEN){
+                // We should get nothing as payload
+                DEBUG_MSG_TRACE("Payload len more that expecred LEN : %d", response_len);
+                return EBV_RET_ERROR;
             } else {
                 response->response_len = 0;
+                return EBV_RET_OK;
             }
-            free(resp.response);
         }
     }
-    return true;
+    // Should never reached
+    return EBV_RET_ERROR;
 }
 
-bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
+ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
     a->response_payload = _ebv_mpack.buff;
     a->response_payload_size = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
@@ -231,41 +288,57 @@ bool ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response
         }
         i++;
     }
-    bool ret;
+    ebv_ret_t ret;
     if( i > a->response_payload_size){     // Set the right map size was successfull
         ret = ebv_iot_submitActionResult(a, response);
     } else {            // Set the right map size was unsuccessfull
-        ret = false;
+        ret = EBV_RET_ERROR;
     }
-    free(_ebv_mpack.buff);
     _ebv_mpack.isBufferReady = false;
     return ret;
 }
 
 bool ebv_iot_submitEvent(ebv_iot_event *e){
+#if DEBUG_EN == 1
+    DEBUG_MSG_TRACE("Submitting event, len : %d", e->len);
+    uint8_t i;
+    for(i = 0; i < e->len; i++){
+        if((i % 8) == 0){DEBUG_MSG("\n\r");}
+        DEBUG_MSG("%X ", e->body[i]);
+    }
+    DEBUG_MSG("\n\r");
+#endif
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PUT_EVENTS, e->body, e->len);
     if( !waitForDevice() ){
-        // p("Timeout, waitForDevice");
         return false;
     }
     ebv_esp_sendCommand(&pkg);
     esp_response_t response;
     ebv_delay(10);
-    ebv_esp_receiveResponse(&pkg, &response);
-
+    bool ret = ebv_esp_receiveResponse(&pkg, &response);
+    if(!ret){
+        return false;
+    }
     ebv_delay(20);
     if( !waitForDevice() ){
-        // p("Timeout, waitForDevice");
         return false;
     }
     while( !isResponseAvailable() );
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
     ebv_esp_sendCommand(&pkg);
-    do{
-        ebv_delay(5);
-    } while ( isDeviceBusy() );
-    ebv_esp_receiveResponse(&pkg, &response);
+    ebv_delay(20);
+    if( !waitForDevice() ){
+        return false;
+    }
+    ret = ebv_esp_receiveResponse(&pkg, &response);
+    if(!ret){
+        return false;
+    }
+    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS);
+    if(res != EBV_ESP_RESP_RES_OK){
+        return false;
+    }
     return true;
 }
 
@@ -274,7 +347,7 @@ bool ebv_iot_submitGenericEvent(){
     e.body = _ebv_mpack.buff;
     e.len = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
-    uint8_t i = 3; // We know that the first 3 item will be static
+    uint8_t i = 3; // We know that the first 3 item is static
     while(i < e.len){
         if(e.body[i] == 0x81){
             e.body[i] = 0x80 + _ebv_mpack.elements;
@@ -289,23 +362,16 @@ bool ebv_iot_submitGenericEvent(){
     } else {            // Set the right map size was unsuccessfull
         ret = false;
     }
-    free(_ebv_mpack.buff);
     _ebv_mpack.isBufferReady = false;
     return ret;
 }
 
-bool ebv_iot_initGenericEvent(char * evnt_type){
-    if(_ebv_mpack.buff){
-        free(_ebv_mpack.buff);
-    }
-    _ebv_mpack.buff = (uint8_t *) malloc(EBV_MPACK_DEFAULT_SIZE);
-    if (!_ebv_mpack.buff){
-        return false;
-    }
-    _ebv_mpack.size = EBV_MPACK_DEFAULT_SIZE;
+bool ebv_iot_initGenericEvent(const char * evnt_type){
+    memset(_ebv_mpack.buff, 0, sizeof(_ebv_mpack.buff));
+    _ebv_mpack.size = sizeof(_ebv_mpack.buff);
     _ebv_mpack.elements = 0;
     _ebv_mpack.isBufferReady = true;
-    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, EBV_MPACK_DEFAULT_SIZE, NULL);
+    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), NULL);
     cw_pack_array_size(&_ebv_mpack.c, 1);
     cw_pack_array_size(&_ebv_mpack.c, 2);
     // TODO Need to check if the next string fit in the mem or not
@@ -315,71 +381,50 @@ bool ebv_iot_initGenericEvent(char * evnt_type){
 }
 
 bool ebv_iot_initGenericResponse(){
-    if(_ebv_mpack.buff){
-        free(_ebv_mpack.buff);
-    }
-    _ebv_mpack.buff = (uint8_t *) malloc(EBV_MPACK_DEFAULT_SIZE);
-    if (!_ebv_mpack.buff){
-        return false;
-    }
-    _ebv_mpack.size = EBV_MPACK_DEFAULT_SIZE;
+    memset(_ebv_mpack.buff, 0, sizeof(_ebv_mpack.buff));
+    _ebv_mpack.size = sizeof(_ebv_mpack.buff);
     _ebv_mpack.elements = 0;
     _ebv_mpack.isBufferReady = true;
-    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, EBV_MPACK_DEFAULT_SIZE, NULL);
+    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), NULL);
     cw_pack_map_size(&_ebv_mpack.c, 1);     // Preparing it for only one element
     return true;
 }
 
-bool _ebv_iot_addUnsignedPayload(char * k, unsigned int v){
+bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + _ebv_mpack_getUnsignedLen(v) + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_unsigned(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
     return true;
 }
 
-bool _ebv_iot_addSignedPayload(char * k, int v){
+bool _ebv_iot_addSignedPayload(const char * k, int v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + _ebv_mpack_getSignedLen(v) + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_signed(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
     return true;
 }
 
-bool _ebv_iot_addFloatPayload(char * k, float v){
+bool _ebv_iot_addFloatPayload(const char * k, float v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + EBV_MPACK_FLOAT_LEN + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_float(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
     return true;
 }
 
-bool _ebv_iot_addDoublePayload(char * k, double v){
+bool _ebv_iot_addDoublePayload(const char * k, double v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    if( !_ebv_iot_allocateBufferFor(k_len + EBV_MPACK_DOUBLE_LEN + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_double(&_ebv_mpack.c, v);
     _ebv_mpack.elements++;
     return true;
 }
 
-bool _ebv_iot_addStringPayload(char * k, char * v){
+bool _ebv_iot_addStringPayload(const char * k, const char * v){
     uint8_t k_len = __ebv_iot_strlen(k);
     uint8_t v_len = __ebv_iot_strlen(v);
-    if( !_ebv_iot_allocateBufferFor(k_len + v_len + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     // TODO: Check remaining space in buffer 
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, v, v_len);
@@ -387,38 +432,20 @@ bool _ebv_iot_addStringPayload(char * k, char * v){
     return true;
 }
 
-bool _ebv_iot_addCharPayload(char * k, char v){
+bool _ebv_iot_addCharPayload(const char * k, const char v){
     uint8_t k_len = __ebv_iot_strlen(k);
-     if( !_ebv_iot_allocateBufferFor(k_len + 1 + 2 * EBV_MPACK_DATATYPE_HEADER)){
-        return false;
-    }
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, &v, 1);
     _ebv_mpack.elements++;
     return true;
 }
 
-static int8_t __ebv_iot_strlen(char * s){
+static int8_t __ebv_iot_strlen(const char * s){
     uint8_t c = 0;
     while( s[c] && c < EBV_STRLEN_MAXLEN){
         c++;
     }
     return c >= EBV_STRLEN_MAXLEN ? -1 : c;
-}
-
-static bool _ebv_iot_allocateBufferFor(uint8_t n_item_size){
-    // Check if we need allocate more memory or not
-    uint16_t free_space  = _ebv_mpack.c.end - _ebv_mpack.c.current; 
-    if(n_item_size > free_space ){
-        _ebv_mpack.size += n_item_size - free_space;
-        _ebv_mpack.buff = (uint8_t *) realloc(_ebv_mpack.buff, _ebv_mpack.size);
-        if(!_ebv_mpack.buff){
-            return false;
-        }
-        _ebv_mpack.c.end = _ebv_mpack.c.start + _ebv_mpack.size;
-    }
-
-    return true;
 }
 
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i){
@@ -468,22 +495,22 @@ static uint8_t _ebv_mpack_getSignedLen(long long int i){
 }
 
 #ifdef __cplusplus
-    void ebv_iot_addGenericPayload(char * key, unsigned int value){
+    void ebv_iot_addGenericPayload(const char * key, unsigned int value){
         _ebv_iot_addUnsignedPayload(key, value);
     }
-    void ebv_iot_addGenericPayload(char * key, int value){
+    void ebv_iot_addGenericPayload(const char * key, int value){
         _ebv_iot_addSignedPayload(key, value);
     }
-    void ebv_iot_addGenericPayload(char * key, float value){
+    void ebv_iot_addGenericPayload(const char * key, float value){
         _ebv_iot_addFloatPayload(key, value);
     }
-    void ebv_iot_addGenericPayload(char * key, double value){
+    void ebv_iot_addGenericPayload(const char * key, double value){
         _ebv_iot_addDoublePayload(key, value);
     }
-    void ebv_iot_addGenericPayload(char * key, char * value){
+    void ebv_iot_addGenericPayload(const char * key, const char * value){
         _ebv_iot_addStringPayload(key, value);
     }
-    void ebv_iot_addGenericPayload(char * key, char value){
+    void ebv_iot_addGenericPayload(const char * key, const char value){
         _ebv_iot_addCharPayload(key, value);
     }
 #endif

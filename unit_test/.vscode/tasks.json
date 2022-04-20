@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Unit test -- Build",
+            "type": "shell",
+            "group": "build",
+            "command": "make clean && make",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Unit test -- Build and Run",
+            "type": "shell",
+            "group": "build",
+            "dependsOrder": "sequence",
+            "dependsOn":["Unit test -- Build"],
+            "command": "./build/testrunner",
+            "problemMatcher": "$gcc"
+        }
+    ]
+}

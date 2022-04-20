@@ -37,6 +37,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "ebv_boards.h"
 
 typedef bool    (*_ebv_esp_gpio_readReady)();
 typedef bool    (*_ebv_esp_gpio_readIRQ)();
@@ -49,7 +50,6 @@ struct ebv_esp_gpio_cb{
 void    ebv_esp_gpio_registerGpio(struct ebv_esp_gpio_cb *cb);
 bool    ebv_esp_gpio_readReady();
 bool    ebv_esp_gpio_readIRQ();
-
 
 #define EBV_ESP_SETUP_ARDUINO_GPIO_CB                    \
     bool gpio_readReady(){                               \

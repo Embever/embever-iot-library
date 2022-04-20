@@ -21,3 +21,4 @@ To see more, select one of the sample applications.
    hello_cloud
    dash_btn
    cloud_blinky
+   gnss_simple
