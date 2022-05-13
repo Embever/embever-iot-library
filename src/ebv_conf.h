@@ -29,6 +29,8 @@ typedef enum{
     #define IOT_MSG_MAX_LEN MAX_IOT_MSG_MAX_LEN
 #elif defined(__AVR__)
     #define IOT_MSG_MAX_LEN MIN_IOT_MSG_MAX_LEN
+#elif defined(STM32F103xB)
+    #define IOT_MSG_MAX_LEN MAX_IOT_MSG_MAX_LEN
 #else
     #define IOT_MSG_MAX_LEN MIN_IOT_MSG_MAX_LEN
 #endif
