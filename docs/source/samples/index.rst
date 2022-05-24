@@ -22,3 +22,4 @@ To see more, select one of the sample applications.
    dash_btn
    cloud_blinky
    gnss_simple
+   gnss_report
