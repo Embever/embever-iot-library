@@ -1,0 +1,60 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "dwdebug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+                { "text": "target remote localhost:4444", "ignoreFailures": false },
+            ],
+            "osx": {
+                "MIMode": "gdb",
+                "MIDebuggerPath": "${config:GDB_EXECUTABLE}",
+             },
+        },
+        {
+            "name": "qemu",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+                { "text": "target remote localhost:1234", "ignoreFailures": false },
+            ],
+            "osx": {
+                "MIMode": "gdb",
+                "MIDebuggerPath": "${config:AVR-GDB_EXECUTABLE}",
+                //"preLaunchTask": "Rebuild and open terminal",
+                //"preDebugTask":"QEMU serial terminal",
+                "debugServerPath": "${config:QEMU_AVR_BIN}",
+                //"debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic -serial tcp::5678,server=on,wait=off",
+                "debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic",
+             },
+        },
+        {
+            "name": "(lldb) Launch",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Unit test -- Build",
+            "program": "${workspaceRoot}/unit_test/build/testrunner",
+            "args": [],
+            "cwd": "${fileDirname}",
+          }
+    ]
+}
