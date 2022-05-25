@@ -12,8 +12,26 @@ typedef enum {
     EBV_GNSS_REQUEST_SPEED,
     EBV_GNSS_REQUEST_DATETIME,
     EBV_GNSS_REQUEST_EXTENDED,
+    EBV_GNSS_REPORT_LOCATION,
+    EBV_GNSS_REPORT_DATETIME,
+    EBV_GNSS_REQUEST_STATUS,
     EBV_GNSS_REQUEST_LEN
 } ebv_gnss_request_kind;
+
+typedef enum {
+    EBV_GNSS_STATUS_UNKNOWN = 0,
+    EBV_GNSS_STATUS_INITIALIZED,
+    EBV_GNSS_STATUS_SEARCHING_SINGLE,
+    EBV_GNSS_STATUS_SEARCHING_CONT,
+    EBV_GNSS_STATUS_TRACKING,
+    EBV_GNSS_STATUS_FIXED,
+    EBV_GNSS_STATUS_STOPPED
+} ebv_gnss_status_t;
+
+typedef struct{
+    uint8_t gps_status;
+    bool is_last_fix_success;
+} ebv_gnss_status_report_t;
 
 typedef struct {
     uint16_t year;                 // 4-digit representation (Gregorian calendar)
@@ -38,6 +56,8 @@ typedef struct{
 
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
+bool ebv_local_report_gnss();
+bool ebv_local_query_gnss_status(ebv_gnss_status_report_t *status);
 void ebv_local_query_gnss_custom_init();
 bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt);

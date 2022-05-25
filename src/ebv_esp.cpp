@@ -473,8 +473,15 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
             DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
             return EBV_ESP_RESP_RES_INVALID;
         }
-        resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
-        resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        if(resp->len == 4){
+            // No payload on the response
+            resp->payload = NULL;
+            resp->payload_len = 0;
+        } else {
+            // If we have a payload we also have CRC and flags in the end
+            resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+            resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        }
         DEBUG_MSG_TRACE("Verification done");
         return EBV_ESP_RESP_RES_OK;
         break;                      // dummy break

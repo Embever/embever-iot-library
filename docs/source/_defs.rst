@@ -8,3 +8,4 @@
 .. |GPIO_DRV| replace:: Embever GPIO Driver
 .. |master| replace:: leader
 .. |slave| replace:: follower
+.. |CaaM| replace:: Cloud as a Module

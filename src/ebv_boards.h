@@ -19,6 +19,11 @@
     #define DEFAULT_PIN_EBV_IRQ     ARDUINO_AVR_PIN_A2
     #define DEFAULT_PIN_BTN         5
     #define DEFAULT_PIN_LED         4
+#elif defined(STM32F103xB)
+    #define DEFAULT_PIN_EBV_READY   A3
+    #define DEFAULT_PIN_EBV_IRQ     A2
+    #define DEFAULT_PIN_BTN         5
+    #define DEFAULT_PIN_LED         4
 #endif
 
 
