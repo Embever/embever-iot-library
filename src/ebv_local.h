@@ -19,19 +19,19 @@ typedef enum {
 } ebv_gnss_request_kind;
 
 typedef enum {
-    EBV_GNSS_STATUS_UNKNOWN = 0,
-    EBV_GNSS_STATUS_INITIALIZED,
-    EBV_GNSS_STATUS_SEARCHING_SINGLE,
-    EBV_GNSS_STATUS_SEARCHING_CONT,
-    EBV_GNSS_STATUS_TRACKING,
-    EBV_GNSS_STATUS_FIXED,
-    EBV_GNSS_STATUS_STOPPED
-} ebv_gnss_status_t;
+    EBV_GPS_STATUS_UNKNOWN = 0,
+    EBV_GPS_STATUS_INITIALIZED,
+    EBV_GPS_STATUS_SEARCHING_SINGLE,
+    EBV_GPS_STATUS_SEARCHING_CONT,
+    EBV_GPS_STATUS_TRACKING,
+    EBV_GPS_STATUS_FIXED,
+    EBV_GPS_STATUS_STOPPED
+} EBV_GPS_STATUS_t;
 
 typedef struct{
-    uint8_t gps_status;
+    uint8_t state;
     bool is_last_fix_success;
-} ebv_gnss_status_report_t;
+} ebv_gps_status_t;
 
 typedef struct {
     uint16_t year;                 // 4-digit representation (Gregorian calendar)
@@ -54,13 +54,20 @@ typedef struct{
     esp_gnss_datetime_t datetime;
 } ebv_gnss_data_t;
 
+typedef enum{
+    EBV_OP_MODE_ONLINE,
+    EBV_OP_MODE_PWR_DOWN
+} ebv_local_pwr_op_mode;
+
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
-bool ebv_local_report_gnss();
-bool ebv_local_query_gnss_status(ebv_gnss_status_report_t *status);
+bool ebv_report_pvt();
+bool ebv_query_gps_status(ebv_gps_status_t *status);
 void ebv_local_query_gnss_custom_init();
 bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt);
+
+bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode);
 
 #ifdef EBV_UNIT_TEST
 #warning "UNIT TEST ACTIVE"

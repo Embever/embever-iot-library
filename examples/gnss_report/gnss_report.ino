@@ -32,18 +32,22 @@ void setup() {
 
 void loop(){
     while( digitalRead(PIN_BTN) );
-    bool ret = ebv_local_report_gnss();
+    bool ret = ebv_report_pvt();
     if(ret){
         p("Report request submitted\n\r");
     } else {
         p("Failed to submit report request\n\r");
     }
     bool has_result = false;
-    ebv_gnss_status_report_t status;
+    ebv_gps_status_t status;
     while(!has_result){
+        // CaaM has a long (15 minutes) timeout for searching GPS fix
+        // In case of a weak GPS signal, this loop can block the execution up to this time
+        // The implemented pulling technic is a demonstration of the API
+        // For a release build, this implementation is not recommended, the gps status can be queried at any time later
         delay(30 * 1000);
-        ebv_local_query_gnss_status(&status);
-        if( status.gps_status == EBV_GNSS_STATUS_STOPPED){
+        ebv_query_gps_status(&status);
+        if( status.state == EBV_GPS_STATUS_STOPPED){
             has_result = true;
         }
     }

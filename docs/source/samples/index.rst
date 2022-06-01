@@ -23,3 +23,4 @@ To see more, select one of the sample applications.
    cloud_blinky
    gnss_simple
    gnss_report
+   pwr_down
