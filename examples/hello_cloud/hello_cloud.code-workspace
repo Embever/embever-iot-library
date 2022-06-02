@@ -232,6 +232,22 @@
 				"problemMatcher": []
 			},
 			{
+				"label": "Serial monitor",
+				"type": "shell",
+				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true,
+					"clear": true
+				},
+				"problemMatcher": []
+			},
+			{
 				"label": "Build, Flash and Monitor",
 				"type": "shell",
 				"group": "build",

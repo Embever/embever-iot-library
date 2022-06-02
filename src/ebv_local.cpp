@@ -38,6 +38,7 @@
 #define LOG_MODULE_NAME EBV_LOCAL_LOG_NAME
 #include "ebv_log.h"
 
+static bool ebv_local_gnss_submit(esp_response_t *response);
 #ifndef EBV_UNIT_TEST
 static bool _ebv_local_parse_gnss_response(esp_response_t *response, ebv_gnss_data_t *pvt);
 static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint8_t payload_len, ebv_gnss_request_kind query_type, ebv_gnss_data_t *pvt);
@@ -55,6 +56,14 @@ bool ebv_local_query_gnss(ebv_gnss_data_t *pvt){
     _gnss_query_type[3] = EBV_GNSS_REQUEST_DATETIME;
     _gnss_query_type_len = 4;
     return ebv_local_query_gnss_submit(pvt);
+}
+
+bool ebv_report_pvt(){
+    _gnss_query_type[0] = 0x91;
+    _gnss_query_type[1] = EBV_GNSS_REPORT_LOCATION;
+    _gnss_query_type_len = 2;
+    esp_response_t resp;
+    return ebv_local_gnss_submit(&resp);
 }
 
 void ebv_local_query_gnss_custom_init(){
@@ -78,33 +87,90 @@ bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt){
     return ebv_local_query_gnss_submit(pvt);
 }
 
-static bool ebv_local_query_gnss_submit(ebv_gnss_data_t *pvt){
+bool ebv_query_gps_status(ebv_gps_status_t *status){
+    _gnss_query_type[0] = 0x91;
+    _gnss_query_type[1] = EBV_GNSS_REQUEST_STATUS;
+    _gnss_query_type_len = 2;
+    esp_response_t resp;
+    bool ret = ebv_local_gnss_submit(&resp);
+    if(!ret){
+        return false;
+    }
+    // Parsing response
+    cw_unpack_context uc;
+    cw_unpack_context_init(&uc, resp.payload, resp.payload_len, NULL);
+    cw_unpack_next(&uc);
+    if(uc.item.type != CWP_ITEM_ARRAY){
+        return false;
+    }
+    
+    cw_unpack_next(&uc);
+    if(uc.item.type != CWP_ITEM_POSITIVE_INTEGER){
+        return false;
+    }
+    status->state = (uint8_t) uc.item.as.u64;
+    
+    cw_unpack_next(&uc);
+    if(uc.item.type != CWP_ITEM_BOOLEAN){
+        return false;
+    }
+    status->is_last_fix_success = uc.item.as.boolean;
+
+    return true;
+}
+
+bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
     esp_packet_t pkg;
-     
+    if(op_mode == EBV_OP_MODE_PWR_DOWN){
+        pkg.data[0] = 0x91;
+        pkg.data[1] = 0xC3;
+        ebv_delay(5 * 1000);
+        ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PWR_MODE, pkg.data, 2);
+        if( !ebv_esp_submitPacket(&pkg) ){
+            DEBUG_MSG_TRACE("Failed to submit package");
+            return false;
+        }
+    } else {
+        // The device is sleeping, try to send a long LOW pulse over I2C to wake it up
+        ebv_esp_wakeup_device();
+        ebv_delay(10 * 1000);
+        return waitForDevice();
+    }
+
+    return true;
+}
+
+static bool ebv_local_gnss_submit(esp_response_t *response){
+    esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_UPDATE_GNSS_LOCATION, (uint8_t *) &_gnss_query_type, _gnss_query_type_len);
     if( !ebv_esp_submitPacket(&pkg) ){
         DEBUG_MSG_TRACE("Failed to submit package");
         return false;
     }
-    esp_response_t response;
-    if( !ebv_esp_queryDelayedResponse(&response) ){
+    if( !ebv_esp_queryDelayedResponse(response) ){
         DEBUG_MSG_TRACE("Failed to read delayed response");
         return false;
     }
     // verify
-    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_UPDATE_GNSS_LOCATION);
+    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(response, ESP_CMD_UPDATE_GNSS_LOCATION);
     if(res != EBV_ESP_RESP_RES_OK ){
         DEBUG_MSG_TRACE("Delayed response validation failed");
         return false;
     }
-    DEBUG_MSG_TRACE("Parsing response, len: %d", response.payload_len);
+    DEBUG_MSG_TRACE("GNSS response payload with len: %d", response->payload_len);
 #if DEBUG_EN == 1
-    for(int i = 0; i < response.payload_len; i++){
+    for(int i = 0; i < response->payload_len; i++){
         if( !(i%8)){ DEBUG_MSG("\n\r"); }
-        DEBUG_MSG("%X ", response.payload[i]);
+        DEBUG_MSG("%X ", response->payload[i]);
     }
     DEBUG_MSG("\n\r");
 #endif
+    return true;
+}
+
+static bool ebv_local_query_gnss_submit(ebv_gnss_data_t *pvt){
+    esp_response_t response;
+    ebv_local_gnss_submit(&response);
     // Parse response
     return _ebv_local_parse_gnss_response(&response, pvt);
 }
@@ -113,7 +179,7 @@ ebv_unit_test_static bool _ebv_local_parse_gnss_response(esp_response_t *respons
     cw_unpack_context uc;
     cw_unpack_context_init(&uc, response->payload, response->payload_len, NULL);
     cw_unpack_next(&uc);
-    if(uc.item.as.array.size != (_gnss_query_type_len - 1) ){
+    if(uc.item.as.array.size != (uint8_t)(_gnss_query_type_len - 1) ){
         return false;
     }
     for(uint8_t i = 1; i < _gnss_query_type_len; i++){

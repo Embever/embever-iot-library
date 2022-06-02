@@ -8,3 +8,4 @@ docs/source/_build/*
 /env
 *.d
 *.o
+*.map

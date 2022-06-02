@@ -6,7 +6,7 @@
     // -----------------------------------------
     // The rest are only for using non-arduino tools
     // -----------------------------------------
-    "ARDUINO_SKETCH_NAME": "gnss_simple.ino",            
+    "ARDUINO_SKETCH_NAME": "gnss_report.ino",            
     "DWIRE_EXECUTABLE":"${env:DWIRE_PATH}",
     "AVR-GDB_EXECUTABLE":"${env:AVR_GDB_PATH}",
     "QEMU_AVR_BIN":"${env:QEMU_AVR_PATH}",

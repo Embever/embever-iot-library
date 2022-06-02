@@ -129,6 +129,10 @@ ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
             memcpy( &response->response[0], &resp.response[6], 2);
 #if DEBUG_EN == 1
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
+            uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
                     DEBUG_MSG_TRACE("Invalid data");
@@ -243,6 +247,10 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
         if(response_len == 4 && payload_id == ESP_DL_PAYLOAD_KIND_ERROR){                                       // We got an error, let it see what kind of
             DEBUG_MSG_TRACE("Pkg received: LEN: 0x%x P_ID: 0x%x", response_len, payload_id);
             DEBUG_MSG_TRACE("Error result: ");
+            response->has_error_code = true;
+            memcpy( &response->response[0], &resp.response[6], 2);
+#if DEBUG_EN == 1
+            uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             response->has_error_code = true;
             memcpy( &response->response[0], &resp.response[6], 2);
 #if DEBUG_EN == 1
