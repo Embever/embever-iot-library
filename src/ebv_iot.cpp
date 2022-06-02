@@ -131,7 +131,6 @@ ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             response->has_error_code = true;
             memcpy( &response->response[0], &resp.response[6], 2);
-#if DEBUG_EN == 1
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
@@ -253,7 +252,6 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             response->has_error_code = true;
             memcpy( &response->response[0], &resp.response[6], 2);
-#if DEBUG_EN == 1
             uint16_t err_code = (uint16_t) resp.response[6] | (uint16_t) resp.response[7] << 8;
             switch (err_code){
                 case ESP_ERR_INVALID_CMD_DATA:
