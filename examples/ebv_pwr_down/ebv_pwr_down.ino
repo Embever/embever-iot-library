@@ -18,9 +18,6 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
-// Undef this macro to enable sending location data to the cloud
-#define REPORT_LOCATION_DATA 
-
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
 
@@ -46,21 +43,6 @@ void loop(){
         delay_sec(30);
         return;
     }
-#ifdef REPORT_LOCATION_DATA
-    p("Submitting location report request\r\n");
-    ebv_gps_status_t gps_status;
-    memset(&gps_status, 0, sizeof(gps_status));
-    ret = ebv_report_pvt();
-    do{
-        delay_sec(30);
-        ebv_query_gps_status(&gps_status);
-    } while(gps_status.state != EBV_GPS_STATUS_STOPPED);
-    if(gps_status.is_last_fix_success){
-        p("Location data sent\r\n");
-    } else {
-        p("GPS fix timeout\r\n");
-    }
-#endif
     p("Put CaaM board to power down mode and wait 1 minute...\r\n");
     ret = ebv_local_set_op_mode(EBV_OP_MODE_PWR_DOWN);
     if(!ret){
