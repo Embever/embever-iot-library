@@ -124,6 +124,7 @@ bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
     if(op_mode == EBV_OP_MODE_PWR_DOWN){
         pkg.data[0] = 0x91;
         pkg.data[1] = 0xC3;
+        ebv_delay(5 * 1000);
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PWR_MODE, pkg.data, 2);
         if( !ebv_esp_submitPacket(&pkg) ){
             DEBUG_MSG_TRACE("Failed to submit package");
