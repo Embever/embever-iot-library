@@ -290,7 +290,7 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
 
 ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
     a->response_payload = _ebv_mpack.buff;
-    a->response_payload_size = ebv_iot_safe_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
+    a->response_payload_size = ebv_iot_safe_uint_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
     // Update the final map size
     uint8_t i = 0;
     while(i < a->response_payload_size){
@@ -516,9 +516,6 @@ void ebv_iot_dump_last_error(){
         "EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT",
         "EBV_ESP_COM_ERROR_BUSY_TIMEOUT"
     };
-
-    _Static_assert(sizeof error_msgs / sizeof *error_msgs == EBV_ESP_COM_NUM_OF_ERROR_MSG,
-        "Incomplete EBV ESP ERROR messages");
 
     p("\n\r%s\n\r", error_msgs[esp_com_err]);
 #endif
