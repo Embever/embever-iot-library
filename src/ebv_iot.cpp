@@ -55,6 +55,8 @@
 
 #define MODULE_DEBUG 0
 
+ebv_esp_com_error_t esp_com_err;
+
 typedef struct{
     uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
     uint16_t size;                           // The current size of the buffer
@@ -71,9 +73,12 @@ ebv_mpack _ebv_mpack;
 static int8_t __ebv_iot_strlen(const char * s);
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i);
 static uint8_t _ebv_mpack_getSignedLen(int long long i);
+static uint8_t ebv_iot_safe_uint_subtraction(uint8_t high, uint8_t low);
+
 
 void ebv_iot_init(){
     memset(&_ebv_mpack, 0, sizeof(ebv_mpack));
+    esp_com_err = EBV_ESP_COM_ERROR_NONE;
 }
 
 ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
@@ -190,7 +195,7 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
     if(uc.item.type != CWP_ITEM_MAP){ return false; }
     uint8_t * uc_map_start = uc.current - 1;
     cw_skip_items(&uc, uc.item.as.map.size * 2);
-    action->payload_len = uc.current - uc_map_start;
+    action->payload_len = ebv_iot_safe_uint_subtraction(uc.current, uc_map_start);
     memcpy(action->payload, uc_map_start, action->payload_len);
     if(nof_elemnts > 3){
         cw_unpack_next(&uc);
@@ -284,7 +289,7 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
 
 ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
     a->response_payload = _ebv_mpack.buff;
-    a->response_payload_size = _ebv_mpack.c.current - _ebv_mpack.c.start;
+    a->response_payload_size = ebv_iot_safe_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
     // Update the final map size
     uint8_t i = 0;
     while(i < a->response_payload_size){
@@ -317,6 +322,7 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PUT_EVENTS, e->body, e->len);
     if( !waitForDevice() ){
+        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
     ebv_esp_sendCommand(&pkg);
@@ -324,34 +330,43 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
     ebv_delay(10);
     bool ret = ebv_esp_receiveResponse(&pkg, &response);
     if(!ret){
+        esp_com_err = EBV_ESP_COM_ERROR_ACK_TIMEOUT;
         return false;
     }
     ebv_delay(20);
     if( !waitForDevice() ){
+        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
-    while( !isResponseAvailable() );
+    if(!wait_response_available()){
+        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
+        return false;
+    }
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
     ebv_esp_sendCommand(&pkg);
     ebv_delay(20);
     if( !waitForDevice() ){
+        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
     ret = ebv_esp_receiveResponse(&pkg, &response);
     if(!ret){
+        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
         return false;
     }
     ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS);
     if(res != EBV_ESP_RESP_RES_OK){
+        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_INVALID;
         return false;
     }
+
     return true;
 }
 
 bool ebv_iot_submitGenericEvent(){
     ebv_iot_event e;
     e.body = _ebv_mpack.buff;
-    e.len = _ebv_mpack.c.current - _ebv_mpack.c.start;
+    e.len = ebv_iot_safe_uint_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
     // Update the final map size
     uint8_t i = 3; // We know that the first 3 item is static
     while(i < e.len){
@@ -498,6 +513,44 @@ static uint8_t _ebv_mpack_getSignedLen(long long int i){
         return 4;
     }
     return 8;
+}
+
+static uint8_t ebv_iot_safe_uint_subtraction(uint8_t high, uint8_t low)
+{
+    return high > low ? high - low : 0;
+}
+
+ebv_esp_com_error_t ebv_iot_get_last_error_code(){
+    return esp_com_err;
+}
+
+void ebv_iot_dump_last_error(){
+#if EBV_COM_ERROR_DUMP_EN == 1
+    switch (esp_com_err)
+    {
+    case EBV_ESP_COM_ERROR_NONE:
+        p("\n\rEBV_ESP_COM_ERROR_NONE\n\r");
+        break;
+    case EBV_ESP_COM_ERROR_ACK_INVALID:
+        p("\n\rEBV_ESP_COM_ERROR_ACK_INVALID\n\r");
+        break;
+    case EBV_ESP_COM_ERROR_ACK_TIMEOUT:
+        p("\n\rEBV_ESP_COM_ERROR_ACK_TIMEOUT\n\r");
+        break;
+    case EBV_ESP_COM_ERROR_RESPONSE_INVALID:
+        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_INVALID\n\r");
+        break;
+    case EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT:
+        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_TIMEOUT\n\r");
+        break;
+     case EBV_ESP_COM_ERROR_BUSY_TIMEOUT:
+        p("\n\rEBV_ESP_COM_ERROR_BUSY_TIMEOUT\n\r");
+        break;
+    default:
+        p("\n\rUNKNOWN\n\r");
+        break;
+    }
+#endif
 }
 
 #ifdef __cplusplus
