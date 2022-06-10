@@ -45,7 +45,8 @@
 #define LOG_MODULE_NAME EBV_IOT_LOG_NAME
 #include "ebv_log.h"
 
-#define UNUSED(...) (void)(__VA_ARGS__)
+#define UNUSED(...)                     (void)(__VA_ARGS__)
+#define FAIL_IF_NOT(test, err_code)     do {if( !(test) ){ esp_com_err = (err_code); return false; }}while(0);
 
 #define EBV_MPACK_DEFAULT_SIZE          32
 #define EBV_STRLEN_MAXLEN               64
@@ -321,44 +322,25 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
 #endif
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PUT_EVENTS, e->body, e->len);
-    if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
-        return false;
-    }
+    FAIL_IF_NOT(waitForDevice(), EBV_ESP_COM_ERROR_BUSY_TIMEOUT);
+
     ebv_esp_sendCommand(&pkg);
     esp_response_t response;
     ebv_delay(10);
-    bool ret = ebv_esp_receiveResponse(&pkg, &response);
-    if(!ret){
-        esp_com_err = EBV_ESP_COM_ERROR_ACK_TIMEOUT;
-        return false;
-    }
+    FAIL_IF_NOT(ebv_esp_receiveResponse(&pkg, &response), EBV_ESP_COM_ERROR_ACK_TIMEOUT);
+
     ebv_delay(20);
-    if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
-        return false;
-    }
-    if(!wait_response_available()){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
-        return false;
-    }
+    FAIL_IF_NOT(waitForDevice(), EBV_ESP_COM_ERROR_BUSY_TIMEOUT);
+    FAIL_IF_NOT(wait_response_available(), EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT);
+
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
     ebv_esp_sendCommand(&pkg);
     ebv_delay(20);
-    if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
-        return false;
-    }
-    ret = ebv_esp_receiveResponse(&pkg, &response);
-    if(!ret){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
-        return false;
-    }
-    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS);
-    if(res != EBV_ESP_RESP_RES_OK){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_INVALID;
-        return false;
-    }
+    FAIL_IF_NOT(waitForDevice(), EBV_ESP_COM_ERROR_BUSY_TIMEOUT);
+    FAIL_IF_NOT(ebv_esp_receiveResponse(&pkg, &response), EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT);
+    FAIL_IF_NOT(
+        (ebv_esp_resp_res_t)ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS) == EBV_ESP_RESP_RES_OK,
+        EBV_ESP_COM_ERROR_RESPONSE_INVALID);
 
     return true;
 }
@@ -526,30 +508,19 @@ ebv_esp_com_error_t ebv_iot_get_last_error_code(){
 
 void ebv_iot_dump_last_error(){
 #if EBV_COM_ERROR_DUMP_EN == 1
-    switch (esp_com_err)
-    {
-    case EBV_ESP_COM_ERROR_NONE:
-        p("\n\rEBV_ESP_COM_ERROR_NONE\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_ACK_INVALID:
-        p("\n\rEBV_ESP_COM_ERROR_ACK_INVALID\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_ACK_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_ACK_TIMEOUT\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_RESPONSE_INVALID:
-        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_INVALID\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_TIMEOUT\n\r");
-        break;
-     case EBV_ESP_COM_ERROR_BUSY_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_BUSY_TIMEOUT\n\r");
-        break;
-    default:
-        p("\n\rUNKNOWN\n\r");
-        break;
-    }
+    static const char * const error_msgs[] = {
+        "EBV_ESP_COM_ERROR_NONE",
+        "EBV_ESP_COM_ERROR_ACK_INVALID",
+        "EBV_ESP_COM_ERROR_ACK_TIMEOUT",
+        "EBV_ESP_COM_ERROR_RESPONSE_INVALID",
+        "EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT",
+        "EBV_ESP_COM_ERROR_BUSY_TIMEOUT"
+    };
+
+    _Static_assert(sizeof error_msgs / sizeof *error_msgs == EBV_ESP_COM_NUM_OF_ERROR_MSG,
+        "Incomplete EBV ESP ERROR messages");
+
+    p("\n\r%s\n\r", error_msgs[esp_com_err]);
 #endif
 }
 
