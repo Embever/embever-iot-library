@@ -59,6 +59,15 @@ typedef struct{
     uint8_t response_payload_size;
 } ebv_action_t;
 
+typedef enum {
+    EBV_ESP_COM_ERROR_NONE,
+    EBV_ESP_COM_ERROR_ACK_TIMEOUT,
+    EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT,
+    EBV_ESP_COM_ERROR_ACK_INVALID,
+    EBV_ESP_COM_ERROR_RESPONSE_INVALID,
+    EBV_ESP_COM_ERROR_BUSY_TIMEOUT
+} ebv_esp_com_error_t;
+
 typedef struct{
     uint8_t *body;
     uint8_t len;
@@ -99,5 +108,7 @@ bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
 bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
+ebv_esp_com_error_t ebv_iot_get_last_error_code();
+void ebv_iot_dump_last_error();
 
 #endif

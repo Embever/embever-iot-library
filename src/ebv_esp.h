@@ -116,9 +116,8 @@ void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t 
 ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd);
 void ebv_esp_wakeup_device();
 bool waitForResponse();
-bool isResponseAvailable();
 bool waitForDevice();
-bool isDeviceBusy();
+bool wait_response_available();
 
 
 #endif

@@ -53,8 +53,11 @@ void loop(){
         p("Event sent\n\r");
     } else {
         p("Sending event failed\n\r");
+        ebv_esp_com_error_t err = ebv_iot_get_last_error_code();
+        p("ERROR CODE: %d\n\r", err);
+        p("ERROR MSG: ");
+        ebv_iot_dump_last_error();
     }
-    waitForDevice();
     delay(1000);
     set_led(false);
 }

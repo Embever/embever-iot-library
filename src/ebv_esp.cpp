@@ -57,8 +57,18 @@
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
-static bool wait_response_available();
 uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len );
+
+/*****************************   Static Functions   ***************************/
+static bool isDeviceBusy(){
+    return !ebv_esp_gpio_readReady();
+}
+
+static bool isResponseAvailable(){
+    return !ebv_esp_gpio_readIRQ();
+}
+/******************************************************************************/
+
 
 void ebv_esp_setDeviceAddress(uint8_t addr){
     DEVICE_ADDRESS = addr;
@@ -441,12 +451,12 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
     if( resp->sop != ESP_RESPONSE_SOP_SOR_ID ||
         resp->command != ESP_CMD_READ_DELAYED_RESP )
     {
-        DEBUG_MSG_TRACE("Verifing delayed response header failed: SOP: 0x%x, CMD: 0x%x", resp->sop, resp->command);
+        DEBUG_MSG_TRACE("Verifying delayed response header failed: SOP: 0x%x, CMD: 0x%x", resp->sop, resp->command);
         return EBV_ESP_RESP_RES_INVALID;
     }
     switch (trigger_esp_cmd){
     case ESP_CMD_PUT_EVENTS:{
-        DEBUG_MSG_TRACE("Verifing PUT_EVENT response");
+        DEBUG_MSG_TRACE("Verifying PUT_EVENT response");
         if(resp->len < 4){
             DEBUG_MSG_TRACE("Response too short : %d", resp->len);
             return EBV_ESP_RESP_RES_INVALID;
@@ -472,7 +482,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         break;
         }
     case ESP_CMD_UPDATE_GNSS_LOCATION:
-        DEBUG_MSG_TRACE("Verifing UPDATE_GNSS_LOCATION response");
+        DEBUG_MSG_TRACE("Verifying UPDATE_GNSS_LOCATION response");
         if(resp->len < 4){
             DEBUG_MSG_TRACE("Response too short : %d", resp->len);
             return EBV_ESP_RESP_RES_INVALID;
@@ -496,7 +506,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         return EBV_ESP_RESP_RES_OK;
         break;                      // dummy break
     case ESP_CMD_PWR_MODE:
-         DEBUG_MSG_TRACE("Verifing PWR_MODE response");
+         DEBUG_MSG_TRACE("Verifying PWR_MODE response");
          if(resp->len < 4){
             DEBUG_MSG_TRACE("Response too short : %d", resp->len);
             return EBV_ESP_RESP_RES_INVALID;
@@ -522,10 +532,6 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
     return EBV_ESP_RESP_RES_INVALID;
 }
 
-bool isDeviceBusy(){
-    return !ebv_esp_gpio_readReady();
-}
-
 bool waitForDevice(){
     uint8_t timeout = EBV_ESP_DEVICE_BUSY_TIMEOUT_S;
     while(isDeviceBusy() && timeout){
@@ -535,17 +541,13 @@ bool waitForDevice(){
     return timeout ? true : false;
 }
 
-static bool wait_response_available(){
+bool wait_response_available(){
     uint8_t timeout = EBV_ESP_RESPONSE_AVAILABLE_TIMEOUT_S;
     while(!isResponseAvailable() && timeout){
         timeout--;
         ebv_delay(1000);
     }
     return timeout ? true : false;
-}
-
-bool isResponseAvailable(){
-    return !ebv_esp_gpio_readIRQ();
 }
 
 bool waitForResponse(){
