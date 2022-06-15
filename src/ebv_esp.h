@@ -79,6 +79,10 @@ struct esp_response_s{
     bool    has_error_code;
 };
 
+typedef enum {
+    EBV_ESP_S_F_WAIT_BEGIN = 0x01,
+    EBV_ESP_S_F_WAIT_END   = 0x02,
+} ebv_esp_submit_flags_t;
 
 enum {
     /* Pin configuration… 
@@ -107,15 +111,22 @@ typedef struct esp_response_s esp_response_t;
 void ebv_esp_setDeviceAddress(uint8_t addr);
 void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint8_t data_len);
 bool ebv_esp_sendCommand(esp_packet_t *pkg);
+
+// TODO: remove these 2, old and should not be used anymore
 bool ebv_esp_submitPacket(esp_packet_t *pkg);
 bool ebv_esp_queryDelayedResponse(esp_response_t *resp);
+
+ebv_ret_t ebv_esp_submit_packet(esp_packet_t *pkg, esp_response_t *response, 
+    ebv_esp_submit_flags_t wait_flags = (ebv_esp_submit_flags_t)(EBV_ESP_S_F_WAIT_BEGIN | EBV_ESP_S_F_WAIT_END));
+ebv_ret_t ebv_esp_query_delayed_response(esp_response_t *resp, bool double_check = true);
+
 bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp);
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
 void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t *mpack_response_details, uint8_t response_details_len, bool isActionSucceed);
 ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd);
 void ebv_esp_wakeup_device();
-bool waitForResponse();
+// bool waitForResponse();
 bool waitForDevice();
 bool wait_response_available();
 

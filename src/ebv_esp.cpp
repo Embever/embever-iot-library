@@ -37,6 +37,7 @@
 #include "ebv_delay.h"
 #include "print_serial.h"
 
+#include <Arduino.h>
 #include <extcwpack.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,17 +58,10 @@
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
-uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len );
-
-/*****************************   Static Functions   ***************************/
-static bool isDeviceBusy(){
-    return !ebv_esp_gpio_readReady();
-}
-
-static bool isResponseAvailable(){
-    return !ebv_esp_gpio_readIRQ();
-}
-/******************************************************************************/
+static uint32_t ebv_esp_generateCrc32(uint8_t *data, uint8_t len);
+static bool isDeviceBusy(void);
+static bool isResponseAvailable(void);
+static ebv_ret_t ebv_esp_send_receive(esp_packet_t *pkg, esp_response_t *resp, bool wait_before_receive = false);
 
 
 void ebv_esp_setDeviceAddress(uint8_t addr){
@@ -147,6 +141,70 @@ bool ebv_esp_sendCommand(esp_packet_t *pkg){
     return false;
 }
 
+
+/** @brief: does the whole ESP packet submission logic by:
+            1. waiting device to be ready
+            2. sending the desired command and get response
+            3. (optional) waiting device to be ready again
+ *  @param: (esp_packet_t) *pkg: pointer to ESP packet data structure
+ *  @param: (esp_response_t) *resp: pointer to ESP response structure
+ *  @param: (ebv_esp_submit_flags_t) wait_flags: decide whether to wait or not
+                for device to be ready on the beginning or end of the function
+ */
+ebv_ret_t ebv_esp_submit_packet(esp_packet_t *pkg, esp_response_t *resp, 
+    ebv_esp_submit_flags_t wait_flags)
+{
+    // 1. waits device to be ready to receive commands
+    if (wait_flags & EBV_ESP_S_F_WAIT_BEGIN) {
+        if( !waitForDevice() ) {
+            DEBUG_MSG_TRACE("Timeout while waiting for device");
+            return EBV_RET_TIMEOUT;
+        }
+    }
+
+    // 2. sends command and get response
+    ebv_ret_t ret = ebv_esp_send_receive(pkg, resp);
+    if ( ret != EBV_RET_OK ) { return ret; }
+
+    // 3. waits again device to be ready, if needed
+    if (wait_flags & EBV_ESP_S_F_WAIT_END) {
+        ebv_delay(20);
+        if( !waitForDevice() ){
+            DEBUG_MSG_TRACE("Timeout while waiting for device");
+            return EBV_RET_TIMEOUT;
+        }
+    }
+    return EBV_RET_OK;
+}
+
+/** @brief: does the whole ESP waiting for Delayer Response logic by:
+            1. waiting a delayed response to be available
+            2. sending a confirmation that it was received
+            3. (optional) waiting device to be ready again
+            4. reading the delayed reponse
+ *  @param: (esp_packet_t) *pkg: pointer to ESP Response data structure
+ *  @param: (bool) double_check: should re-check IRQ pin, as "debounce"
+ */
+ebv_ret_t ebv_esp_query_delayed_response(esp_response_t *resp, bool double_check)
+{
+    // 1. waits delayed response to be available
+    if( !wait_response_available() ){
+        DEBUG_MSG_TRACE("Timeout while waiting for device");
+        return EBV_RET_TIMEOUT;
+    }
+
+    if( double_check && ebv_esp_gpio_readIRQ() != LOW ) {    // Check it again
+        DEBUG_MSG_TRACE("Timeout, no Delayed Response");
+        return EBV_RET_TIMEOUT;
+    }
+
+    // 2. sends confirmation that it was received
+    esp_packet_t pkg;
+    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
+    return ebv_esp_send_receive(&pkg, resp, true);
+}
+
+// TODO: old, remove from code
 bool ebv_esp_submitPacket(esp_packet_t *pkg){
     if( !waitForDevice() ){
         DEBUG_MSG_TRACE("Timeout while waiting for device");
@@ -168,6 +226,7 @@ bool ebv_esp_submitPacket(esp_packet_t *pkg){
     return true;
 }
 
+// TODO: old, remove from code
 bool ebv_esp_queryDelayedResponse(esp_response_t *resp){
     if( !wait_response_available() ){
         DEBUG_MSG_TRACE("Timeout while waiting for device");
@@ -391,12 +450,6 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
 }
 #endif
 
-uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len ){
-    UNUSED(len);
-    UNUSED(data);
-    return 0;
-}
-
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len ){
     cw_unpack_context uc;
     cw_unpack_context_init(&uc, mpack_action_payload, len, NULL);
@@ -550,12 +603,52 @@ bool wait_response_available(){
     return timeout ? true : false;
 }
 
-bool waitForResponse(){
-    uint8_t timeout = EBV_ESP_CONNECTIVITY_TIMEOUT;
-    while( !isResponseAvailable() && timeout){
-        timeout--;
-        ebv_delay(1000);
-    }
-    return timeout ? true : false;
+// TODO: old one, remove from code
+// bool waitForResponse(){
+//     uint8_t timeout = EBV_ESP_CONNECTIVITY_TIMEOUT;
+//     while( !isResponseAvailable() && timeout){
+//         timeout--;
+//         ebv_delay(1000);
+//     }
+//     return timeout ? true : false;
+// }
+
+/*****************************   Static Functions   ***************************/
+static uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len )
+{
+    UNUSED(len);
+    UNUSED(data);
+    return 0;
 }
 
+static bool isDeviceBusy(void)
+{
+    return !ebv_esp_gpio_readReady();
+}
+
+static bool isResponseAvailable(void)
+{
+    return !ebv_esp_gpio_readIRQ();
+}
+
+static ebv_ret_t ebv_esp_send_receive(esp_packet_t *pkg, esp_response_t *resp, bool wait_before_receive)
+{
+    if( !ebv_esp_sendCommand(pkg) ) {
+        DEBUG_MSG_TRACE("Failed to send command");
+        return EBV_RET_ERROR;
+    }
+    ebv_delay(10);
+
+    if( wait_before_receive ) {
+        if( !waitForDevice() ) {
+            DEBUG_MSG_TRACE("Timeout while waiting for device");
+            return EBV_RET_TIMEOUT;
+        }
+    }
+
+    if( !ebv_esp_receiveResponse(pkg, resp) ){
+        DEBUG_MSG_TRACE("Failed to receive response");
+        return EBV_RET_ESP_NO_ACK;
+    }
+    return EBV_RET_OK;
+}
