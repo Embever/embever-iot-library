@@ -113,8 +113,8 @@ void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* d
 bool ebv_esp_sendCommand(esp_packet_t *pkg);
 
 // TODO: remove these 2, old and should not be used anymore
-bool ebv_esp_submitPacket(esp_packet_t *pkg);
-bool ebv_esp_queryDelayedResponse(esp_response_t *resp);
+// bool ebv_esp_submitPacket(esp_packet_t *pkg);
+// bool ebv_esp_queryDelayedResponse(esp_response_t *resp);
 
 ebv_ret_t ebv_esp_submit_packet(esp_packet_t *pkg, esp_response_t *response, 
     ebv_esp_submit_flags_t wait_flags = (ebv_esp_submit_flags_t)(EBV_ESP_S_F_WAIT_BEGIN | EBV_ESP_S_F_WAIT_END));
@@ -129,6 +129,5 @@ void ebv_esp_wakeup_device();
 // bool waitForResponse();
 bool waitForDevice();
 bool wait_response_available();
-
 
 #endif

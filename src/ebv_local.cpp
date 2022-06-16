@@ -121,12 +121,13 @@ bool ebv_query_gps_status(ebv_gps_status_t *status){
 
 bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
     esp_packet_t pkg;
+    esp_response_t resp;
     if(op_mode == EBV_OP_MODE_PWR_DOWN){
         pkg.data[0] = 0x91;
         pkg.data[1] = 0xC3;
         ebv_delay(5 * 1000);
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PWR_MODE, pkg.data, 2);
-        if( !ebv_esp_submitPacket(&pkg) ){
+        if( ebv_esp_submit_packet(&pkg, &resp) != EBV_RET_OK ){
             DEBUG_MSG_TRACE("Failed to submit package");
             return false;
         }
@@ -142,12 +143,13 @@ bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
 
 static bool ebv_local_gnss_submit(esp_response_t *response){
     esp_packet_t pkg;
+    esp_response_t resp;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_UPDATE_GNSS_LOCATION, (uint8_t *) &_gnss_query_type, _gnss_query_type_len);
-    if( !ebv_esp_submitPacket(&pkg) ){
+    if( ebv_esp_submit_packet(&pkg, &resp) != EBV_RET_OK){
         DEBUG_MSG_TRACE("Failed to submit package");
         return false;
     }
-    if( !ebv_esp_queryDelayedResponse(response) ){
+    if( ebv_esp_query_delayed_response(response, false) != EBV_RET_OK){
         DEBUG_MSG_TRACE("Failed to read delayed response");
         return false;
     }

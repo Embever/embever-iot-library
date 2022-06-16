@@ -100,10 +100,12 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
                                                     char :          _ebv_iot_addCharPayload               \
                                                     )(key,value)
 #endif
+
 void ebv_iot_init();
-ebv_ret_t ebv_iot_receiveAction(esp_response_t *response);
+ebv_ret_t ebv_iot_submit_action_result(ebv_action_t *action, esp_response_t *response);
+ebv_ret_t ebv_iot_receive_action(esp_response_t *response);
 bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action );
-ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response);
+
 ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response);
 bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
@@ -111,5 +113,7 @@ bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
 ebv_esp_com_error_t ebv_iot_get_last_error_code();
 void ebv_iot_dump_last_error();
+
+// ebv_ret_t ebv_iot_receiveAction(esp_response_t *response);
 
 #endif

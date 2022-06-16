@@ -26,8 +26,8 @@
 
 #if MODULE_LOG_EN == 1
     #define DEBUG_EN 1
-    #define DEBUG_MSG_TRACE(...) p("%s:%d in %s() --> ", __FILE__, __LINE__, __FUNCTION__); p(__VA_ARGS__); p("\n\r")
     #define DEBUG_MSG(...) p(__VA_ARGS__)
+    #define DEBUG_MSG_TRACE(...) DEBUG_MSG(__VA_ARGS__) // p("%s:%d in %s() --> ", __FILE__, __LINE__, __FUNCTION__); p(__VA_ARGS__); p("\n\r")
 #else
     #define DEBUG_EN 0
     #define DEBUG_MSG_TRACE(...)

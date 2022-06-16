@@ -204,50 +204,50 @@ ebv_ret_t ebv_esp_query_delayed_response(esp_response_t *resp, bool double_check
     return ebv_esp_send_receive(&pkg, resp, true);
 }
 
-// TODO: old, remove from code
-bool ebv_esp_submitPacket(esp_packet_t *pkg){
-    if( !waitForDevice() ){
-        DEBUG_MSG_TRACE("Timeout while waiting for device");
-        return false;
-    }
-    ebv_esp_sendCommand(pkg);
-    esp_response_t response;
-    ebv_delay(10);
-    bool ret = ebv_esp_receiveResponse(pkg, &response);
-    if(!ret){
-        DEBUG_MSG_TRACE("No ACK response received");
-        return false;
-    }
-    ebv_delay(20);
-    if( !waitForDevice() ){
-        DEBUG_MSG_TRACE("Timeout while waiting for device");
-        return false;
-    }
-    return true;
-}
+// // TODO: old, remove from code
+// bool ebv_esp_submitPacket(esp_packet_t *pkg){
+//     if( !waitForDevice() ){
+//         DEBUG_MSG_TRACE("Timeout while waiting for device");
+//         return false;
+//     }
+//     ebv_esp_sendCommand(pkg);
+//     esp_response_t response;
+//     ebv_delay(10);
+//     bool ret = ebv_esp_receiveResponse(pkg, &response);
+//     if(!ret){
+//         DEBUG_MSG_TRACE("No ACK response received");
+//         return false;
+//     }
+//     ebv_delay(20);
+//     if( !waitForDevice() ){
+//         DEBUG_MSG_TRACE("Timeout while waiting for device");
+//         return false;
+//     }
+//     return true;
+// }
 
-// TODO: old, remove from code
-bool ebv_esp_queryDelayedResponse(esp_response_t *resp){
-    if( !wait_response_available() ){
-        DEBUG_MSG_TRACE("Timeout while waiting for device");
-        return false;
-    }
-    esp_packet_t pkg;
-    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
-    ebv_esp_sendCommand(&pkg);
-    ebv_delay(20);
-    if( !waitForDevice() ){
-        DEBUG_MSG_TRACE("Timeout while waiting for device");
-        return false;
-    }
-    bool ret = ebv_esp_receiveResponse(&pkg, resp);
-    if(!ret){
-        DEBUG_MSG_TRACE("No delayed response received");
-        return false;
-    }
+// // TODO: old, remove from code
+// bool ebv_esp_queryDelayedResponse(esp_response_t *resp){
+//     if( !wait_response_available() ){
+//         DEBUG_MSG_TRACE("Timeout while waiting for device");
+//         return false;
+//     }
+//     esp_packet_t pkg;
+//     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
+//     ebv_esp_sendCommand(&pkg);
+//     ebv_delay(20);
+//     if( !waitForDevice() ){
+//         DEBUG_MSG_TRACE("Timeout while waiting for device");
+//         return false;
+//     }
+//     bool ret = ebv_esp_receiveResponse(&pkg, resp);
+//     if(!ret){
+//         DEBUG_MSG_TRACE("No delayed response received");
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
     uint8_t timeout_ms;
