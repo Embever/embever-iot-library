@@ -46,15 +46,15 @@ void setup() {
     delay(1000);
     set_led(false);
     LED_state = false;
-    while( digitalRead(PIN_BTN) );
 }
 
 void loop(){
+    while( digitalRead(PIN_BTN) );
     p("Fetching\n\r");
     esp_response_t response;
     bool ret;
     ebv_ret_t ebv_ret;
-    ebv_ret = ebv_iot_receiveAction(&response);
+    ebv_ret = ebv_iot_receive_action(&response);
     if( ebv_ret == EBV_RET_NO_ACTION ){
         p("No action for this device\n\r");
         goto end;
