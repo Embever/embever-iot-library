@@ -13,6 +13,8 @@
 // #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
 // #define PIN_LED                           4       // LED, active HIGH
 
+#define EBV_GPS_WITH_PARAMS
+
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire.h"
@@ -20,8 +22,6 @@
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
-
-
 
 void setup() {
     Serial.begin(115200);
@@ -31,8 +31,14 @@ void setup() {
 }
 
 void loop(){
+    bool ret = false;
     while( digitalRead(PIN_BTN) );
-    bool ret = ebv_report_pvt();
+    #ifdef EBV_GPS_WITH_PARAMS
+        ebv_report_pvt_custom_params(5, 100);
+    #else
+        ebv_report_pvt();
+    #endif
+
     if(ret){
         p("Report request submitted\n\r");
     } else {

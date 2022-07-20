@@ -66,6 +66,16 @@ bool ebv_report_pvt(){
     return ebv_local_gnss_submit(&resp);
 }
 
+bool ebv_report_pvt_custom_params(uint8_t max_timeout, uint8_t min_acc){
+    _gnss_query_type[0] = 0x91;
+    _gnss_query_type[1] = EBV_GNSS_REPORT_LOCATION;
+    _gnss_query_type[2] = max_timeout;
+    _gnss_query_type[3] = min_acc;
+    _gnss_query_type_len = 4;
+    esp_response_t resp;
+    return ebv_local_gnss_submit(&resp);
+}
+
 void ebv_local_query_gnss_custom_init(){
     memset(_gnss_query_type, 0, sizeof(_gnss_query_type));
     _gnss_query_type[0] = 0x90;
@@ -103,13 +113,13 @@ bool ebv_query_gps_status(ebv_gps_status_t *status){
     if(uc.item.type != CWP_ITEM_ARRAY){
         return false;
     }
-    
+
     cw_unpack_next(&uc);
     if(uc.item.type != CWP_ITEM_POSITIVE_INTEGER){
         return false;
     }
     status->state = (uint8_t) uc.item.as.u64;
-    
+
     cw_unpack_next(&uc);
     if(uc.item.type != CWP_ITEM_BOOLEAN){
         return false;
