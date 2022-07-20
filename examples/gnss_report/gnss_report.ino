@@ -34,9 +34,9 @@ void loop(){
     bool ret = false;
     while( digitalRead(PIN_BTN) );
     #ifdef EBV_GPS_WITH_PARAMS
-        ebv_report_pvt_custom_params(5, 100);
+        ret = ebv_report_pvt_custom_params(5, 100);
     #else
-        ebv_report_pvt();
+        ret = ebv_report_pvt();
     #endif
 
     if(ret){
