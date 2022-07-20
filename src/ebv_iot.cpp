@@ -73,7 +73,6 @@ ebv_mpack _ebv_mpack;
 static int8_t __ebv_iot_strlen(const char * s);
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i);
 static uint8_t _ebv_mpack_getSignedLen(int long long i);
-static uint8_t ebv_iot_safe_uint_subtraction(uint8_t high, uint8_t low);
 
 
 void ebv_iot_init(){
@@ -195,7 +194,7 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
     if(uc.item.type != CWP_ITEM_MAP){ return false; }
     uint8_t * uc_map_start = uc.current - 1;
     cw_skip_items(&uc, uc.item.as.map.size * 2);
-    action->payload_len = ebv_iot_safe_uint_subtraction(uc.current, uc_map_start);
+    action->payload_len = uc.current - uc_map_start;
     memcpy(action->payload, uc_map_start, action->payload_len);
     if(nof_elemnts > 3){
         cw_unpack_next(&uc);
@@ -289,7 +288,7 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
 
 ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *response){
     a->response_payload = _ebv_mpack.buff;
-    a->response_payload_size = ebv_iot_safe_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
+    a->response_payload_size = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
     uint8_t i = 0;
     while(i < a->response_payload_size){
@@ -366,7 +365,7 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
 bool ebv_iot_submitGenericEvent(){
     ebv_iot_event e;
     e.body = _ebv_mpack.buff;
-    e.len = ebv_iot_safe_uint_subtraction(_ebv_mpack.c.current, _ebv_mpack.c.start);
+    e.len = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
     uint8_t i = 3; // We know that the first 3 item is static
     while(i < e.len){
@@ -446,7 +445,7 @@ bool _ebv_iot_addDoublePayload(const char * k, double v){
 bool _ebv_iot_addStringPayload(const char * k, const char * v){
     uint8_t k_len = __ebv_iot_strlen(k);
     uint8_t v_len = __ebv_iot_strlen(v);
-    // TODO: Check remaining space in buffer 
+    // TODO: Check remaining space in buffer
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, v, v_len);
     _ebv_mpack.elements++;
@@ -499,7 +498,7 @@ static uint8_t _ebv_mpack_getSignedLen(long long int i){
         }
         return 8;
     }
-    
+
     if (i >= -32){
         return 0;
     }
@@ -513,11 +512,6 @@ static uint8_t _ebv_mpack_getSignedLen(long long int i){
         return 4;
     }
     return 8;
-}
-
-static uint8_t ebv_iot_safe_uint_subtraction(uint8_t high, uint8_t low)
-{
-    return high > low ? high - low : 0;
 }
 
 ebv_esp_com_error_t ebv_iot_get_last_error_code(){

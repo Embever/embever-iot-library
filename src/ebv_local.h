@@ -62,6 +62,7 @@ typedef enum{
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
 bool ebv_report_pvt();
+bool ebv_report_pvt_custom_params(uint8_t max_timeout, uint8_t min_acc);
 bool ebv_query_gps_status(ebv_gps_status_t *status);
 void ebv_local_query_gnss_custom_init();
 bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
