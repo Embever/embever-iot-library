@@ -408,6 +408,27 @@ bool ebv_iot_initGenericResponse(){
     return true;
 }
 
+void _ebv_iot_build_uint_list(ebv_iot_custom_msg_data_t *l, uint8_t num_args, ...){
+    va_list ap;
+    uint8_t i;
+    cw_pack_context c;
+    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    va_start(ap, num_args);
+    cw_pack_array_size(&c, num_args);
+    for(i = 0; i < num_args; i++) {
+        unsigned int arg = va_arg(ap, unsigned int);
+        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(arg)){
+            l->buf_len = 0;
+            return;
+        }
+        cw_pack_unsigned(&c, arg);
+    }
+    
+    va_end(ap);
+    l->buf_len = c.current - c.start;
+    return;
+}
+
 bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
@@ -454,6 +475,14 @@ bool _ebv_iot_addCharPayload(const char * k, const char v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, &v, 1);
+    _ebv_mpack.elements++;
+    return true;
+}
+
+bool _ebv_iot_addCustomPayload(const char *k, ebv_iot_custom_msg_data_t *d){
+    uint8_t k_len = __ebv_iot_strlen(k);
+    cw_pack_str(&_ebv_mpack.c, k, k_len);
+    cw_pack_insert(&_ebv_mpack.c, d->buf, d->buf_len);
     _ebv_mpack.elements++;
     return true;
 }
@@ -563,5 +592,8 @@ void ebv_iot_dump_last_error(){
     }
     void ebv_iot_addGenericPayload(const char * key, const char value){
         _ebv_iot_addCharPayload(key, value);
+    }
+    void ebv_iot_addGenericPayload(const char * key, ebv_iot_custom_msg_data_t  *value){
+        _ebv_iot_addCustomPayload(key, value);
     }
 #endif

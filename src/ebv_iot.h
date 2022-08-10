@@ -44,9 +44,14 @@
 #include "ebv_i2c.h"
 #include "ebv_esp_gpio.h"
 #include "ebv_conf.h"
+#include "utils/va_arg_helper.h"
 
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
+// Build an mpack list out of unsigned integers, can take various number of args
+#define EBV_IOT_BUILD_UINT_LIST(list_name, ...) ebv_iot_custom_msg_data_t list_name; list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST; _ebv_iot_build_uint_list(&list_name, PP_NARG(__VA_ARGS__), __VA_ARGS__)
+
+
 
 typedef struct{
     uint32_t id;
@@ -74,6 +79,16 @@ typedef struct{
     bool result;
 } ebv_iot_event;
 
+enum ebv_iot_custom_msg_type{
+    EBV_IOT_CUSTOM_MSG_TYPE_LIST = 0
+};
+
+typedef struct{
+    uint8_t buf[IOT_MSG_MAX_LEN / 2];
+    uint8_t buf_len;
+    enum ebv_iot_custom_msg_type _type;
+} ebv_iot_custom_msg_data_t;
+
 bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);
 bool _ebv_iot_addFloatPayload(const char * k, float v);
@@ -89,14 +104,16 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
     void ebv_iot_addGenericPayload(const char * key, double value);
     void ebv_iot_addGenericPayload(const char * key, const char * value);
     void ebv_iot_addGenericPayload(const char * key, const char value);
+    void ebv_iot_addGenericPayload(const char * key, ebv_iot_custom_msg_data_t  *value);
 #else
-    #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                  \
-                                                    unsigned int:   _ebv_iot_addUnsignedPayload,      \
-                                                    int:            _ebv_iot_addSignedPayload,      \
-                                                    float :         _ebv_iot_addFloatPayload,            \
-                                                    double :        _ebv_iot_addDoublePayload,           \
-                                                    char *:         _ebv_iot_addStringPayload,               \
-                                                    char :          _ebv_iot_addCharPayload               \
+    #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                           \
+                                                    unsigned int:   _ebv_iot_addUnsignedPayload,            \
+                                                    int:            _ebv_iot_addSignedPayload,              \
+                                                    float :         _ebv_iot_addFloatPayload,               \
+                                                    double :        _ebv_iot_addDoublePayload,              \
+                                                    char *:         _ebv_iot_addStringPayload,              \
+                                                    char :          _ebv_iot_addCharPayload                 \
+                                                    default :       _ebv_iot_addCustomPayload               \
                                                     )(key,value)
 #endif
 void ebv_iot_init();
@@ -110,5 +127,6 @@ bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
 ebv_esp_com_error_t ebv_iot_get_last_error_code();
 void ebv_iot_dump_last_error();
+void _ebv_iot_build_uint_list(ebv_iot_custom_msg_data_t *l, uint8_t num_args, ...);
 
 #endif
