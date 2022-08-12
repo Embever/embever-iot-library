@@ -44,7 +44,9 @@
 #include "ebv_i2c.h"
 #include "ebv_esp_gpio.h"
 #include "ebv_conf.h"
+#include "extcwpack.h"
 #include "utils/va_arg_helper.h"
+#include "utils/ebv_utils.h"
 
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
@@ -89,6 +91,14 @@ typedef struct{
     uint8_t buf_len;
     enum ebv_iot_custom_msg_type _type;
 } ebv_iot_custom_msg_data_t;
+
+typedef struct{
+    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
+    uint16_t size;                           // The current size of the buffer
+    uint8_t elements;                       // Count of the elements in the mpacked content
+    bool isBufferReady;                     // Flag for indicating the budder status
+    cw_pack_context c;                      // mpack struct for keep track about the packing
+} ebv_mpack;
 
 bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);

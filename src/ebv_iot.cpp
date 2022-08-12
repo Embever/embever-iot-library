@@ -35,7 +35,6 @@
 #include "ebv_esp_gpio.h"
 #include "print_serial.h"
 #include "ebv_delay.h"
-#include "extcwpack.h"
 #include "ebv_conf.h"
 
 #include <string.h>
@@ -56,15 +55,6 @@
 #define MODULE_DEBUG 0
 
 ebv_esp_com_error_t esp_com_err;
-
-typedef struct{
-    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
-    uint16_t size;                           // The current size of the buffer
-    uint8_t elements;                       // Count of the elements in the mpacked content
-    bool isBufferReady;                     // Flag for indicating the budder status
-    cw_pack_context c;                      // mpack struct for keep track about the packing
-} ebv_mpack;
-
 ebv_mpack _ebv_mpack;
 
 
