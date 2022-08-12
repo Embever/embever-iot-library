@@ -1,7 +1,12 @@
 #include "print_serial.h"
 #include <stdio.h>
 
-void (*p_print)(const char *);
+
+void _p_default_print_handler(const char *){
+        return;
+}
+
+void (*p_print)(const char *) = _p_default_print_handler;
 
 void p(const char *fmt, ... ){
         char buff[SERIAL_PRINT_MAX_BUFF_SIZE]; // resulting string limited to 128 chars
