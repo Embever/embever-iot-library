@@ -60,11 +60,15 @@ void setup() {
         return;
     }
 
-    ebv_iot_addGenericPayload("key", "value");              // Add payload
-    ebv_iot_addGenericPayload("values", &uint_list);        // Add the integer list payload
-    ebv_iot_addGenericPayload("k", "v");                    // Add more data
+    uint16_t my_data_array[] = {10, 9, 8, 7, 6};
+    EBV_IOT_BUILD_UINT_LIST_BY_ARRAY(array_list, my_data_array, sizeof(my_data_array));
+
+    ebv_iot_addGenericPayload("key", "value");                  // Add payload
+    ebv_iot_addGenericPayload("uint_list", &uint_list);         // Add the integer list payload
+    ebv_iot_addGenericPayload("my_data_array", &array_list);     // Add the integer list payload
+    ebv_iot_addGenericPayload("k", "v");                        // Add more data
     p("Sending hello_cloud event...\n\r");
-    bool ret = ebv_iot_submitGenericEvent();                // Send event
+    bool ret = ebv_iot_submitGenericEvent();                    // Send event
     if(ret){
         p("Event sent\n\r");
     } else {

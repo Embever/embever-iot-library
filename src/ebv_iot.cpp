@@ -182,7 +182,7 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
         return true;
     }
     cw_unpack_next(&uc);        // first action array
-    uint8_t nof_elemnts = uc.item.as.array.size;
+    uint8_t nof_elements = uc.item.as.array.size;
     cw_unpack_next(&uc);        // action type
     if(uc.item.type != CWP_ITEM_STR){ return false; }
     memcpy( action->type, uc.item.as.str.start, uc.item.as.str.length );
@@ -195,7 +195,7 @@ bool ebv_iot_parseAction(esp_response_t *resp, ebv_action_t *action ){
     cw_skip_items(&uc, uc.item.as.map.size * 2);
     action->payload_len = uc.current - uc_map_start;
     memcpy(action->payload, uc_map_start, action->payload_len);
-    if(nof_elemnts > 3){
+    if(nof_elements > 3){
         cw_unpack_next(&uc);
         if(uc.item.type != CWP_ITEM_POSITIVE_INTEGER){ return false; }
         action->svr_lvl = (uint8_t) uc.item.as.u64;
@@ -272,7 +272,7 @@ ebv_ret_t ebv_iot_submitActionResult(ebv_action_t *a, esp_response_t *response){
             response->has_error_code = false;
             if(response_len > ESP_CRC_LEN + ESP_FLAGS_LEN){
                 // We should get nothing as payload
-                DEBUG_MSG_TRACE("Payload len more that expecred LEN : %d", response_len);
+                DEBUG_MSG_TRACE("Payload len more that expected LEN : %d", response_len);
                 return EBV_RET_ERROR;
             } else {
                 response->response_len = 0;
@@ -297,9 +297,9 @@ ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *res
         i++;
     }
     ebv_ret_t ret;
-    if( i > a->response_payload_size){     // Set the right map size was successfull
+    if( i > a->response_payload_size){     // Set the right map size was successful
         ret = ebv_iot_submitActionResult(a, response);
-    } else {            // Set the right map size was unsuccessfull
+    } else {            // Set the right map size was unsuccessful
         ret = EBV_RET_ERROR;
     }
     _ebv_mpack.isBufferReady = false;
@@ -375,9 +375,9 @@ bool ebv_iot_submitGenericEvent(){
     }
 
     bool ret;
-    if( i > e.len){     // Set the right map size was successfull
+    if( i > e.len){     // Set the right map size was successful
         ret = ebv_iot_submitEvent(&e);
-    } else {            // Set the right map size was unsuccessfull
+    } else {            // Set the right map size was unsuccessful
         ret = false;
     }
     _ebv_mpack.isBufferReady = false;
@@ -425,6 +425,38 @@ void _ebv_iot_build_uint_list(ebv_iot_custom_msg_data_t *l, uint8_t num_args, ..
     }
     
     va_end(ap);
+    l->buf_len = c.current - c.start;
+    return;
+}
+
+void _ebv_iot_build_uint16_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements){
+    cw_pack_context c;
+    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    cw_pack_array_size(&c, nof_elements);
+    uint8_t i;
+    for(i = 0; i < nof_elements; i++) {
+        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
+            l->buf_len = 0;
+            return;
+        }
+        cw_pack_unsigned(&c, array[i]);
+    }
+    l->buf_len = c.current - c.start;
+    return;
+}
+
+void _ebv_iot_build_uint8_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements){
+    cw_pack_context c;
+    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    cw_pack_array_size(&c, nof_elements);
+    uint8_t i;
+    for(i = 0; i < nof_elements; i++) {
+        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
+            l->buf_len = 0;
+            return;
+        }
+        cw_pack_unsigned(&c, array[i]);
+    }
     l->buf_len = c.current - c.start;
     return;
 }
@@ -485,6 +517,14 @@ bool _ebv_iot_addCustomPayload(const char *k, ebv_iot_custom_msg_data_t *d){
     cw_pack_insert(&_ebv_mpack.c, d->buf, d->buf_len);
     _ebv_mpack.elements++;
     return true;
+}
+
+void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements){
+    _ebv_iot_build_uint8_list_by_array(l , array, nof_elements);
+}
+
+void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements){
+    _ebv_iot_build_uint16_list_by_array(l , array, nof_elements);
 }
 
 static int8_t __ebv_iot_strlen(const char * s){

@@ -50,6 +50,7 @@
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
 // Build an mpack list out of unsigned integers, can take various number of args
 #define EBV_IOT_BUILD_UINT_LIST(list_name, ...) ebv_iot_custom_msg_data_t list_name; list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST; _ebv_iot_build_uint_list(&list_name, PP_NARG(__VA_ARGS__), __VA_ARGS__)
+#define EBV_IOT_BUILD_UINT_LIST_BY_ARRAY(list_name, array, nof_elements) ebv_iot_custom_msg_data_t list_name; list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST; ebv_iot_build_uint_list_by_array(&list_name, array, nof_elements);
 
 
 
@@ -105,6 +106,8 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
     void ebv_iot_addGenericPayload(const char * key, const char * value);
     void ebv_iot_addGenericPayload(const char * key, const char value);
     void ebv_iot_addGenericPayload(const char * key, ebv_iot_custom_msg_data_t  *value);
+    void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements);
+    void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements);
 #else
     #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                           \
                                                     unsigned int:   _ebv_iot_addUnsignedPayload,            \
@@ -115,6 +118,10 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
                                                     char :          _ebv_iot_addCharPayload                 \
                                                     default :       _ebv_iot_addCustomPayload               \
                                                     )(key,value)
+    #define ebv_iot_build_uint_list_by_array(l, buff, len) _Generic(buff,                                  \
+                                                    uint8_t *: _ebv_iot_build_uint8_list_by_array,          \
+                                                    uint16_t *: _ebv_iot_build_uint16_list_by_array,        \
+                                                    )(l, buff, len)
 #endif
 void ebv_iot_init();
 ebv_ret_t ebv_iot_receiveAction(esp_response_t *response);
