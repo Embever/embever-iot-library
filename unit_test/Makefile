@@ -4,10 +4,12 @@ BUILD_DIR ?= ./build
 BUILD_DIR_ABS ?= ./build_abs
 
 SRCS =  testrunner.cpp 											\
-		test_ebv_local.cpp
+		test_ebv_local.cpp										\
+		test_ebv_iot.cpp
 
 SRCS_ABS = 																										\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_esp.cpp											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_iot.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_local.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_delay.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_i2c.cpp											\
