@@ -402,12 +402,12 @@ void _ebv_iot_build_uint_list(ebv_iot_custom_msg_data_t *l, uint8_t num_args, ..
     va_list ap;
     uint8_t i;
     cw_pack_context c;
-    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    cw_pack_context_init(&c, l->buf, l->buf_len, NULL);
     va_start(ap, num_args);
     cw_pack_array_size(&c, num_args);
     for(i = 0; i < num_args; i++) {
         unsigned int arg = va_arg(ap, unsigned int);
-        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(arg)){
+        if( (l->buf_len - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(arg)){
             l->buf_len = 0;
             return;
         }
@@ -421,11 +421,11 @@ void _ebv_iot_build_uint_list(ebv_iot_custom_msg_data_t *l, uint8_t num_args, ..
 
 void _ebv_iot_build_uint16_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements){
     cw_pack_context c;
-    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    cw_pack_context_init(&c, l->buf, l->buf_len, NULL);
     cw_pack_array_size(&c, nof_elements);
     uint8_t i;
     for(i = 0; i < nof_elements; i++) {
-        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
+        if( (l->buf_len - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
             l->buf_len = 0;
             return;
         }
@@ -435,13 +435,29 @@ void _ebv_iot_build_uint16_list_by_array(ebv_iot_custom_msg_data_t *l, const uin
     return;
 }
 
-void _ebv_iot_build_uint8_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements){
+void _ebv_iot_build_int16_list_by_array(ebv_iot_custom_msg_data_t *l, const int16_t *array, uint8_t nof_elements){
     cw_pack_context c;
-    cw_pack_context_init(&c, l->buf, sizeof(l->buf), NULL);
+    cw_pack_context_init(&c, l->buf, l->buf_len, NULL);
     cw_pack_array_size(&c, nof_elements);
     uint8_t i;
     for(i = 0; i < nof_elements; i++) {
-        if( (sizeof(l->buf) - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
+        if( (l->buf_len - (c.current - c.start)) < _ebv_mpack_getSignedLen(array[i])){
+            l->buf_len = 0;
+            return;
+        }
+        cw_pack_signed(&c, array[i]);
+    }
+    l->buf_len = c.current - c.start;
+    return;
+}
+
+void _ebv_iot_build_uint8_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements){
+    cw_pack_context c;
+    cw_pack_context_init(&c, l->buf, l->buf_len, NULL);
+    cw_pack_array_size(&c, nof_elements);
+    uint8_t i;
+    for(i = 0; i < nof_elements; i++) {
+        if( (l->buf_len - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
             l->buf_len = 0;
             return;
         }
@@ -515,6 +531,10 @@ void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_
 
 void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements){
     _ebv_iot_build_uint16_list_by_array(l , array, nof_elements);
+}
+
+void ebv_iot_build_int_list_by_array(ebv_iot_custom_msg_data_t *l, const int16_t *array, uint8_t nof_elements){
+    _ebv_iot_build_int16_list_by_array(l , array, nof_elements);
 }
 
 static int8_t __ebv_iot_strlen(const char * s){

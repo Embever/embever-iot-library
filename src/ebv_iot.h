@@ -51,8 +51,34 @@
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
 // Build an mpack list out of unsigned integers, can take various number of args
-#define EBV_IOT_BUILD_UINT_LIST(list_name, ...) ebv_iot_custom_msg_data_t list_name; list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST; _ebv_iot_build_uint_list(&list_name, PP_NARG(__VA_ARGS__), __VA_ARGS__)
-#define EBV_IOT_BUILD_UINT_LIST_BY_ARRAY(list_name, array, nof_elements) ebv_iot_custom_msg_data_t list_name; list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST; ebv_iot_build_uint_list_by_array(&list_name, array, nof_elements);
+#define EBV_IOT_BUILD_STATIC_UINT_LIST(list_name, ...)                                              \
+            uint8_t list_name##_static_mpack_buf[(IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4)];      \
+            ebv_iot_custom_msg_data_t list_name;                                                    \
+            list_name.buf = list_name##_static_mpack_buf;                                             \
+            list_name.buf_len = (IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4);                       \
+            list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST;                                           \
+            _ebv_iot_build_uint_list(&list_name, PP_NARG(__VA_ARGS__), __VA_ARGS__)
+
+#define EBV_IOT_BUILD_STATIC_UINT_LIST_BY_ARRAY(list_name, array, nof_elements)                     \
+            uint8_t list_name##_static_mpack_buf[(IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4)];      \
+            ebv_iot_custom_msg_data_t list_name;                                                    \
+            list_name.buf = list_name##_static_mpack_buf;                                             \
+            list_name.buf_len = (IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4);                       \
+            list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST;                                           \
+            ebv_iot_build_uint_list_by_array(&list_name, array, nof_elements)
+
+#define EBV_IOT_BUILD_STATIC_INT_LIST_BY_ARRAY(list_name, array, nof_elements)                      \
+            uint8_t list_name##_static_mpack_buf[(IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4)];    \
+            ebv_iot_custom_msg_data_t list_name;                                                    \
+            list_name.buf = list_name##_static_mpack_buf;                                           \
+            list_name.buf_len = (IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4);                       \
+            ebv_iot_custom_msg_data_t list_name;                                                    \
+            list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST;                                           \
+            ebv_iot_build_int_list_by_array(&list_name, array, nof_elements)
+
+#define EBV_IOT_BUILD_INT_LIST_BY_ARRAY(list_name, array, nof_elements)                             \
+            list_name._type=EBV_IOT_CUSTOM_MSG_TYPE_LIST;                                           \
+            ebv_iot_build_int_list_by_array(&list_name, array, nof_elements)
 
 
 
@@ -87,7 +113,8 @@ enum ebv_iot_custom_msg_type{
 };
 
 typedef struct{
-    uint8_t buf[IOT_MSG_MAX_LEN / 2];
+    //uint8_t buf[(IOT_MSG_MAX_LEN / 2) + (IOT_MSG_MAX_LEN / 4)];
+    uint8_t *buf;
     uint8_t buf_len;
     enum ebv_iot_custom_msg_type _type;
 } ebv_iot_custom_msg_data_t;
@@ -118,6 +145,7 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
     void ebv_iot_addGenericPayload(const char * key, ebv_iot_custom_msg_data_t  *value);
     void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint8_t *array, uint8_t nof_elements);
     void ebv_iot_build_uint_list_by_array(ebv_iot_custom_msg_data_t *l, const uint16_t *array, uint8_t nof_elements);
+    void ebv_iot_build_int_list_by_array(ebv_iot_custom_msg_data_t *l, const int16_t *array, uint8_t nof_elements);
 #else
     #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                           \
                                                     unsigned int:   _ebv_iot_addUnsignedPayload,            \
