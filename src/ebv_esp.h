@@ -118,6 +118,7 @@ void ebv_esp_wakeup_device();
 bool waitForResponse();
 bool waitForDevice();
 bool wait_response_available();
+bool ebv_is_caam_busy();
 
 
 #endif

@@ -60,7 +60,7 @@ uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len );
 
 /*****************************   Static Functions   ***************************/
-static bool isDeviceBusy(){
+bool ebv_is_caam_busy(){
     return !ebv_esp_gpio_readReady();
 }
 
@@ -534,7 +534,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
 
 bool waitForDevice(){
     uint8_t timeout = EBV_ESP_DEVICE_BUSY_TIMEOUT_S;
-    while(isDeviceBusy() && timeout){
+    while(ebv_is_caam_busy() && timeout){
         timeout--;
         ebv_delay(1000);
     }
