@@ -6,7 +6,7 @@ UNIT_TEST_SETUP_EBV_IOT_CB;
 void test_ebv_iot_list_builder_by_array(){
     UNIT_TEST_REGISTER_ARDUINO_CB;
     const uint8_t a = 1, b = 2, c = 3, d = 4, e = 5;        // constant variables for demonstrating
-    EBV_IOT_BUILD_UINT_LIST(uint_list, a, b, c, d, e);      // build the integer list list into the uint_list variable
+    EBV_IOT_BUILD_STATIC_UINT_LIST(uint_list, a, b, c, d, e);      // build the integer list list into the uint_list variable
     if(uint_list.buf_len == 0){                             // Check the result, the buf_len should greater that 0
         return;
     }
@@ -17,8 +17,8 @@ void test_ebv_iot_list_builder_by_array(){
         TEST_ARR_EQ(expected_data, uint_list.buf, sizeof(expected_data));
     }
 
-    uint16_t my_data_array[] = {10, 9, 8, 7, 6};
-    EBV_IOT_BUILD_UINT_LIST_BY_ARRAY(array_list, my_data_array, ARR_SIZE(my_data_array));
+    uint16_t my_uint16_data_array[] = {10, 9, 8, 7, 6};
+    EBV_IOT_BUILD_STATIC_UINT_LIST_BY_ARRAY(array_list, my_uint16_data_array, ARR_SIZE(my_uint16_data_array));
 
     // TEST
     {
@@ -46,6 +46,19 @@ void test_ebv_iot_list_builder_by_array(){
         };
         TEST_EQUAL(sizeof(expected), (_ebv_mpack.c.current - _ebv_mpack.c.start));
         TEST_ARR_EQ(expected, _ebv_mpack.buff, sizeof(expected));
+    }
+
+    int16_t my_int16_data_array[] = {-10, 9, -8, 7, -6};
+    ebv_iot_custom_msg_data_t custom_payload_1;
+    uint8_t custom_payload_buffer[32];
+    custom_payload_1.buf = custom_payload_buffer;
+    custom_payload_1.buf_len = sizeof(custom_payload_buffer);
+    EBV_IOT_BUILD_INT_LIST_BY_ARRAY(custom_payload_1, my_int16_data_array, ARR_SIZE(my_int16_data_array));
+    // TEST
+    {
+        uint8_t expected_data[] = {0x95, 0xF6, 0x09, 0xF8, 0x07, 0xFA};
+        TEST_EQUAL(sizeof(expected_data), custom_payload_1.buf_len);
+        TEST_ARR_EQ(expected_data, custom_payload_1.buf, sizeof(expected_data));
     }
     return;
 }
