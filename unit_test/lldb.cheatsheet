@@ -1,1 +1,2 @@
 type format add --format dec uint8_t
+memory read --count 64 --size 1 --format x &(_ebv_mpack.buff[0])

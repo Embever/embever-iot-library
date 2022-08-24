@@ -9,3 +9,4 @@ docs/source/_build/*
 *.d
 *.o
 *.map
+unit_test/lldb.cheatsheet
