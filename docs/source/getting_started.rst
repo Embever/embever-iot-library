@@ -197,7 +197,7 @@ Digital communication logic level
 -------------------------------------
 It is necessary to match the logic level between an external device and the Embever CaaM development board to establish stable communication.
 This is possible by supplying any voltage in the supported voltage range to the VDD_IO pin.
-To omit the wiring for this pin, the SJ2 solder jumper can be used to set the logic voltage level to VCC which is 3.3 Volt.
+To omit the wiring for this pin, the SJ3 solder jumper can be used to set the logic voltage level to VCC which is 3.3 Volt.
 
 Communication with the Embever CaaM development board
 --------------------------------------------------------
