@@ -261,6 +261,16 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
     return true;
 }
 
+void ebv_esp_wakeup_device(){
+    uint8_t cnt = 32;
+    ebv_i2c_I2cBeginTransaction(DEVICE_ADDRESS);
+    while(cnt){
+        ebv_i2c_I2cWrite(0x00);
+        cnt--;
+    }
+    ebv_i2c_I2cFinishTransaction();
+}
+
 // MSGPack decoder
  #if (MODULE_DEBUG == 1)
 void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len){
@@ -473,11 +483,39 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
             DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
             return EBV_ESP_RESP_RES_INVALID;
         }
-        resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
-        resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        if(resp->len == 4){
+            // No payload on the response
+            resp->payload = NULL;
+            resp->payload_len = 0;
+        } else {
+            // If we have a payload we also have CRC and flags in the end
+            resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+            resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        }
         DEBUG_MSG_TRACE("Verification done");
         return EBV_ESP_RESP_RES_OK;
         break;                      // dummy break
+    case ESP_CMD_PWR_MODE:
+         DEBUG_MSG_TRACE("Verifing PWR_MODE response");
+         if(resp->len < 4){
+            DEBUG_MSG_TRACE("Response too short : %d", resp->len);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
+            resp->response[1] != ESP_CMD_PWR_MODE)
+        {
+            DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if(resp->len == 4){
+            // No payload on the response
+            resp->payload = NULL;
+            resp->payload_len = 0;
+        } else {
+            // If we have a payload we also have CRC and flags in the end
+            resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+            resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        }
     default:
         break;
     }

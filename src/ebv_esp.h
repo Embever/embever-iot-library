@@ -51,6 +51,7 @@
 #define ESP_CMD_READ_LOCAL_FILE 0xA7
 #define ESP_CMD_READ_LOCAL_FILE 0xA7
 #define ESP_CMD_UPDATE_GNSS_LOCATION 0xA8
+#define ESP_CMD_PWR_MODE  0xA9
 
 #define ESP_RESPONSE_SOP_SOA_ID 0x56
 #define ESP_RESPONSE_SOP_SOR_ID 0x55
@@ -113,6 +114,7 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
 void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t *mpack_response_details, uint8_t response_details_len, bool isActionSucceed);
 ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd);
+void ebv_esp_wakeup_device();
 bool waitForResponse();
 bool isResponseAvailable();
 bool waitForDevice();

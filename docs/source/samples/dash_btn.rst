@@ -53,7 +53,7 @@ After powering up the device, the following information should appear in the ser
 
     DashButton demo starting...
 
-Send an event to the cloud by pressing the external button.
+To send the event to the cloud press the external button.
 The external LED will light up for 15 seconds.
 
 To verify the event which is just sent, go to the cloud system and check the events.
