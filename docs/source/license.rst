@@ -6,7 +6,7 @@ BSD 3-clause
 
 ::
 
-  Copyright (c) 2008-2021 Emmanuel Blot <emmanuel.blot@free.fr>
+  Copyright (c) 2017-2022 Embever GmbH <info@embever.com​>
   All Rights Reserved.
 
   Redistribution and use in source and binary forms, with or without
