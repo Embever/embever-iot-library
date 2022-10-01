@@ -57,8 +57,18 @@
 #define ESP_RESPONSE_SOP_SOR_ID 0x55
 
 #define ESP_DL_PAYLOAD_KIND_ERROR   0xB3A5
-#define ESP_ERR_INVALID_CMD_ID      0x0101
-#define ESP_ERR_INVALID_CMD_DATA    0x0102
+
+// ESP ERROR CODES
+typedef enum {
+    ESP_ERR_INVALID_CMD_ID = 0x0101,
+    ESP_ERR_INVALID_CMD_DATA = 0x0102,
+    ESP_ERR_INVALID_RESP_DATA,
+    ESP_ERR_INVALID_RESP_CMD_ID,
+    ESP_ERR_NETWORK_NOT_AVAILABLE,                      // Network error, mqtt module error
+    ESP_ERR_INVALID_CLOUD_RESPONSE,                     // IoT message validation failed
+    ESP_ERR_INTERNAL_ERROR,                             // Internal error, not handled exception, bug
+    ESP_ERR_RESOURCE_BUSY                               // Introduced for EFTP write operation, means the file cache is full
+} esp_err_t;
 
 struct esp_packet_s{
     uint8_t command;

@@ -1,0 +1,18 @@
+{
+    // "ARDUINO_BOOTLOADER_VARIANT":"atmega328old", // This version using the old arduino bootloader
+    "ARDUINO_AVR_BOOTLOADER_VARIANT":"atmega328",
+    "TARGET_SERIAL_PORT":"/dev/cu.usbserial-AH025POR",
+    // "TARGET_SERIAL_PORT":"/dev/cu.usbserial-0001",
+    // -----------------------------------------
+    // The rest are only for using non-arduino tools
+    // -----------------------------------------
+    "ARDUINO_SKETCH_NAME": "eftp.ino",
+    "DWIRE_EXECUTABLE":"${env:DWIRE_PATH}",
+    "AVR-GDB_EXECUTABLE":"${env:AVR_GDB_PATH}",
+    "QEMU_AVR_BIN":"${env:QEMU_AVR_PATH}",
+    "EBV_LIB":"../../lib",
+    "cSpell.ignoreWords": [
+        "println",
+        "serprintbuf"
+    ]
+}

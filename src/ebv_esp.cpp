@@ -526,6 +526,30 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
             resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
             resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
         }
+        break;
+    case ESP_CMD_READ_LOCAL_FILE:
+        DEBUG_MSG_TRACE("Verifying READ_LOCAL_FILE response");
+         if(resp->len < 4){
+            DEBUG_MSG_TRACE("Response too short : %d", resp->len);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
+            resp->response[1] != ESP_CMD_READ_LOCAL_FILE)
+        {
+            DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+        resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+        resp->has_error_code = false;
+        if(resp->payload_len >= 4){      // an error code at least 4 bytes
+            const uint16_t payload_id = (resp->payload[0]) | (resp->payload[1] << 8);
+            if(payload_id == ESP_DL_PAYLOAD_KIND_ERROR){
+                resp->has_error_code = true;
+            }
+        }
+        return EBV_ESP_RESP_RES_OK;
+        break;
     default:
         break;
     }
