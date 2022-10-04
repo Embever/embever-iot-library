@@ -5,5 +5,6 @@
 #include "ebv_eftp.h"
 
 void test_ebv_eftp_open();
+void test_ebv_eftp_write();
 
 #endif

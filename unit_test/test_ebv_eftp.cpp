@@ -9,30 +9,76 @@ void test_ebv_eftp_open(){
         // Testing file open request with all valid data
         // Setup the test
         mock_i2c_init();
-        const unsigned char i2c_resp_1[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
-        const unsigned char i2c_resp_2[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
-        const unsigned char i2c_resp_3[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
-        mock_ebv_i2c_set_response(0, i2c_resp_1, sizeof(i2c_resp_1));
-        mock_ebv_i2c_set_response(1, i2c_resp_2, sizeof(i2c_resp_2));
-        mock_ebv_i2c_set_response(2, i2c_resp_3, sizeof(i2c_resp_3));
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
 
         // Test
         bool ret = ebv_eftp_open("file", "w");
         TEST_EQUAL(ret, true);
     }
     {
-        // Testing file open request failed
+        // Testing file open request failed by invalid req
         // Setup the test
         mock_i2c_init();
-        const unsigned char i2c_resp_1[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
-        const unsigned char i2c_resp_2[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_FAIL;
-        const unsigned char i2c_resp_3[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_FAIL;
-        mock_ebv_i2c_set_response(0, i2c_resp_1, sizeof(i2c_resp_1));
-        mock_ebv_i2c_set_response(1, i2c_resp_2, sizeof(i2c_resp_2));
-        mock_ebv_i2c_set_response(2, i2c_resp_3, sizeof(i2c_resp_3));
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_FAIL(_MOCK_I2C_ESP_ERROR_CODE_INVALID_CMD_DATA);
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
 
         // Test
         bool ret = ebv_eftp_open("file", "w");
+        TEST_EQUAL(ret, false);
+        int err_code = ebv_eftp_get_latest_error_code();
+        TEST_EQUAL(EBV_ESP_REMOTE_FILE_ERROR_INVALID_REQUEST, err_code);
+
+        
+    }
+    {
+        // Testing file open request failed by eftp error
+        // Setup the test
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_FAIL(_MOCK_I2C_ESP_ERROR_CODE_INTERNAL_ERROR);
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+
+        // Test
+        bool ret = ebv_eftp_open("file", "w");
+        TEST_EQUAL(ret, false);
+        int err_code = ebv_eftp_get_latest_error_code();
+        TEST_EQUAL(EBV_ESP_REMOTE_FILE_ERROR_OPEN_FAILED, err_code);
+    }
+}
+
+void test_ebv_eftp_write(){
+    {
+        // Testing file write OK
+        // Setup the test
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+
+        // Test
+        char dummy_data[] = {0x00};
+        bool ret = ebv_eftp_write(dummy_data, sizeof(dummy_data));
+        TEST_EQUAL(ret, true);
+    }
+    {
+        // Testing file write failed due to RESOURCE BUSY
+        // Setup the test
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_FAIL(_MOCK_I2C_ESP_ERROR_CODE_RESOURCE_BUSY);
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+
+        // Test
+        char dummy_data[] = {0x00};
+        bool ret = ebv_eftp_write(dummy_data, sizeof(dummy_data));
         TEST_EQUAL(ret, false);
         int err_code = ebv_eftp_get_latest_error_code();
         TEST_EQUAL(EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY, err_code);

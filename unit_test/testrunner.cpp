@@ -22,6 +22,7 @@ int main(){
 #endif
 #if TEST_EBV_ETFTP == 1
     test_ebv_eftp_open();
+    test_ebv_eftp_write();
 #endif
     // Print summary
     printf("\nSummary: ");
