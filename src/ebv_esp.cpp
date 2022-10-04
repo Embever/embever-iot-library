@@ -543,7 +543,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
         resp->has_error_code = false;
         if(resp->payload_len >= 4){      // an error code at least 4 bytes
-            const uint16_t payload_id = (resp->payload[0]) | (resp->payload[1] << 8);
+            const uint16_t payload_id = (resp->payload[2] << 8) | (resp->payload[3]);
             if(payload_id == ESP_DL_PAYLOAD_KIND_ERROR){
                 resp->has_error_code = true;
             }
