@@ -19,6 +19,8 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
+#define FILE_DATA_TRANSMISSION_FRAME_LEN   128
+
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
 
@@ -30,9 +32,36 @@ void setup() {
     p("\n\reFTP sample\n\r");
     bool ret = ebv_eftp_open("app_mcu_file", "w");
     if(ret){
-        char file_data[] = "This file came from the APP mcu over esp";
-        ebv_eftp_write(file_data, sizeof(file_data));
+        //char file_data[] = "This file came from the APP mcu over esp";
+        char file_data[1 * 1024];
+        unsigned int index;
+        const int file_len = sizeof(file_data);
+        for(index = 0; index < file_len; index++){
+            file_data[index] = index % 256;
+        }
+        index = 0;
+        do {
+            const int write_len = (index + FILE_DATA_TRANSMISSION_FRAME_LEN) <= file_len ? FILE_DATA_TRANSMISSION_FRAME_LEN : file_len % FILE_DATA_TRANSMISSION_FRAME_LEN; 
+            bool ret = ebv_eftp_write(&file_data[index], write_len);
+            if(ret){
+                // Success
+                index += write_len;
+                p("File write: %d / %d\n\r", index, file_len);
+            } else {
+                ebv_esp_remote_file_error_codes err =  ebv_eftp_get_latest_error_code();
+                if(err == EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY){
+                    // Need to wait a bit, the file buffer is full on the CaaM board
+                    delay(100);
+                } else {
+                    // Something else
+                    p("Unknown error during file transfer: %d\n\r", err);
+                    break;
+                }
+            }
+        } while(index < sizeof(file_data));
+        
         ebv_eftp_close();
+        p("File transfer DONE\n\r");
     } else {
         p("Failed to open remote file\n\r");
     }
