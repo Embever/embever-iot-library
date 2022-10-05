@@ -19,7 +19,7 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
-#define FILE_DATA_TRANSMISSION_FRAME_LEN   256
+#define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_PACKET_OVERHEAD)
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
@@ -36,12 +36,13 @@ void setup() {
     p("Starting file upload\n\r");
     bool ret = ebv_eftp_open("app_mcu_file", "w");
     if(ret){
+        unsigned int index;
 #define GENERATE_FILE_CONTENT   1
 #if GENERATE_FILE_CONTENT == 0
-        //char file_data[] = "This file came from the APP mcu over esp";
+        char file_data[] = "This file came from the APP mcu over esp";
+        const int file_len = sizeof(file_data);
 #else
         char file_data[4 * 1024];
-        unsigned int index;
         const int file_len = sizeof(file_data);
         for(index = 0; index < file_len; index++){
             file_data[index] = index % 256;
