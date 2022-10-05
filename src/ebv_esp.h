@@ -83,9 +83,9 @@ struct esp_response_s{
     uint8_t command;
     uint16_t len;
     uint8_t response[IOT_MSG_MAX_LEN];
-    uint8_t response_len;
+    uint16_t response_len;
     uint8_t *payload;
-    uint8_t payload_len;
+    uint16_t payload_len;
     bool    has_error_code;
 };
 
@@ -115,7 +115,7 @@ typedef struct esp_response_s esp_response_t;
 
 
 void ebv_esp_setDeviceAddress(uint8_t addr);
-void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint8_t data_len);
+void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint16_t data_len);
 bool ebv_esp_sendCommand(esp_packet_t *pkg);
 bool ebv_esp_submitPacket(esp_packet_t *pkg);
 bool ebv_esp_queryDelayedResponse(esp_response_t *resp);

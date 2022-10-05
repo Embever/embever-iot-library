@@ -74,7 +74,7 @@ void ebv_esp_setDeviceAddress(uint8_t addr){
     DEVICE_ADDRESS = addr;
 }
 
-void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint8_t data_len){
+void ebv_esp_packetBuilderByArray(esp_packet_t *pkg, uint8_t command, uint8_t* data, uint16_t data_len){
     pkg->command = command;
     if(USE_CRC){
         pkg->flags = 0;
@@ -123,11 +123,11 @@ bool ebv_esp_sendCommand(esp_packet_t *pkg){
             size_t ret = ebv_i2c_I2cWrite(pkg->command);
             ebv_i2c_I2cWrite(pkg->flags);
             ebv_i2c_I2cWrite( (uint8_t) pkg->len);
-            ebv_i2c_I2cWrite( (uint8_t) pkg->len >> 8);
-            uint8_t payload_len = pkg->len;
+            ebv_i2c_I2cWrite( (uint8_t) (pkg->len >> 8));
+            uint16_t payload_len = pkg->len;
             payload_len -= PKG_CRC_LEN;
             if(pkg->len > 4){
-                for(uint8_t i = 0; i < payload_len; i++){
+                for(uint16_t i = 0; i < payload_len; i++){
                     ebv_i2c_I2cWrite(pkg->data[i]);
                 }
             }
@@ -236,7 +236,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                 resp->command = ebv_i2c_I2cRead();
                 resp->len = ebv_i2c_I2cRead();
                 resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
-                for(uint8_t i = 0; i< resp->len; i++){
+                for(uint16_t i = 0; i< resp->len; i++){
                     resp->response[i] = ebv_i2c_I2cRead();
                 }
             }
