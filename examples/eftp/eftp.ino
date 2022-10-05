@@ -19,7 +19,7 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
-#define FILE_DATA_TRANSMISSION_FRAME_LEN   128
+#define FILE_DATA_TRANSMISSION_FRAME_LEN   256
 
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
@@ -29,16 +29,24 @@ void setup() {
     ebv_iot_init();
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
+    pinMode(PIN_BTN, INPUT);
     p("\n\reFTP sample\n\r");
+    p("Press to start the file upload...\n\r");
+    while(digitalRead(PIN_BTN));
+    p("Starting file upload\n\r");
     bool ret = ebv_eftp_open("app_mcu_file", "w");
     if(ret){
+#define GENERATE_FILE_CONTENT   1
+#if GENERATE_FILE_CONTENT == 0
         //char file_data[] = "This file came from the APP mcu over esp";
-        char file_data[1 * 1024];
+#else
+        char file_data[4 * 1024];
         unsigned int index;
         const int file_len = sizeof(file_data);
         for(index = 0; index < file_len; index++){
             file_data[index] = index % 256;
         }
+#endif
         index = 0;
         do {
             const int write_len = (index + FILE_DATA_TRANSMISSION_FRAME_LEN) <= file_len ? FILE_DATA_TRANSMISSION_FRAME_LEN : file_len % FILE_DATA_TRANSMISSION_FRAME_LEN; 
