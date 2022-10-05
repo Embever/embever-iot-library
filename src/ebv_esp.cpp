@@ -557,12 +557,12 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
 }
 
 bool waitForDevice(){
-    uint8_t timeout = EBV_ESP_DEVICE_BUSY_TIMEOUT_S;
-    while(isDeviceBusy() && timeout){
-        timeout--;
-        ebv_delay(1000);
+    unsigned int timeout_tick = EBV_ESP_DEVICE_BUSY_TIMEOUT_S * 100;
+    while(isDeviceBusy() && timeout_tick){
+        timeout_tick--;
+        ebv_delay(10);
     }
-    return timeout ? true : false;
+    return timeout_tick ? true : false;
 }
 
 bool wait_response_available(){
