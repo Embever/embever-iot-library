@@ -58,7 +58,7 @@ void test_ebv_eftp_write(){
         // Setup the test
         mock_i2c_init();
         const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
-        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK;
         mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
         mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
 
@@ -80,6 +80,29 @@ void test_ebv_eftp_write(){
         char dummy_data[] = {0x00};
         bool ret = ebv_eftp_write(dummy_data, sizeof(dummy_data));
         TEST_EQUAL(ret, false);
+        int err_code = ebv_eftp_get_latest_error_code();
+        TEST_EQUAL(EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY, err_code);
+    }
+    {
+        // Testing file write ok, fail, and ok again
+        // Setup the test
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed_fail[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_FAIL(_MOCK_I2C_ESP_ERROR_CODE_RESOURCE_BUSY);
+        const unsigned char i2c_resp_delayed_ok[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK;
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed_ok, sizeof(i2c_resp_delayed_ok));
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed_fail, sizeof(i2c_resp_delayed_fail));
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed_ok, sizeof(i2c_resp_delayed_ok));
+
+        // Test
+        char dummy_data[] = {0x00};
+        bool ret_ok_1   = ebv_eftp_write(dummy_data, sizeof(dummy_data));
+        bool ret_fail_1 = ebv_eftp_write(dummy_data, sizeof(dummy_data));
+        bool ret_ok_2   = ebv_eftp_write(dummy_data, sizeof(dummy_data));
+        TEST_EQUAL(ret_ok_1 && !ret_fail_1 && ret_ok_2, true);
         int err_code = ebv_eftp_get_latest_error_code();
         TEST_EQUAL(EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY, err_code);
     }

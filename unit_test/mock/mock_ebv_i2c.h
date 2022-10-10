@@ -28,10 +28,8 @@
                                                                              _MOCK_I2C_CRC, _MOCK_I2C_FLAG                             \
                                                                         }
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_FAIL(ERR)             MOCK_I2C_DELAYED_RESPONSE_FAIL(ESP_CMD_READ_LOCAL_FILE, ERR)
-#define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK              {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x09, 0x00,              \
-                                                                            _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER, 0x05, 0x00,      \
-                                                                            _MOCK_I2C_CRC,                                              \
-                                                                            _MOCK_I2C_FLAG                                              \
+#define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK              {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x04, 0x00,              \
+                                                                            _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER, 0x00, 0x00,      \
                                                                         }
 
 void mock_i2c_init();
