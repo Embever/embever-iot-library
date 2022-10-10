@@ -64,10 +64,9 @@ void setup() {
 #if GENERATE_FILE_CONTENT == 1
         char file_data[GENERATED_FILE_CONTENT_LENGTH];
         const int file_len = sizeof(file_data);
-        for(index = 0; index < file_len; index++){
+        for(int index = 0; index < file_len; index++){
             file_data[index] = index % 256;
         }
-        const unsigned int file_len = sizeof(file_data);
 #endif
 #if USE_SD_CARD == 1
     Serial.print("Initializing SD card...");
