@@ -21,15 +21,21 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
-#define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_PACKET_OVERHEAD)
+#define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_PACKET_OVERHEAD)  // The maximum payload size of an esp packet 
 
-#define USE_STATIC_DATA         0
-#define GENERATE_FILE_CONTENT   0
-#define USE_SD_CARD             1
-#define SD_FILE_NAME            "ebv_esp.pdf"
+#define USE_STATIC_DATA                 0                       // Use a preset data array for the upload
+#define GENERATE_FILE_CONTENT           1                       // Use a generated ( in runtime) data array for the upload
+#define GENERATED_FILE_CONTENT_LENGTH   4 * 1024                // The array size of the generated data
+#define REMOTE_FILE_NAME                "app_mcu_file_1"          // The name of the uploaded file in the cloud (in case of STATIC_DATA nad GENERATED_DATA)
+#define USE_SD_CARD                     0                       // Use a file from an SD card as data source for the upload
+#define SD_FILE_NAME                    "ebv_esp.pdf"           // The name of the file which will be uploaded
 
+// Guard to not let use multiple data sources at the same time
 #if USE_SD_CARD + GENERATE_FILE_CONTENT + USE_STATIC_DATA > 1
 #error "Only one feature can be enabled"
+#endif
+#if USE_SD_CARD + GENERATE_FILE_CONTENT + USE_STATIC_DATA == 0
+#error "One of feature must be enabled"
 #endif
 
 EBV_SETUP_ARDUINO_CB;
@@ -48,7 +54,7 @@ void setup() {
 #if USE_SD_CARD == 1
     bool ret = ebv_eftp_open(SD_FILE_NAME, "w");
 #else
-    bool ret = ebv_eftp_open("app_mcu_file", "w");
+    bool ret = ebv_eftp_open(REMOTE_FILE_NAME, "w");
 #endif
     if(ret){
 #if USE_STATIC_DATA == 1
@@ -56,7 +62,7 @@ void setup() {
         const unsigned int file_len = sizeof(file_data);
 #endif
 #if GENERATE_FILE_CONTENT == 1
-        char file_data[4 * 1024];
+        char file_data[GENERATED_FILE_CONTENT_LENGTH];
         const int file_len = sizeof(file_data);
         for(index = 0; index < file_len; index++){
             file_data[index] = index % 256;
