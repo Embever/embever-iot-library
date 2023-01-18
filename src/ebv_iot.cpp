@@ -48,7 +48,7 @@
 #define UNUSED(...) (void)(__VA_ARGS__)
 
 #define EBV_MPACK_DEFAULT_SIZE          32
-#define EBV_STRLEN_MAXLEN               64
+#define EBV_STRLEN_MAXLEN               IOT_MSG_MAX_LEN
 #define EBV_MPACK_DATATYPE_HEADER        1
 #define EBV_MPACK_FLOAT_LEN              4
 #define EBV_MPACK_DOUBLE_LEN             8
@@ -70,7 +70,7 @@ ebv_mpack _ebv_mpack;
 
 
 // Static functions
-static int8_t __ebv_iot_strlen(const char * s);
+static uint16_t __ebv_iot_strlen(const char * s);
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i);
 static uint8_t _ebv_mpack_getSignedLen(int long long i);
 
@@ -120,6 +120,7 @@ ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
         ret = ebv_esp_receiveResponse(&pkg, &resp);
         if(!ret){
             DEBUG_MSG_TRACE("Failed to receive resp");
+            response->response_len = 0;
             return EBV_RET_ERROR;
         }
         // Parsing respose, this will be the delayed response header
@@ -309,7 +310,7 @@ ebv_ret_t ebv_iot_submitGenericActionResult(ebv_action_t *a, esp_response_t *res
 bool ebv_iot_submitEvent(ebv_iot_event *e){
 #if DEBUG_EN == 1
     DEBUG_MSG_TRACE("Submitting event, len : %d", e->len);
-    uint8_t i;
+    uint16_t i;
     for(i = 0; i < e->len; i++){
         if((i % 8) == 0){DEBUG_MSG("\n\r");}
         DEBUG_MSG("%X ", e->body[i]);
@@ -365,7 +366,7 @@ bool ebv_iot_submitGenericEvent(){
     e.body = _ebv_mpack.buff;
     e.len = _ebv_mpack.c.current - _ebv_mpack.c.start;
     // Update the final map size
-    uint8_t i = 3; // We know that the first 3 item is static
+    uint16_t i = 3; // We know that the first 3 item is static
     while(i < e.len){
         if(e.body[i] == 0x81){
             e.body[i] = 0x80 + _ebv_mpack.elements;
@@ -442,7 +443,11 @@ bool _ebv_iot_addDoublePayload(const char * k, double v){
 
 bool _ebv_iot_addStringPayload(const char * k, const char * v){
     uint8_t k_len = __ebv_iot_strlen(k);
-    uint8_t v_len = __ebv_iot_strlen(v);
+    uint16_t v_len = __ebv_iot_strlen(v);
+    if(v_len == 0 || k_len == 0){
+        return false;
+    }
+    
     // TODO: Check remaining space in buffer
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, v, v_len);
@@ -458,12 +463,12 @@ bool _ebv_iot_addCharPayload(const char * k, const char v){
     return true;
 }
 
-static int8_t __ebv_iot_strlen(const char * s){
-    uint8_t c = 0;
+static uint16_t __ebv_iot_strlen(const char * s){
+    uint16_t c = 0;
     while( s[c] && c < EBV_STRLEN_MAXLEN){
         c++;
     }
-    return c >= EBV_STRLEN_MAXLEN ? -1 : c;
+    return c >= EBV_STRLEN_MAXLEN ? 0 : c;
 }
 
 static uint8_t _ebv_mpack_getUnsignedLen(unsigned long long int i){

@@ -41,7 +41,7 @@ void ebv_i2c_registerI2c(struct ebv_i2c_cb *cb){
     _ebv_i2c_cb.stopXfer        = cb->stopXfer;
     _ebv_i2c_cb.dataAvailable   = cb->dataAvailable;
     _ebv_i2c_cb.dataWrite       = cb->dataWrite;
-    _ebv_i2c_cb.dataReqest      = cb->dataReqest;
+    _ebv_i2c_cb.dataRequest      = cb->dataRequest;
     _ebv_i2c_cb.dataRead        = cb->dataRead;
     ebv_i2c_isLayerInitialised = true;
 }
@@ -59,8 +59,8 @@ size_t ebv_i2c_I2cWrite(uint8_t data){
     return _ebv_i2c_cb.dataWrite(data);
 }
 
-size_t ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes){
-    return _ebv_i2c_cb.dataReqest(address, nof_bytes);
+size_t ebv_i2c_I2cRequest(uint8_t address, uint16_t nof_bytes){
+    return _ebv_i2c_cb.dataRequest(address, nof_bytes);
 }
 
 int ebv_i2c_I2cRead(){

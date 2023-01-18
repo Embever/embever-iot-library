@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+#define ESP_CMD_GNSS_UPDATE 0xA8
 #define ESP_CMD_READ_LOCAL_FILE 0xA7
 
 #define _MOCK_I2C_CRC                                    0x00,0x00,0x00,0x00
@@ -13,9 +14,10 @@
 #define _MOCK_I2C_ESP_ERROR_CODE_RESOURCE_BUSY                     0x01,0x08
 #define _MOCK_I2C_DELAYED_RESPONSE_HEADER                          0x55,0xA1
 #define _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER                  0x055,ESP_CMD_READ_LOCAL_FILE
+#define _MOCK_I2C_GNSS_UPDATE_RESPONSE_HEADER                      0x055,ESP_CMD_GNSS_UPDATE
 
 
-#define MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE                           {0x55, 0xA7}
+#define MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE                           {0x55, ESP_CMD_READ_LOCAL_FILE}
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK         {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x0C, 0x00,              \
                                                                             _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER, 0x08, 0x00,      \
                                                                             0x92, 0x00, 0x00,                                           \
@@ -31,6 +33,7 @@
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK              {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x04, 0x00,              \
                                                                             _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER, 0x00, 0x00,      \
                                                                         }
+#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x55, ESP_CMD_GNSS_UPDATE}
 
 void mock_i2c_init();
 bool mock_ebv_i2c_set_response(const unsigned char *data, int data_len);

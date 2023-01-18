@@ -19,7 +19,7 @@ void wire_begin(uint8_t address);
 void wire_end();
 int wire_available();
 size_t wire_write(uint8_t data);
-size_t wire_requestFrom(uint8_t address, uint8_t nof_bytes);
+size_t wire_requestFrom(uint8_t address, uint16_t nof_bytes);
 int wire_read();
 
 // register i2c functions into ebv_iot_lib
@@ -34,7 +34,7 @@ void mock_i2c_init(){
     cb.stopXfer = wire_end;           
     cb.dataAvailable = wire_available;
     cb.dataWrite = wire_write;        
-    cb.dataReqest = wire_requestFrom; 
+    cb.dataRequest = wire_requestFrom; 
     cb.dataRead = wire_read;          
     ebv_i2c_registerI2c(&cb);         
 }
@@ -59,7 +59,7 @@ size_t wire_write(uint8_t data){
 
 }
 
-size_t wire_requestFrom(uint8_t address, uint8_t nof_bytes){
+size_t wire_requestFrom(uint8_t address, uint16_t nof_bytes){
     // set the right index buffer
     if(i2c_buffer_index_out < (I2C_BUFFERS - 1)){
         i2c_buffer_index_out++;

@@ -42,7 +42,7 @@ typedef void    (*_ebv_i2c_beginTransaction)(uint8_t device_address);
 typedef void    (*_ebv_i2c_stopTransaction)();
 typedef int     (*_ebv_i2c_available)();
 typedef size_t  (*_ebv_i2c_write)(uint8_t data);
-typedef size_t    (*_ebv_i2c_request)(uint8_t device_address, uint8_t nof_bytes);
+typedef size_t    (*_ebv_i2c_request)(uint8_t device_address, uint16_t nof_bytes);
 typedef int     (*_ebv_i2c_read)();
 
 struct ebv_i2c_cb{
@@ -50,7 +50,7 @@ struct ebv_i2c_cb{
     _ebv_i2c_stopTransaction     stopXfer;
     _ebv_i2c_available           dataAvailable;
     _ebv_i2c_write               dataWrite;
-    _ebv_i2c_request             dataReqest;
+    _ebv_i2c_request             dataRequest;
     _ebv_i2c_read                dataRead;
 };
 
@@ -59,7 +59,7 @@ void    ebv_i2c_I2cBeginTransaction(uint8_t device_address);
 void    ebv_i2c_I2cFinishTransaction();
 int     ebv_i2c_I2cAvailable();
 size_t  ebv_i2c_I2cWrite(uint8_t data);
-size_t  ebv_i2c_I2cRequest(uint8_t address, uint8_t nof_bytes);
+size_t  ebv_i2c_I2cRequest(uint8_t address, uint16_t nof_bytes);
 int     ebv_i2c_I2cRead();
 
 #define EBV_SETUP_ARDUINO_WIRE_CB                                   \
@@ -75,8 +75,8 @@ int     ebv_i2c_I2cRead();
     size_t wire_write(uint8_t data){                                \
         return Wire.write(data);                                    \
     }                                                               \
-    size_t wire_requestFrom(uint8_t address, uint8_t nof_bytes){    \
-       return Wire.requestFrom(address, nof_bytes);                 \
+    size_t wire_requestFrom(uint8_t address, uint16_t nof_bytes){   \
+       return Wire.requestFrom((int) address, (int) nof_bytes);     \
     }                                                               \
     int wire_read(){                                                \
         return Wire.read();                                         \
@@ -88,7 +88,7 @@ int     ebv_i2c_I2cRead();
     cb.stopXfer = wire_end;                                     \
     cb.dataAvailable = wire_available;                          \
     cb.dataWrite = wire_write;                                  \
-    cb.dataReqest = wire_requestFrom;                           \
+    cb.dataRequest = wire_requestFrom;                           \
     cb.dataRead = wire_read;                                    \
     ebv_i2c_registerI2c(&cb);                                   \
     Wire.begin();

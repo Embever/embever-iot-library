@@ -71,7 +71,7 @@ typedef enum {
 
 typedef struct{
     uint8_t *body;
-    uint8_t len;
+    uint16_t len;
     bool result;
 } ebv_iot_event;
 
