@@ -225,8 +225,9 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
             }
             if(resp->len){
                 // Read the whole response packet
-                uint8_t pkg_len = ESP_DELAYED_RESPONSE_HEADER_LEN + resp->len;
+                uint16_t pkg_len = ESP_DELAYED_RESPONSE_HEADER_LEN + resp->len;
                 ebv_i2c_I2cRequest(DEVICE_ADDRESS, pkg_len);
+                ebv_delay(500);
                 if(ebv_i2c_I2cAvailable() < pkg_len){
                     DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
                     DEBUG_MSG_TRACE("Look for %d bytes got %d", pkg_len, ebv_i2c_I2cAvailable());

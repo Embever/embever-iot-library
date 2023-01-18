@@ -5,7 +5,8 @@ BUILD_DIR_FAKE ?= ./build_fake_inc
 BUILD_DIR_ABS ?= ./build_abs
 
 SRCS =  testrunner.cpp 											\
-		./mock/mock_ebv_i2c.cpp										\
+		./mock/mock_ebv_i2c.cpp									\
+		./util/test_esp_util.cpp								\
 		test_ebv_local.cpp										\
 		test_ebv_eftp.cpp
 

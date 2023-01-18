@@ -1,5 +1,6 @@
 #include "test_ebv_local.h"
 #include "ebv_unit_compare.h"
+#include "mock/mock_ebv_i2c.h"
 
 #include "ebv_esp.h"
 
@@ -46,11 +47,16 @@ void test_ebv_local_verify_gnss_response(){
 }
 
 void test_ebv_local_parse_gnss_response(){
-    extern uint8_t _gnss_query_type[EBV_GNSS_REQUEST_LEN + 1];
-    extern uint8_t _gnss_query_type_len;
-    _gnss_query_type[0] = 0x91;
-    _gnss_query_type[1] = EBV_GNSS_REQUEST_SPEED;
-    _gnss_query_type_len = 2;
+    extern uint8_t _gnss_query_data[32];
+    extern uint8_t _gnss_query_data_len;
+    extern uint8_t _gnss_nof_queries;
+    extern uint8_t *_gnss_queries;
+    _gnss_query_data[0] = 0x91;
+    _gnss_query_data[1] = 0x91;
+    _gnss_query_data[2] = EBV_GNSS_REQUEST_SPEED;
+    _gnss_nof_queries = 1;
+    _gnss_queries = & (_gnss_query_data[2]);
+    _gnss_query_data_len = 3;
     ebv_gnss_data_t pvt;
     esp_response_t response;
     uint8_t payload_1[] = {
@@ -61,4 +67,30 @@ void test_ebv_local_parse_gnss_response(){
     response.payload = response.response;
     response.payload_len = sizeof(payload_1);
     _ebv_local_parse_gnss_response(&response, &pvt);
+}
+
+void test_ebv_local_gnss_custom(){
+
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK;
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+        
+        ebv_gnss_data_t gnss_data;
+        ebv_local_query_gnss_custom_init();
+        ebv_local_query_gnss_custom_add(EBV_GNSS_REQUEST_LOCATION);
+        ebv_local_query_gnss_custom_add(EBV_GNSS_REQUEST_DATETIME);
+        ebv_local_query_gnss_custom_add(EBV_GNSS_REQUEST_STATUS);
+        bool ret = ebv_local_query_gnss_custom_add_submit(&gnss_data);
+    }
+    {
+        extern uint8_t _gnss_query_data[32];
+        extern uint8_t _gnss_query_data_len;
+        extern uint8_t _gnss_nof_queries;
+        extern uint8_t *_gnss_queries;
+        ebv_gnss_data_t pvt;
+        ebv_local_query_gnss_cont(&pvt);
+    }
 }

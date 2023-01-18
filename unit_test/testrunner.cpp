@@ -19,6 +19,7 @@ int main(){
 #if TEST_EBV_LOCAL_GNSS == 1
     test_ebv_local_verify_gnss_response();
     test_ebv_local_parse_gnss_response();
+    test_ebv_local_gnss_custom();
 #endif
 #if TEST_EBV_ETFTP == 1
     test_ebv_eftp_open();

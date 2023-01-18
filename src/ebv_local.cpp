@@ -44,63 +44,84 @@ static bool _ebv_local_parse_gnss_response(esp_response_t *response, ebv_gnss_da
 static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint8_t payload_len, ebv_gnss_request_kind query_type, ebv_gnss_data_t *pvt);
 #endif
 
-uint8_t _gnss_query_type[EBV_GNSS_REQUEST_LEN + 1];
-uint8_t _gnss_query_type_len;
+uint8_t _gnss_query_data[32];
+uint8_t _gnss_query_data_len;
+uint8_t _gnss_nof_queries;
+uint8_t *_gnss_queries;
 
 static bool ebv_local_query_gnss_submit(ebv_gnss_data_t *pvt);
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt){
-    _gnss_query_type[0] = 0x93;
-    _gnss_query_type[1] = EBV_GNSS_REQUEST_LOCATION;
-    _gnss_query_type[2] = EBV_GNSS_REQUEST_SPEED;
-    _gnss_query_type[3] = EBV_GNSS_REQUEST_DATETIME;
-    _gnss_query_type_len = 4;
+    _gnss_query_data[0] = 0x91;
+    _gnss_query_data[1] = 0x93;
+    _gnss_query_data[2] = EBV_GNSS_REQUEST_LOCATION;
+    _gnss_query_data[3] = EBV_GNSS_REQUEST_SPEED;
+    _gnss_query_data[4] = EBV_GNSS_REQUEST_DATETIME;
+    _gnss_queries = &(_gnss_query_data[2]);
+    _gnss_nof_queries = 3;
+    _gnss_query_data_len = 5;
+    return ebv_local_query_gnss_submit(pvt);
+}
+
+bool ebv_local_query_gnss_cont(ebv_gnss_data_t *pvt){
+    cw_pack_context c;
+    cw_pack_context_init(&c, _gnss_query_data, sizeof(_gnss_query_data), NULL);
+    cw_pack_array_size(&c, 2);
+    cw_pack_array_size(&c, 3);
+    _gnss_queries = c.current;
+    cw_pack_unsigned(&c, EBV_GNSS_REQUEST_LOCATION);
+    cw_pack_unsigned(&c, EBV_GNSS_REQUEST_SPEED);
+    cw_pack_unsigned(&c, EBV_GNSS_REQUEST_DATETIME);
+    _gnss_nof_queries = 3;
+    // optional arguments
+    cw_pack_map_size(&c, 1);
+    cw_pack_str(&c, EBV_GNSS_REQUEST_OPTIONAL_PARAM_NAV_MODE, sizeof(EBV_GNSS_REQUEST_OPTIONAL_PARAM_NAV_MODE) - 1);
+    cw_pack_unsigned(&c, EBV_GNSS_NAV_MODE_CONTINUOUS);
+    _gnss_query_data_len = (uint8_t) (c.current - c.start);
     return ebv_local_query_gnss_submit(pvt);
 }
 
 bool ebv_report_pvt(){
-    _gnss_query_type[0] = 0x91;
-    _gnss_query_type[1] = EBV_GNSS_REPORT_LOCATION;
-    _gnss_query_type_len = 2;
-    esp_response_t resp;
-    return ebv_local_gnss_submit(&resp);
-}
-
-bool ebv_report_pvt_custom_params(uint8_t max_timeout, uint8_t min_acc){
-    _gnss_query_type[0] = 0x91;
-    _gnss_query_type[1] = EBV_GNSS_REPORT_LOCATION;
-    _gnss_query_type[2] = max_timeout;
-    _gnss_query_type[3] = min_acc;
-    _gnss_query_type_len = 4;
+    _gnss_query_data[0] = 0x91;
+    _gnss_query_data[1] = 0x91;
+    _gnss_query_data[2] = EBV_GNSS_REPORT_LOCATION;
+    _gnss_queries = &(_gnss_query_data[2]);
+    _gnss_nof_queries = 1;
+    _gnss_query_data_len = 3;
     esp_response_t resp;
     return ebv_local_gnss_submit(&resp);
 }
 
 void ebv_local_query_gnss_custom_init(){
-    memset(_gnss_query_type, 0, sizeof(_gnss_query_type));
-    _gnss_query_type[0] = 0x90;
-    _gnss_query_type_len = 1;
+    memset(_gnss_query_data, 0, sizeof(_gnss_query_data));
+    _gnss_query_data[0] = 0x91;
+    _gnss_query_data[1] = 0x90;
+    _gnss_queries = &(_gnss_query_data[2]);
+    _gnss_query_data_len = 2;
+    _gnss_nof_queries = 0;
 }
 
 bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k ){
-    if(_gnss_query_type_len >= sizeof(_gnss_query_type)){
+    if(_gnss_query_data_len >= sizeof(_gnss_query_data)){
         DEBUG_MSG_TRACE("No more query can fit");
         return false;
     }
-    _gnss_query_type[_gnss_query_type_len] = k;
-    _gnss_query_type_len++;
+    _gnss_query_data[_gnss_query_data_len] = k;
+    _gnss_query_data_len++;
+    _gnss_nof_queries++;
     return true;
 }
 
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt){
-    _gnss_query_type[0] += _gnss_query_type_len - 1;
+    _gnss_query_data[1] += _gnss_nof_queries;
     return ebv_local_query_gnss_submit(pvt);
 }
 
 bool ebv_query_gps_status(ebv_gps_status_t *status){
-    _gnss_query_type[0] = 0x91;
-    _gnss_query_type[1] = EBV_GNSS_REQUEST_STATUS;
-    _gnss_query_type_len = 2;
+    _gnss_query_data[0] = 0x91;
+    _gnss_query_data[1] = EBV_GNSS_REQUEST_STATUS;
+    _gnss_nof_queries = 1;
+    _gnss_query_data_len = 2;
     esp_response_t resp;
     bool ret = ebv_local_gnss_submit(&resp);
     if(!ret){
@@ -152,7 +173,7 @@ bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
 
 static bool ebv_local_gnss_submit(esp_response_t *response){
     esp_packet_t pkg;
-    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_UPDATE_GNSS_LOCATION, (uint8_t *) &_gnss_query_type, _gnss_query_type_len);
+    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_UPDATE_GNSS_LOCATION, (uint8_t *) &_gnss_query_data, _gnss_query_data_len);
     if( !ebv_esp_submitPacket(&pkg) ){
         DEBUG_MSG_TRACE("Failed to submit package");
         return false;
@@ -189,13 +210,14 @@ ebv_unit_test_static bool _ebv_local_parse_gnss_response(esp_response_t *respons
     cw_unpack_context uc;
     cw_unpack_context_init(&uc, response->payload, response->payload_len, NULL);
     cw_unpack_next(&uc);
-    if(uc.item.as.array.size != (uint8_t)(_gnss_query_type_len - 1) ){
+    if(uc.item.as.array.size != _gnss_nof_queries ){
+        DEBUG_MSG_TRACE("Failed to verify response, insufficent queries received");
         return false;
     }
-    for(uint8_t i = 1; i < _gnss_query_type_len; i++){
+    for(uint8_t i = 0; i < _gnss_nof_queries; i++){
         bool ret = _ebv_local_verify_gnss_response( uc.current,
                                                     response->payload_len - (uc.current - uc.start),
-                                                    (ebv_gnss_request_kind)_gnss_query_type[i],
+                                                    (ebv_gnss_request_kind)_gnss_queries[i],
                                                     pvt
         );
         if(!ret){
@@ -333,8 +355,28 @@ ebv_unit_test_static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint
             return false;
         }
         return true;
-    }else {
-        DEBUG_MSG_TRACE("Unsupported request kind");
+    }else if(query_type == EBV_GNSS_REQUEST_STATUS){
+        cw_unpack_next(&uc);
+        if(uc.item.type != CWP_ITEM_ARRAY || uc.item.as.array.size != 2){
+            DEBUG_MSG_TRACE("Response validation failed, root array");
+            return false;
+        }
+        // GPS status
+        cw_unpack_next(&uc);
+        if(uc.item.type != CWP_ITEM_POSITIVE_INTEGER){
+            return false;
+        }
+        pvt->status.state = (uint8_t) uc.item.as.u64;
+        // State of the fix
+        cw_unpack_next(&uc);
+        if(uc.item.type != CWP_ITEM_BOOLEAN){
+            return false;
+        }
+        pvt->status.state = (bool) uc.item.as.boolean;
+        
+        return true;
+    } else {
+        DEBUG_MSG_TRACE("Unsupported request kind : %d", query_type);
         return false;
     }
 

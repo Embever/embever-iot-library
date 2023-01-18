@@ -28,6 +28,18 @@ typedef enum {
     EBV_GPS_STATUS_STOPPED
 } EBV_GPS_STATUS_t;
 
+enum ebv_gnss_nav_mode{
+    EBV_GNSS_NAV_MODE_SINGLE = 0,
+    EBV_GNSS_NAV_MODE_CONTINUOUS,
+    EBV_GNSS_NAV_MODE_COUNT
+};
+
+#define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_TIMEOUT        "timeout"
+#define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_MIN_ACCURACY   "accuracy"
+#define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_NAV_MODE       "nav_mode"
+
+
+
 typedef struct{
     uint8_t state;
     bool is_last_fix_success;
@@ -52,6 +64,7 @@ typedef struct{
     float heading;
     bool has_fix;
     esp_gnss_datetime_t datetime;
+    ebv_gps_status_t status;
 } ebv_gnss_data_t;
 
 typedef enum{
@@ -61,6 +74,7 @@ typedef enum{
 
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
+bool ebv_local_query_gnss_cont(ebv_gnss_data_t *pvt);
 bool ebv_report_pvt();
 bool ebv_report_pvt_custom_params(uint8_t max_timeout, uint8_t min_acc);
 bool ebv_query_gps_status(ebv_gps_status_t *status);
