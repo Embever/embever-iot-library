@@ -58,6 +58,7 @@
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
 uint32_t ebv_esp_generateCrc32( uint8_t *data, uint8_t len );
+static  void ebv_esp_eval_error_resp(esp_response_t *resp);
 
 /*****************************   Static Functions   ***************************/
 static bool isDeviceBusy(){
@@ -477,8 +478,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         } 
         else
         {
-            // TODO: Continue msg evaluation, not just claim it was an error
-            return EBV_ESP_RESP_RES_ERR;
+            ebv_esp_eval_error_resp(resp);
         }
         break;
         }
@@ -546,14 +546,7 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
             resp->payload = NULL;
             resp->payload_len = 0;
         } else {
-            resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
-            resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN;
-            if(resp->payload_len >= 4){      // an error code at least 4 bytes
-                const uint16_t payload_id = (resp->payload[2] << 8) | (resp->payload[3]);
-                if(payload_id == ESP_DL_PAYLOAD_KIND_ERROR){
-                    resp->has_error_code = true;
-                }
-            }
+            ebv_esp_eval_error_resp(resp);
         }
         return EBV_ESP_RESP_RES_OK;
         break;
@@ -561,6 +554,21 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         break;
     }
     return EBV_ESP_RESP_RES_INVALID;
+}
+
+static void ebv_esp_eval_error_resp(esp_response_t *resp){
+    resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
+    resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN;
+    if(resp->payload_len >= 4){      // an error code at least 4 bytes
+        const uint16_t payload_id = (resp->payload[2] << 8) | (resp->payload[3]);
+        if(payload_id == ESP_DL_PAYLOAD_KIND_ERROR){
+            resp->has_error_code = true;
+        }
+    }
+}
+
+esp_err_t ebv_esp_get_delayed_resp_err_code(uint8_t * delayed_resp_payload){
+    return (esp_err_t) (delayed_resp_payload[1] | ((uint16_t) delayed_resp_payload[0]) << 8 );
 }
 
 bool waitForDevice(){

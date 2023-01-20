@@ -60,6 +60,14 @@
 
 // ESP ERROR CODES
 typedef enum {
+    // Communication errors
+    EBV_ESP_COM_ERROR_NONE,
+    EBV_ESP_COM_ERROR_ACK_TIMEOUT,
+    EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT,
+    EBV_ESP_COM_ERROR_ACK_INVALID,
+    EBV_ESP_COM_ERROR_RESPONSE_INVALID,
+    EBV_ESP_COM_ERROR_BUSY_TIMEOUT,
+    // Error codes from delayed response
     ESP_ERR_INVALID_CMD_ID = 0x0101,
     ESP_ERR_INVALID_CMD_DATA = 0x0102,
     ESP_ERR_INVALID_RESP_DATA,
@@ -67,6 +75,7 @@ typedef enum {
     ESP_ERR_NETWORK_NOT_AVAILABLE,                      // Network error, mqtt module error
     ESP_ERR_INVALID_CLOUD_RESPONSE,                     // IoT message validation failed
     ESP_ERR_INTERNAL_ERROR,                             // Internal error, not handled exception, bug
+    ESP_ERR_NETWORK_OFFLINE,                            // Network is not yet available, since boot there was no attach event
     ESP_ERR_RESOURCE_BUSY                               // Introduced for EFTP write operation, means the file cache is full
 } esp_err_t;
 
@@ -124,6 +133,7 @@ void ebv_esp_dumpPayload(uint8_t *payload, uint8_t payload_len);
 uint32_t ebv_esp_getActionId( uint8_t *mpack_action_payload, uint8_t len );
 void ebv_esp_buildActionResponse(esp_packet_t *pkg, uint32_t action_id, uint8_t *mpack_response_details, uint8_t response_details_len, bool isActionSucceed);
 ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigger_esp_cmd);
+esp_err_t ebv_esp_get_delayed_resp_err_code(uint8_t * delayed_resp_payload);
 void ebv_esp_wakeup_device();
 bool waitForResponse();
 bool waitForDevice();

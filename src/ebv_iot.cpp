@@ -55,7 +55,7 @@
 
 #define MODULE_DEBUG 0
 
-ebv_esp_com_error_t esp_com_err;
+esp_err_t esp_err;
 
 typedef struct{
     uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
@@ -77,7 +77,7 @@ static uint8_t _ebv_mpack_getSignedLen(int long long i);
 
 void ebv_iot_init(){
     memset(&_ebv_mpack, 0, sizeof(ebv_mpack));
-    esp_com_err = EBV_ESP_COM_ERROR_NONE;
+    esp_err = EBV_ESP_COM_ERROR_NONE;
 }
 
 ebv_ret_t ebv_iot_receiveAction(esp_response_t *response){
@@ -320,7 +320,7 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PUT_EVENTS, e->body, e->len);
     if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
     ebv_esp_sendCommand(&pkg);
@@ -328,33 +328,37 @@ bool ebv_iot_submitEvent(ebv_iot_event *e){
     ebv_delay(10);
     bool ret = ebv_esp_receiveResponse(&pkg, &response);
     if(!ret){
-        esp_com_err = EBV_ESP_COM_ERROR_ACK_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_ACK_TIMEOUT;
         return false;
     }
     ebv_delay(20);
     if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
     if(!wait_response_available()){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
         return false;
     }
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_READ_DELAYED_RESP, NULL, 0);
     ebv_esp_sendCommand(&pkg);
     ebv_delay(20);
     if( !waitForDevice() ){
-        esp_com_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_BUSY_TIMEOUT;
         return false;
     }
     ret = ebv_esp_receiveResponse(&pkg, &response);
     if(!ret){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
+        esp_err = EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT;
         return false;
     }
     ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_PUT_EVENTS);
     if(res != EBV_ESP_RESP_RES_OK){
-        esp_com_err = EBV_ESP_COM_ERROR_RESPONSE_INVALID;
+        if(response.has_error_code == true){
+            esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        } else{
+            esp_err = EBV_ESP_COM_ERROR_RESPONSE_INVALID;
+        }
         return false;
     }
 
@@ -517,13 +521,13 @@ static uint8_t _ebv_mpack_getSignedLen(long long int i){
     return 8;
 }
 
-ebv_esp_com_error_t ebv_iot_get_last_error_code(){
-    return esp_com_err;
+esp_err_t ebv_iot_get_last_error_code(){
+    return esp_err;
 }
 
 void ebv_iot_dump_last_error(){
 #if EBV_COM_ERROR_DUMP_EN == 1
-    switch (esp_com_err)
+    switch (esp_err)
     {
     case EBV_ESP_COM_ERROR_NONE:
         p("\n\rEBV_ESP_COM_ERROR_NONE\n\r");
