@@ -94,3 +94,28 @@ void test_ebv_local_gnss_custom(){
         ebv_local_query_gnss_cont(&pvt);
     }
 }
+
+void test_local_set_rf_mode(){
+    // DELAYED RESPONSE OK
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_CONFIG;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_CONFIG_OK;
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+
+        bool ret = ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_NBIOT);
+        TEST_EQUAL(ret, true);
+    }
+    // DELAYED RESPONSE FAIL
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_CONFIG;
+        const unsigned char i2c_resp_delayed[] = MOCK_I2C_DELAYED_RESPONSE_CONFIG_FAIL(_MOCK_I2C_ESP_ERROR_CODE_INVALID_CMD_DATA);
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response(i2c_resp_delayed, sizeof(i2c_resp_delayed));
+
+        bool ret = ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_NBIOT);
+        TEST_EQUAL(ret, true);
+    }
+}

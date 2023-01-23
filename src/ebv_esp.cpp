@@ -228,7 +228,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
                 // Read the whole response packet
                 uint16_t pkg_len = ESP_DELAYED_RESPONSE_HEADER_LEN + resp->len;
                 ebv_i2c_I2cRequest(DEVICE_ADDRESS, pkg_len);
-                ebv_delay(500);
+                // ebv_delay(500);
                 if(ebv_i2c_I2cAvailable() < pkg_len){
                     DEBUG_MSG_TRACE("Timeout: No response for READ_DELAYED_RESP");
                     DEBUG_MSG_TRACE("Look for %d bytes got %d", pkg_len, ebv_i2c_I2cAvailable());
@@ -536,6 +536,28 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
         }
         if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
             resp->response[1] != ESP_CMD_READ_LOCAL_FILE)
+        {
+            DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        resp->has_error_code = false;
+        if(resp->len == 4){
+            // No payload on the response
+            resp->payload = NULL;
+            resp->payload_len = 0;
+        } else {
+            ebv_esp_eval_error_resp(resp);
+        }
+        return EBV_ESP_RESP_RES_OK;
+        break;
+    case ESP_CMD_CONFIG:
+        DEBUG_MSG_TRACE("Verifying CONFIG response");
+        if(resp->len < 4){
+            DEBUG_MSG_TRACE("Response too short : %d", resp->len);
+            return EBV_ESP_RESP_RES_INVALID;
+        }
+        if( resp->response[0] != ESP_RESPONSE_SOP_SOR_ID ||
+            resp->response[1] != ESP_CMD_CONFIG)
         {
             DEBUG_MSG_TRACE("Invalid trigger header SOP: 0x%x CMD: 0x%x", resp->response[0], resp->response[1]);
             return EBV_ESP_RESP_RES_INVALID;

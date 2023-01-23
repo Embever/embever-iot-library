@@ -34,6 +34,15 @@ enum ebv_gnss_nav_mode{
     EBV_GNSS_NAV_MODE_COUNT
 };
 
+enum ebv_modem_rf_mode {
+    EBV_MODEM_RF_MODE_NBIOT,
+    EBV_MODEM_RF_MODE_LTEM,
+    EBV_MODEM_RF_MODE_GPS_ONLY,
+    EBV_MODEM_RF_MODE_OFFLINE,
+    EBV_MODEM_RF_MODE_RADIO_TEST,
+    EBV_MODEM_RF_MODE_COUNT,
+};
+
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_TIMEOUT        "timeout"
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_MIN_ACCURACY   "accuracy"
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_NAV_MODE       "nav_mode"
@@ -81,8 +90,8 @@ bool ebv_query_gps_status(ebv_gps_status_t *status);
 void ebv_local_query_gnss_custom_init();
 bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt);
-
 bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode);
+bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode);
 
 #ifdef EBV_UNIT_TEST
 #warning "UNIT TEST ACTIVE"

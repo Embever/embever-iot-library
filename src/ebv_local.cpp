@@ -155,7 +155,6 @@ bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode){
     if(op_mode == EBV_OP_MODE_PWR_DOWN){
         pkg.data[0] = 0x91;
         pkg.data[1] = 0xC3;
-        ebv_delay(5 * 1000);
         ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_PWR_MODE, pkg.data, 2);
         if( !ebv_esp_submitPacket(&pkg) ){
             DEBUG_MSG_TRACE("Failed to submit package");
@@ -379,6 +378,46 @@ ebv_unit_test_static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint
         DEBUG_MSG_TRACE("Unsupported request kind : %d", query_type);
         return false;
     }
+
+    return true;
+}
+
+bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode){
+    if(rf_mode >= EBV_MODEM_RF_MODE_COUNT){
+        return false;
+    }
+    // Keep it simple for now since there is only 1 configuration option available yet
+    uint8_t cfg_data[] = {0x91, 0x92, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x81, 0xA7, 0x72, 0x66, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x00};
+    cfg_data[17] = rf_mode;
+    esp_packet_t pkg;
+    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_CONFIG, cfg_data, sizeof(cfg_data));
+
+    // Send packet
+    if( !ebv_esp_submitPacket(&pkg) ){
+        DEBUG_MSG_TRACE("Failed to submit package");
+        return false;
+    }
+
+    // Read response
+    esp_response_t response;
+    if( !ebv_esp_queryDelayedResponse(&response) ){
+        DEBUG_MSG_TRACE("Failed to read delayed response");
+        return false;
+    }
+
+    // Verify
+    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_CONFIG);
+    if(res != EBV_ESP_RESP_RES_OK ){
+        DEBUG_MSG_TRACE("Delayed response validation failed");
+        return false;
+    }
+#if DEBUG_EN == 1
+    if(response.has_error_code){
+        esp_err_t err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        DEBUG_MSG_TRACE("Delayed response error code: %d", err);
+        return false;
+    }
+#endif
 
     return true;
 }

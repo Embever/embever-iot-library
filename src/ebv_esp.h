@@ -42,16 +42,19 @@
 
 #define DEFAULT_DEVICE_ADDRESS 0x35
 
-#define ESP_CMD_NO_COMMAND 0x00
-#define ESP_CMD_READ_DELAYED_RESP 0xA1
-#define ESP_CMD_GET_ACTIONS 0xA2
-#define ESP_CMD_PUT_RESULTS 0xA3
-#define ESP_CMD_PUT_EVENTS 0xA4
-#define ESP_CMD_PERFORM_ACTIONS 0xA6
-#define ESP_CMD_READ_LOCAL_FILE 0xA7
-#define ESP_CMD_READ_LOCAL_FILE 0xA7
-#define ESP_CMD_UPDATE_GNSS_LOCATION 0xA8
-#define ESP_CMD_PWR_MODE  0xA9
+
+enum ebv_esp_command{
+    ESP_CMD_NO_COMMAND              = 0x00,
+    ESP_CMD_READ_DELAYED_RESP       = 0xA1,
+    ESP_CMD_GET_ACTIONS             = 0xA2,
+    ESP_CMD_PUT_RESULTS             = 0xA3,
+    ESP_CMD_PUT_EVENTS              = 0xA4,
+    ESP_CMD_PERFORM_ACTIONS         = 0xA6,
+    ESP_CMD_READ_LOCAL_FILE         = 0xA7,
+    ESP_CMD_UPDATE_GNSS_LOCATION    = 0xA8,
+    ESP_CMD_PWR_MODE                = 0xA9,
+    ESP_CMD_CONFIG                  = 0xAA
+};
 
 #define ESP_RESPONSE_SOP_SOA_ID 0x56
 #define ESP_RESPONSE_SOP_SOR_ID 0x55

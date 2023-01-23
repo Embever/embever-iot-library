@@ -20,6 +20,7 @@ int main(){
     test_ebv_local_verify_gnss_response();
     test_ebv_local_parse_gnss_response();
     test_ebv_local_gnss_custom();
+    test_local_set_rf_mode();
 #endif
 #if TEST_EBV_ETFTP == 1
     test_ebv_eftp_open();
