@@ -55,6 +55,53 @@
             "program": "${workspaceRoot}/unit_test/build/testrunner",
             "args": [],
             "cwd": "${fileDirname}",
-          }
+          },
+          {
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+            "name": "Debug with ST-Link",
+            "request": "launch",
+            "type": "cortex-debug",
+            // "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "servertype": "stutil",
+            // "armToolchainPath": "${env:STM32DUINO_TOOLCHAIN_BIN}"
+            "armToolchainPath": "/Users/macbook/Library/Arduino15/packages/STMicroelectronics/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin"
+        },
+        {
+            "name": "STM32",
+            "type": "cppdbg",
+            "request": "launch",
+            "logging": {
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true,
+                "moduleLoad": true,
+                "trace": true,
+                "traceResponse": true
+            },
+            "serverLaunchTimeout": 5000,
+            "filterStderr": true,
+            "filterStdout": false,
+            //"serverStarted": "INFO gdb-server.c: Listening at *:4242...",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "externalConsole": true,
+            "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+            "setupCommands": [
+                { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+                { "text": "target remote localhost:4242", "ignoreFailures": false },
+                { "text": "set remote hardware-breakpoint-limit 6", "ignoreFailures": false },
+                { "text": "set remote hardware-watchpoint-limit 4", "ignoreFailures": false }  
+            ],
+            "osx": {
+                "MIMode": "gdb",
+                "MIDebuggerPath": "/Users/macbook/Library/Arduino15/packages/STMicroelectronics/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin/arm-none-eabi-gdb",
+                // "MIDebuggerServerAddress": "localhost:4242",
+                // "preLaunchTask": "flash",
+                // "debugServerPath": "st-util -p 4242 -v",
+                //"debugServerArgs": "",
+             },
+        }
     ]
 }
