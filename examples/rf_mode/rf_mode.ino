@@ -85,7 +85,7 @@ void setup() {
                     //     esp_response_t resp;
                     //     ebv_esp_queryDelayedResponse(&resp);
                     // }
-                    if( ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_NBIOT) ){
+                    if( ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_LTEM) ){
                         mode_counter++;
                     }else {
                         p("Failed to changing modem to LTE-M\n\r");
@@ -107,7 +107,7 @@ void setup() {
                     //     esp_response_t resp;
                     //     ebv_esp_queryDelayedResponse(&resp);
                     // }
-                    if( ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_LTEM) ){
+                    if( ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_GPS_ONLY) ){
                         mode_counter++;
                     }else {
                         p("Failed to changing modem to GPS only\n\r");
