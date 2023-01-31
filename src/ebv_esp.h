@@ -53,7 +53,8 @@ enum ebv_esp_command{
     ESP_CMD_READ_LOCAL_FILE         = 0xA7,
     ESP_CMD_UPDATE_GNSS_LOCATION    = 0xA8,
     ESP_CMD_PWR_MODE                = 0xA9,
-    ESP_CMD_CONFIG                  = 0xAA
+    ESP_CMD_CONFIG                  = 0xAA,
+    ESP_CMD_STATUS                  = 0xAB
 };
 
 #define ESP_RESPONSE_SOP_SOA_ID 0x56
@@ -75,11 +76,15 @@ typedef enum {
     ESP_ERR_INVALID_CMD_DATA = 0x0102,
     ESP_ERR_INVALID_RESP_DATA,
     ESP_ERR_INVALID_RESP_CMD_ID,
-    ESP_ERR_NETWORK_NOT_AVAILABLE,                      // Network error, mqtt module error
-    ESP_ERR_INVALID_CLOUD_RESPONSE,                     // IoT message validation failed
-    ESP_ERR_INTERNAL_ERROR,                             // Internal error, not handled exception, bug
-    ESP_ERR_NETWORK_OFFLINE,                            // Network is not yet available, since boot there was no attach event
-    ESP_ERR_RESOURCE_BUSY                               // Introduced for EFTP write operation, means the file cache is full
+    ESP_ERR_NETWORK_ABSENT,                           // Network temporary unavailable, trying it again may solve the problem
+    ESP_ERR_INVALID_CLOUD_RESPONSE,                   // IoT message validation failed, broken response from the cloud
+    ESP_ERR_INTERNAL_ERROR,                           // Internal error, not handled exception, bug
+    ESP_ERR_NETWORK_OFFLINE,                          // Network is not available, LTE data link is disabled by the rf_mode setting
+    ESP_ERR_NETWORK_ACCESS_DENIED,                    // Network is not for data transmission, rf_mode set to RADIO_TEST or FOTA is running
+    ESP_ERR_NETWORK_UNREGISTERED,                     // Network is not registered, modem is working on a the network attach.
+    ESP_ERR_NETWORK_REG_FAILED,                       // Network attachment failed. The system gave up trying to attach to the network
+    ESP_ERR_UNKNOWN,                                  // Unhandled error
+    ESP_ERR_RESOURCE_BUSY
 } esp_err_t;
 
 struct esp_packet_s{

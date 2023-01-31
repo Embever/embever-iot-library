@@ -41,11 +41,37 @@ enum ebv_modem_rf_mode {
     EBV_MODEM_RF_MODE_OFFLINE,
     EBV_MODEM_RF_MODE_RADIO_TEST,
     EBV_MODEM_RF_MODE_COUNT,
+    EBV_MODEM_RF_MODE_INVALID
+};
+
+enum ebv_modem_lte_mode{
+    EBV_MODEM_LTE_MODE_NB_IOT,
+    EBV_MODEM_LTE_MODE_LTEM,
+    EBV_MODEM_LTE_MODE_NONE,
+    EBV_MODEM_LTE_MODE_UNKNOWN,
+    EBV_MODEM_LTE_MODE_COUNT,
+    EBV_MODEM_LTE_MODE_INVALID
+};
+
+enum ebv_modem_network_status{
+    EBV_MODEM_NETWORK_STATUS_INITIALISED,
+    EBV_MODEM_NETWORK_STATUS_SEARCHING,
+    EBV_MODEM_NETWORK_STATUS_REGISTERED_HOME,
+    EBV_MODEM_NETWORK_STATUS_REGISTERED_ROAMING,
+    EBV_MODEM_NETWORK_STATUS_REGISTRATION_FAILED,
+    EBV_MODEM_NETWORK_STATUS_UNKNOWN,
+    EBV_MODEM_NETWORK_STATUS_COUNT,
+    EBV_MODEM_NETWORK_STATUS_INVALID
 };
 
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_TIMEOUT        "timeout"
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_MIN_ACCURACY   "accuracy"
 #define  EBV_GNSS_REQUEST_OPTIONAL_PARAM_NAV_MODE       "nav_mode"
+
+#define EBV_STATUS_GROUP_MODEM_KEY                      "modem"
+#define EBV_STATUS_MODEM_RF_MODE_KEY                    "rf_mode"
+#define EBV_STATUS_MODEM_LTE_STATUS_KEY                 "lte_mode"
+#define EBV_STATUS_MODEM_NET_STATUS_KEY                 "net_status"
 
 
 
@@ -81,6 +107,12 @@ typedef enum{
     EBV_OP_MODE_PWR_DOWN
 } ebv_local_pwr_op_mode;
 
+typedef struct{
+    enum ebv_modem_rf_mode rf_mode;
+    enum ebv_modem_lte_mode lte_mode;
+    enum ebv_modem_network_status network_status;
+} ebv_local_modem_status_t;
+
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
 bool ebv_local_query_gnss_cont(ebv_gnss_data_t *pvt);
@@ -92,6 +124,8 @@ bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt);
 bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode);
 bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode);
+bool ebv_local_status_update_modem(ebv_local_modem_status_t * status);
+void ebv_local_status_modem_str(ebv_local_modem_status_t *status, char *lte_mode_str, char *network_status_str, char *rf_mode_str);
 
 #ifdef EBV_UNIT_TEST
 #warning "UNIT TEST ACTIVE"

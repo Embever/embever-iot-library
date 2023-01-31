@@ -525,34 +525,84 @@ esp_err_t ebv_iot_get_last_error_code(){
     return esp_err;
 }
 
-void ebv_iot_dump_last_error(){
-#if EBV_COM_ERROR_DUMP_EN == 1
-    switch (esp_err)
-    {
-    case EBV_ESP_COM_ERROR_NONE:
-        p("\n\rEBV_ESP_COM_ERROR_NONE\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_ACK_INVALID:
-        p("\n\rEBV_ESP_COM_ERROR_ACK_INVALID\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_ACK_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_ACK_TIMEOUT\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_RESPONSE_INVALID:
-        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_INVALID\n\r");
-        break;
-    case EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_RESPONSE_TIMEOUT\n\r");
-        break;
-     case EBV_ESP_COM_ERROR_BUSY_TIMEOUT:
-        p("\n\rEBV_ESP_COM_ERROR_BUSY_TIMEOUT\n\r");
-        break;
-    default:
-        p("\n\rUNKNOWN\n\r");
-        break;
+#if EBV_STRINGIFY_EN == 1
+void ebv_iot_esp_err_str(esp_err_t err, char *err_str){
+    switch(err){
+        case EBV_ESP_COM_ERROR_NONE:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_NONE");
+            break;
+        }
+        case EBV_ESP_COM_ERROR_ACK_TIMEOUT:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_ACK_TIMEOUT");
+            break;
+        }
+        case EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT");
+            break;
+        }
+        case EBV_ESP_COM_ERROR_ACK_INVALID:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_ACK_INVALID");
+            break;
+        }
+        case EBV_ESP_COM_ERROR_RESPONSE_INVALID:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_RESPONSE_INVALID");
+            break;
+        }
+        case EBV_ESP_COM_ERROR_BUSY_TIMEOUT:{
+            strcpy(err_str, "EBV_ESP_COM_ERROR_BUSY_TIMEOUT");
+            break;
+        }
+        case ESP_ERR_INVALID_CMD_ID:{
+            strcpy(err_str, "ESP_ERR_INVALID_CMD_ID");
+            break;
+        }
+        case ESP_ERR_INVALID_CMD_DATA:{
+            strcpy(err_str, "ESP_ERR_INVALID_CMD_DATA");
+            break;
+        }
+        case ESP_ERR_INVALID_RESP_DATA:{
+            strcpy(err_str, "ESP_ERR_INVALID_RESP_DATA");
+            break;
+        }
+        case ESP_ERR_INVALID_RESP_CMD_ID:{
+            strcpy(err_str, "ESP_ERR_INVALID_RESP_CMD_ID");
+            break;
+        }
+        case ESP_ERR_NETWORK_ABSENT:{
+            strcpy(err_str, "ESP_ERR_NETWORK_ABSENT");
+            break;
+        }
+        case ESP_ERR_INVALID_CLOUD_RESPONSE:{
+            strcpy(err_str, "ESP_ERR_INVALID_CLOUD_RESPONSE");
+            break;
+        }
+        case ESP_ERR_INTERNAL_ERROR:{
+            strcpy(err_str, "ESP_ERR_INTERNAL_ERROR");
+            break;
+        }
+        case ESP_ERR_NETWORK_OFFLINE:{
+            strcpy(err_str, "ESP_ERR_NETWORK_OFFLINE");
+            break;
+        }
+        case ESP_ERR_NETWORK_ACCESS_DENIED:{
+            strcpy(err_str, "ESP_ERR_NETWORK_ACCESS_DENIED");
+            break;
+        }
+        case ESP_ERR_NETWORK_UNREGISTERED:{
+            strcpy(err_str, "ESP_ERR_NETWORK_UNREGISTERED");
+            break;
+        }
+        case ESP_ERR_NETWORK_REG_FAILED:{
+            strcpy(err_str, "ESP_ERR_NETWORK_REG_FAILED");
+            break;
+        }
+        case ESP_ERR_UNKNOWN:{
+            strcpy(err_str, "ESP_ERR_UNKNOWN");
+            break;
+        }
     }
-#endif
 }
+#endif
 
 #ifdef __cplusplus
     void ebv_iot_addGenericPayload(const char * key, unsigned int value){

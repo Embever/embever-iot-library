@@ -102,5 +102,6 @@ bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
 esp_err_t ebv_iot_get_last_error_code();
 void ebv_iot_dump_last_error();
+void ebv_iot_esp_err_str(esp_err_t err, char *err_str);
 
 #endif

@@ -44,6 +44,8 @@ static bool _ebv_local_parse_gnss_response(esp_response_t *response, ebv_gnss_da
 static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint8_t payload_len, ebv_gnss_request_kind query_type, ebv_gnss_data_t *pvt);
 #endif
 
+extern esp_err_t esp_err;
+
 uint8_t _gnss_query_data[32];
 uint8_t _gnss_query_data_len;
 uint8_t _gnss_nof_queries;
@@ -421,3 +423,180 @@ bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode){
 
     return true;
 }
+
+bool ebv_local_status_update_modem(ebv_local_modem_status_t * status){
+    status->rf_mode = EBV_MODEM_RF_MODE_INVALID;
+    status->lte_mode = EBV_MODEM_LTE_MODE_INVALID;
+    status->network_status = EBV_MODEM_NETWORK_STATUS_INVALID;
+    // Keep it simple for now since there is only 1 configuration option available yet
+    uint8_t status_read_data[] = {0x91, 0x91, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D};
+    esp_packet_t pkg;
+    ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_STATUS, status_read_data, sizeof(status_read_data));
+
+    // Send packet
+    if( !ebv_esp_submitPacket(&pkg) ){
+        DEBUG_MSG_TRACE("Failed to submit package");
+        return false;
+    }
+
+    // Read response
+    esp_response_t response;
+    if( !ebv_esp_queryDelayedResponse(&response) ){
+        DEBUG_MSG_TRACE("Failed to read delayed response");
+        return false;
+    }
+
+    // Verify
+    ebv_esp_resp_res_t res = ebv_esp_eval_delayed_resp(&response, ESP_CMD_STATUS);
+    if(res != EBV_ESP_RESP_RES_OK ){
+        DEBUG_MSG_TRACE("Delayed response validation failed");
+        return false;
+    }
+#if DEBUG_EN == 1
+    if(response.has_error_code){
+        esp_err_t err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        DEBUG_MSG_TRACE("Delayed response error code: %d", err);
+        return false;
+    }
+#endif
+    if(response.has_error_code){
+        esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        return false;
+    }
+
+    // populate the status variable
+
+    cw_unpack_context uc;
+    cw_unpack_context_init(&uc, response.payload, response.payload_len, NULL);
+    cw_unpack_next(&uc);
+    if(uc.item.type != CWP_ITEM_ARRAY){
+        return false;
+    }
+    // looping in the status groups
+    const uint8_t nof_group_items =  (uint8_t) uc.item.as.array.size;
+    for(uint8_t i = 0; i < nof_group_items; i++){
+        const uint8_t * status_group = uc.current;
+        cw_unpack_next(&uc);
+        if(uc.item.type == CWP_ITEM_ARRAY && uc.item.as.array.size == 2){
+            cw_unpack_next(&uc);
+            if( uc.item.type == CWP_ITEM_STR &&
+                strncmp((const char *) uc.item.as.str.start, EBV_STATUS_GROUP_MODEM_KEY, sizeof(EBV_STATUS_GROUP_MODEM_KEY) - 1) == 0)
+            {
+                cw_unpack_next(&uc);
+                if(uc.item.type == CWP_ITEM_MAP){
+                    const uint8_t nof_status_records = uc.item.as.map.size;
+                    for(uint8_t i = 0; i < nof_status_records; i++){
+                        const uint8_t * status_record = uc.current;
+                        cw_unpack_next(&uc);
+                        if(uc.item.type == CWP_ITEM_STR){
+                            if(strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_RF_MODE_KEY, sizeof(EBV_STATUS_MODEM_RF_MODE_KEY) - 1) == 0){
+                                cw_unpack_next(&uc);
+                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_RF_MODE_COUNT){
+                                    status->rf_mode = (enum ebv_modem_rf_mode) uc.item.as.u64;
+                                }
+                            } else if( strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_LTE_STATUS_KEY, sizeof(EBV_STATUS_MODEM_LTE_STATUS_KEY) - 1) == 0 ){
+                                cw_unpack_next(&uc);
+                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_LTE_MODE_COUNT){
+                                    status->lte_mode = (enum ebv_modem_lte_mode) uc.item.as.u64;
+                                }
+                            } else if (strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_NET_STATUS_KEY, sizeof(EBV_STATUS_MODEM_NET_STATUS_KEY) - 1) == 0){
+                                cw_unpack_next(&uc);
+                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_NETWORK_STATUS_COUNT){
+                                    status->network_status = (enum ebv_modem_network_status) uc.item.as.u64;
+                                }
+                            }
+                        }
+
+                        uc.current = (uint8_t *) status_record;
+                        cw_skip_items(&uc, 2);
+                    }
+                }
+            }
+        }
+        uc.current = (uint8_t * ) status_group;
+        cw_skip_items(&uc, 1);
+    }
+
+    return true;
+}
+
+#if EBV_STRINGIFY_EN == 1
+
+void ebv_local_status_modem_str(ebv_local_modem_status_t *status,
+                                char *lte_mode_str,
+                                char *network_status_str,
+                                char *rf_mode_str)
+{
+
+    switch (status->lte_mode){
+        case EBV_MODEM_LTE_MODE_NB_IOT:
+            memcpy(lte_mode_str, "LTE_MODE_NB_IOT", sizeof("LTE_MODE_NB_IOT"));
+            break;
+        case EBV_MODEM_LTE_MODE_LTEM:
+            memcpy(lte_mode_str, "LTE_MODE_LTEM", sizeof("LTE_MODE_LTEM"));
+            break;
+        case EBV_MODEM_LTE_MODE_NONE:
+            memcpy(lte_mode_str, "LTE_MODE_NONE", sizeof("LTE_MODE_NONE"));
+            break;
+        case EBV_MODEM_LTE_MODE_UNKNOWN:
+            memcpy(lte_mode_str, "LTE_MODE_UNKNOWN", sizeof("LTE_MODE_UNKNOWN"));
+            break;
+        case EBV_MODEM_LTE_MODE_INVALID:
+            memcpy(lte_mode_str, "LTE_MODE_INVALID", sizeof("LTE_MODE_INVALID"));
+            break;
+        default:
+            memcpy(lte_mode_str, "error", sizeof("error"));
+    }
+
+    switch (status->network_status){
+        case EBV_MODEM_NETWORK_STATUS_INITIALISED:
+            memcpy(network_status_str, "NETWORK_STATUS_INITIALISED", sizeof("NETWORK_STATUS_INITIALISED"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_SEARCHING:
+            memcpy(network_status_str, "NETWORK_STATUS_SEARCHING", sizeof("NETWORK_STATUS_SEARCHING"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_REGISTERED_HOME:
+            memcpy(network_status_str, "NETWORK_STATUS_REGISTERED_HOME", sizeof("NETWORK_STATUS_REGISTERED_HOME"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_REGISTERED_ROAMING:
+            memcpy(network_status_str, "NETWORK_STATUS_REGISTERED_ROAMING", sizeof("NETWORK_STATUS_REGISTERED_ROAMING"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_REGISTRATION_FAILED:
+            memcpy(network_status_str, "STATUS_REGISTRATION_FAILED", sizeof("STATUS_REGISTRATION_FAILED"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_UNKNOWN:
+            memcpy(network_status_str, "NETWORK_STATUS_UNKNOWN", sizeof("NETWORK_STATUS_UNKNOWN"));
+            break;
+        case EBV_MODEM_NETWORK_STATUS_INVALID:
+            memcpy(network_status_str, "NETWORK_STATUS_INVALID", sizeof("NETWORK_STATUS_INVALID"));
+            break;
+        default:
+            memcpy(network_status_str, "error", sizeof("error"));
+    }
+
+    switch (status->rf_mode){
+        case EBV_MODEM_RF_MODE_NBIOT:
+            memcpy(rf_mode_str, "RF_MODE_NBIOT", sizeof("RF_MODE_NBIOT"));
+            break;
+        case EBV_MODEM_RF_MODE_LTEM:
+            memcpy(rf_mode_str, "RF_MODE_LTEM", sizeof("RF_MODE_LTEM"));
+            break;
+        case EBV_MODEM_RF_MODE_GPS_ONLY:
+            memcpy(rf_mode_str, "RF_MODE_GPS_ONLY", sizeof("RF_MODE_GPS_ONLY"));
+            break;
+        case EBV_MODEM_RF_MODE_OFFLINE:
+            memcpy(rf_mode_str, "RF_MODE_OFFLINE", sizeof("RF_MODE_OFFLINE"));
+            break;
+        case EBV_MODEM_RF_MODE_RADIO_TEST:
+            memcpy(rf_mode_str, "RF_MODE_RADIO_TEST", sizeof("RF_MODE_RADIO_TEST"));
+            break;
+        case EBV_MODEM_RF_MODE_INVALID:
+            memcpy(rf_mode_str, "RF_MODE_INVALID", sizeof("RF_MODE_INVALID"));
+            break;
+        default:
+            memcpy(rf_mode_str, "error", sizeof("error"));
+            break;
+    }
+}
+
+#endif
