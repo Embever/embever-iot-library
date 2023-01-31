@@ -1,8 +1,10 @@
 #include "test_ebv_local.h"
 #include "ebv_unit_compare.h"
 #include "mock/mock_ebv_i2c.h"
+#include "util/test_esp_util.h"
 
 #include "ebv_esp.h"
+#include "ebv_local.h"
 
 void test_ebv_local_verify_gnss_response(){
     ebv_gnss_data_t pvt;
@@ -117,5 +119,62 @@ void test_local_set_rf_mode(){
 
         bool ret = ebv_local_set_rf_mode(EBV_MODEM_RF_MODE_NBIOT);
         TEST_EQUAL(ret, true);
+    }
+}
+
+void test_ebv_local_status_update_modem(){
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_CONFIG;
+        // [[  "modem",  {    "rf_mode": 0,    "lte_mode": 0,    "net_status": 0  }]]
+        const char esp_delayed_payload[] = {0x91, 0x92, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x83, 0xA7, 0x72, 0x66, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x00, 0xA8, 0x6C, 0x74, 0x65, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x00, 0xAA, 0x6E, 0x65, 0x74, 0x5F, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x00};
+        char esp_pkg[512];
+        uint16_t esp_pkg_len = test_esp_util_build_delayed_response(esp_pkg, ESP_CMD_STATUS, esp_delayed_payload, sizeof(esp_delayed_payload));
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response((const unsigned char *) esp_pkg, esp_pkg_len);
+
+        ebv_local_modem_status_t status;
+        bool ret = ebv_local_status_update_modem(&status);
+
+        TEST_EQUAL(ret, true);
+        TEST_EQUAL(status.lte_mode, EBV_MODEM_LTE_MODE_NB_IOT);
+        TEST_EQUAL(status.network_status, EBV_MODEM_NETWORK_STATUS_INITIALISED);
+        TEST_EQUAL(status.rf_mode, EBV_MODEM_RF_MODE_NBIOT);
+    }
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_CONFIG;
+        // [[  "modem",  {    "rf_mode": 1,    "lte_mode": 2,    "net_status": 3  }]]
+        const char esp_delayed_payload[] = {0x91, 0x92, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x83, 0xA7, 0x72, 0x66, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x01, 0xA8, 0x6C, 0x74, 0x65, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x02, 0xAA, 0x6E, 0x65, 0x74, 0x5F, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x03};
+        char esp_pkg[512];
+        uint16_t esp_pkg_len = test_esp_util_build_delayed_response(esp_pkg, ESP_CMD_STATUS, esp_delayed_payload, sizeof(esp_delayed_payload));
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response((const unsigned char *) esp_pkg, esp_pkg_len);
+
+        ebv_local_modem_status_t status;
+        bool ret = ebv_local_status_update_modem(&status);
+
+        TEST_EQUAL(ret, true);
+        TEST_EQUAL(status.lte_mode, EBV_MODEM_LTE_MODE_NONE);
+        TEST_EQUAL(status.network_status, EBV_MODEM_NETWORK_STATUS_REGISTERED_ROAMING);
+        TEST_EQUAL(status.rf_mode, EBV_MODEM_RF_MODE_LTEM);
+    }
+    {
+        mock_i2c_init();
+        const unsigned char i2c_resp_ack[] = MOCK_I2C_RESPONSE_ACK_CONFIG;
+        // [[  "modem",  {    "rf_mode": 1,    "lte_mode": 2,    "net_status": 3  }]]
+        const char esp_delayed_payload[] = {0x91, 0x92, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x83, 0xAA, 0x6E, 0x65, 0x74, 0x5F, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x03, 0xA7, 0x72, 0x66, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x01, 0xA8, 0x6C, 0x74, 0x65, 0x5F, 0x6D, 0x6F, 0x64, 0x65, 0x02};
+        char esp_pkg[512];
+        uint16_t esp_pkg_len = test_esp_util_build_delayed_response(esp_pkg, ESP_CMD_STATUS, esp_delayed_payload, sizeof(esp_delayed_payload));
+        mock_ebv_i2c_set_response(i2c_resp_ack, sizeof(i2c_resp_ack));
+        mock_ebv_i2c_set_delayed_response((const unsigned char *) esp_pkg, esp_pkg_len);
+
+        ebv_local_modem_status_t status;
+        bool ret = ebv_local_status_update_modem(&status);
+
+        TEST_EQUAL(ret, true);
+        TEST_EQUAL(status.lte_mode, EBV_MODEM_LTE_MODE_NONE);
+        TEST_EQUAL(status.network_status, EBV_MODEM_NETWORK_STATUS_REGISTERED_ROAMING);
+        TEST_EQUAL(status.rf_mode, EBV_MODEM_RF_MODE_LTEM);
     }
 }

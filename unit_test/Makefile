@@ -19,6 +19,7 @@ SRCS_ABS = 																										\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_i2c.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_local.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_eftp.cpp											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_iot.cpp											\
 		${ARDUINO_USR_LIB_SOURCE}/cwpack-master/src/extcwpack.cpp
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

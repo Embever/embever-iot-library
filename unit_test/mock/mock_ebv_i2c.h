@@ -6,6 +6,7 @@
 #define ESP_CMD_GNSS_UPDATE         0xA8
 #define ESP_CMD_READ_LOCAL_FILE     0xA7
 #define ESP_CMD_CONFIG              0xAA
+#define ESP_CMD_STATUS              0xAB
 
 #define _MOCK_I2C_CRC                                    0x00,0x00,0x00,0x00
 #define _MOCK_I2C_FLAG                                                  0x01
@@ -43,6 +44,9 @@
                                                                             _MOCK_I2C_CONFIG_RESPONSE_HEADER, 0x00, 0x00,               \
                                                                         }
 #define MOCK_I2C_DELAYED_RESPONSE_CONFIG_FAIL(ERR)                      MOCK_I2C_DELAYED_RESPONSE_FAIL(ESP_CMD_CONFIG, ERR)
+// ESP_CONFIG
+#define MOCK_I2C_RESPONSE_ACK_CONFIG                                    {0x55, ESP_CMD_STATUS}
+
 
 void mock_i2c_init();
 bool mock_ebv_i2c_set_response(const unsigned char *data, int data_len);
