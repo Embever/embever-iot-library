@@ -10,7 +10,7 @@
 // Possible return values from ebv functions
 typedef enum{
     EBV_RET_OK,                         // All OK
-    EBV_RET_OK_WITH_ERROR,              // ESP com was successfull but there was an error durring data exchange with cloud
+    EBV_RET_OK_WITH_ERROR,              // ESP com was successful but there was an error durring data exchange with cloud
     EBV_RET_NO_ACTION,                  // No action in the cloud for this device
     EBV_RET_ESP_NO_ACK,                 // Failed to receive ACK packet
     EBV_RET_ESP_NO_DEL_RESP,            // There is no delayed response
