@@ -13,7 +13,7 @@
 #define _MOCK_I2C_ESP_ERROR_HEADER                                 0xB3,0xA5
 #define _MOCK_I2C_ESP_ERROR_CODE_INVALID_CMD_DATA                  0x01,0x02
 #define _MOCK_I2C_ESP_ERROR_CODE_INTERNAL_ERROR                    0x01,0x07
-#define _MOCK_I2C_ESP_ERROR_CODE_RESOURCE_BUSY                     0x01,0x08
+#define _MOCK_I2C_ESP_ERROR_CODE_RESOURCE_BUSY                     0x01,0x0D
 #define _MOCK_I2C_DELAYED_RESPONSE_HEADER                          0x55,0xA1
 #define _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER                  0x055,ESP_CMD_READ_LOCAL_FILE
 #define _MOCK_I2C_GNSS_UPDATE_RESPONSE_HEADER                      0x055,ESP_CMD_GNSS_UPDATE
