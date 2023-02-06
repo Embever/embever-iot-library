@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "ebv_iot_lib",
+			"path": "../src"
+		},
+		{
+			"path": "../../cwpack-master"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"__locale": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"array": "cpp",
+			"bitset": "cpp",
+			"initializer_list": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp"
+		}
+	}
+}

@@ -39,6 +39,7 @@
 #include <stdint.h>
 
 #include "ebv_esp.h"
+#include "ebv_eftp.h"
 #include "ebv_local.h"
 #include "ebv_delay.h"
 #include "ebv_i2c.h"
@@ -59,18 +60,9 @@ typedef struct{
     uint8_t response_payload_size;
 } ebv_action_t;
 
-typedef enum {
-    EBV_ESP_COM_ERROR_NONE,
-    EBV_ESP_COM_ERROR_ACK_TIMEOUT,
-    EBV_ESP_COM_ERROR_RESPONSE_TIMEOUT,
-    EBV_ESP_COM_ERROR_ACK_INVALID,
-    EBV_ESP_COM_ERROR_RESPONSE_INVALID,
-    EBV_ESP_COM_ERROR_BUSY_TIMEOUT
-} ebv_esp_com_error_t;
-
 typedef struct{
     uint8_t *body;
-    uint8_t len;
+    uint16_t len;
     bool result;
 } ebv_iot_event;
 
@@ -78,7 +70,7 @@ bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);
 bool _ebv_iot_addFloatPayload(const char * k, float v);
 bool _ebv_iot_addDoublePayload(const char * k, double v);
-bool _ebv_iot_addStringPayload(const char * k, char * v);
+bool _ebv_iot_addStringPayload(const char * k, const char * v);
 bool _ebv_iot_addCharPayload(const char * k, char v);
 
 // Overloaded payload packer
@@ -108,7 +100,8 @@ bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
 bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
-ebv_esp_com_error_t ebv_iot_get_last_error_code();
+esp_err_t ebv_iot_get_last_error_code();
 void ebv_iot_dump_last_error();
+void ebv_iot_esp_err_str(esp_err_t err, char *err_str);
 
 #endif

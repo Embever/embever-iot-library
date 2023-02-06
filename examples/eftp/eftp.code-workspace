@@ -17,8 +17,8 @@
 			"${env:ARDUINO_BASE_SOURCE}/libraries/SoftwareSerial/src",
 			"${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
 			"${env:ARDUINO_BASE_SOURCE}/libraries/Wire/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
 			"${env:ARDUINO_BASE_SOURCE}/variants/standard",
-			"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
 			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
 			"${env:AVR_BASE_SOURCE}/include",
 			"${env:AVR_BASE_SOURCE}/include/avr",
@@ -26,6 +26,7 @@
 			"${env:AVR_BASE_SOURCE}/include/sys",
 			"${env:AVR_BASE_SOURCE}/include/util",
 			"${workspaceFolder}/../../src",
+			"/Applications/Arduino.app/Contents/Java/libraries/SD/src"
 		],
 		"C_Cpp.default.defines": [
 			"_DEBUG",
@@ -53,8 +54,13 @@
 			"string_view": "cpp",
 			"unordered_map": "cpp",
 			"vector": "cpp",
-			"ranges": "cpp"
-		}
+			"ranges": "cpp",
+			"iterator": "cpp",
+			"istream": "cpp"
+		},
+		"cSpell.words": [
+			"eftp"
+		]
 	},
 	"tasks": {
 		"version": "2.0.0",
@@ -272,6 +278,20 @@
 				"type": "shell",
 				"group": "build",
 				"command": "st-flash --format ihex write ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex"
+			},
+			{
+				"label": "Build for STM32 debug",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,opt=ogstd,dbg=enable,rtlib=nano",
+					"--warnings",
+					"all"
+				],
 			},
 			{
 				"label": "Unit test -- Build",
