@@ -6,6 +6,9 @@
 		{
 			"name": "ebv_iot_lib",
 			"path": "../src"
+		},
+		{
+			"path": "../../cwpack-master"
 		}
 	],
 	"settings": {
