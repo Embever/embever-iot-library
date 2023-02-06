@@ -202,7 +202,9 @@ static bool ebv_local_gnss_submit(esp_response_t *response){
 
 static bool ebv_local_query_gnss_submit(ebv_gnss_data_t *pvt){
     esp_response_t response;
-    ebv_local_gnss_submit(&response);
+    if( ebv_local_gnss_submit(&response) == false){
+        return false;
+    }
     // Parse response
     return _ebv_local_parse_gnss_response(&response, pvt);
 }

@@ -161,6 +161,12 @@ bool ebv_esp_submitPacket(esp_packet_t *pkg){
         DEBUG_MSG_TRACE("No ACK response received");
         return false;
     }
+    // Check ACK content
+    if(response.sop != ESP_RESPONSE_SOP_SOR_ID || response.command != pkg->command){
+        DEBUG_MSG_TRACE("Invalid ACK, %.2X, %.2X", response.sop, response.command);
+        return false;
+    }
+
     ebv_delay(20);
     if( !waitForDevice() ){
         DEBUG_MSG_TRACE("Timeout while waiting for device");
