@@ -70,7 +70,7 @@ bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);
 bool _ebv_iot_addFloatPayload(const char * k, float v);
 bool _ebv_iot_addDoublePayload(const char * k, double v);
-bool _ebv_iot_addStringPayload(const char * k, char * v);
+bool _ebv_iot_addStringPayload(const char * k, const char * v);
 bool _ebv_iot_addCharPayload(const char * k, char v);
 
 // Overloaded payload packer
