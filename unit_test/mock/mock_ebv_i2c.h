@@ -47,7 +47,7 @@
                                                                         }
 #define MOCK_I2C_DELAYED_RESPONSE_CONFIG_FAIL(ERR)                      MOCK_I2C_DELAYED_RESPONSE_FAIL(ESP_CMD_CONFIG, ERR)
 // ESP_CONFIG
-#define MOCK_I2C_RESPONSE_ACK_CONFIG                                    {0x55, ESP_CMD_STATUS}
+#define MOCK_I2C_RESPONSE_ACK_STATUS                                    {0x55, ESP_CMD_STATUS}
 
 
 void mock_i2c_init();
