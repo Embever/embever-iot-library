@@ -25,6 +25,8 @@
                                                                              ERROR_CODE_1, ERROR_CODE_2, _MOCK_I2C_ESP_ERROR_HEADER,   \
                                                                              _MOCK_I2C_CRC, _MOCK_I2C_FLAG                             \
                                                                         }
+// ESP GNSS UPDATE
+#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x55, ESP_CMD_GNSS_UPDATE}
 // ESP REMOTE_FILE
 #define MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE                           {0x55, ESP_CMD_READ_LOCAL_FILE}
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK         {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x0C, 0x00,              \

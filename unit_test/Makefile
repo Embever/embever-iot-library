@@ -4,23 +4,23 @@ BUILD_DIR ?= ./build
 BUILD_DIR_FAKE ?= ./build_fake_inc
 BUILD_DIR_ABS ?= ./build_abs
 
-SRCS =  testrunner.cpp 											\
-		./mock/mock_ebv_i2c.cpp									\
-		./util/test_esp_util.cpp								\
-		test_ebv_local.cpp										\
-		test_ebv_eftp.cpp
+SRCS =  testrunner.c 											\
+		./mock/mock_ebv_i2c.c									\
+		./util/test_esp_util.c								\
+		test_ebv_local.c										\
+		test_ebv_eftp.c
 
-SRC_FAKE =  ./fake_inc/ebv_esp_gpio.cpp							\
-			./fake_inc/serial_print.cpp							\
-			./fake_inc/ebv_delay.cpp
+SRC_FAKE =  ./fake_inc/ebv_esp_gpio.c							\
+			./fake_inc/serial_print.c							\
+			./fake_inc/ebv_delay.c
 
 SRCS_ABS = 																										\
-		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_esp.cpp											\
-		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_i2c.cpp											\
-		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_local.cpp											\
-		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_eftp.cpp											\
-		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src/ebv_iot.cpp											\
-		${ARDUINO_USR_LIB_SOURCE}/cwpack-master/src/extcwpack.cpp
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core/ebv_esp.c											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core/ebv_i2c.c											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core/ebv_local.c											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core/ebv_eftp.c											\
+		${ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core/ebv_iot.c											\
+		${ARDUINO_USR_LIB_SOURCE}/cwpack-master/core/extcwpack.c
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 OBJS += $(SRC_FAKE:%=$(BUILD_DIR)/%.o)
