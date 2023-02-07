@@ -19,8 +19,22 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
+#define USR_BTN_AVAILABLE 1             // Set to 1 if there is button available on your hardware
+
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
+
+void print_fail_reason(){
+#if EBV_STRINGIFY_EN == 1       // defined on ebv_log_conf.h header file
+    EBV_ESP_GET_LAST_ERROR( esp_err_str );
+    ebv_local_device_status_t device_status;
+    ebv_local_status_update(&device_status);
+    char general_status[48];
+    ebv_local_status_general_str(&(device_status.general_status),general_status );
+    p("ESP error : %s, device status : %s \n\r", esp_err_str, general_status);
+    
+#endif
+}
 
 void setup() {
     Serial.begin(115200);
@@ -31,13 +45,24 @@ void setup() {
     p("Preparing hello_cloud event\n\r");
     ebv_iot_initGenericEvent("Hi_Cloud");               // Set the event type
     ebv_iot_addGenericPayload("source", "AppMCU");      // Set payload
-    p("Sending hello_cloud event...\n\r");
-    bool ret = ebv_iot_submitGenericEvent();            // Send event
-    if(ret){
-        p("Event sent\n\r");
-    } else {
-       p("Sending event failed\n\r");
+#if USR_BTN_AVAILABLE == 1
+    pinMode(PIN_BTN, INPUT);
+    while(1){
+        p("Press the user button to send an event\n\r");
+        while( digitalRead(PIN_BTN) );
+#endif
+        p("Sending hello_cloud event...\n\r");
+        bool ret = ebv_iot_submitGenericEvent();            // Send event
+        if(ret){
+            p("Event sent\n\r");
+        } else {
+           p("Sending event failed\n\r");
+           print_fail_reason();
+        }
+#if USR_BTN_AVAILABLE == 1
+    delay(2000);
     }
+#endif
 }
 
 void loop(){}
