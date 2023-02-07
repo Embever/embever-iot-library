@@ -2,6 +2,7 @@
 #define INC_EBV_LOCAL_H
 
 #include <Arduino.h>
+#include <extcwpack.h>
 
 #ifdef EBV_UNIT_TEST
 #include "ebv_esp.h"
@@ -73,6 +74,8 @@ enum ebv_modem_network_status{
 #define EBV_STATUS_MODEM_LTE_STATUS_KEY                 "lte_mode"
 #define EBV_STATUS_MODEM_NET_STATUS_KEY                 "net_status"
 
+#define EBV_STATUS_GROUP_GENERAL_KEY                      "general"
+#define EBV_STATUS_GENERAL_STATUS_KEY                     "status"
 
 
 typedef struct{
@@ -113,6 +116,25 @@ typedef struct{
     enum ebv_modem_network_status network_status;
 } ebv_local_modem_status_t;
 
+enum ebv_general_status{
+    EBV_GENERAL_STATUS_CONNECTING,
+    EBV_GENERAL_STATUS_READY,
+    EBV_GENERAL_STATUS_BUSY_FOTA,
+    EBV_GENERAL_STATUS_GPS_ACTIVE,
+    EBV_GENERAL_STATUS_UNKNOWN,
+    EBV_GENERAL_STATUS_COUNT,
+    EBV_GENERAL_STATUS_INVALID
+};
+
+typedef struct{
+    enum ebv_general_status status;
+} ebv_local_general_status_t;
+
+typedef struct{
+    ebv_local_general_status_t general_status;
+    ebv_local_modem_status_t modem_status;
+} ebv_local_device_status_t;
+
 
 bool ebv_local_query_gnss(ebv_gnss_data_t *pvt);
 bool ebv_local_query_gnss_cont(ebv_gnss_data_t *pvt);
@@ -124,14 +146,19 @@ bool ebv_local_query_gnss_custom_add(ebv_gnss_request_kind k );
 bool ebv_local_query_gnss_custom_add_submit(ebv_gnss_data_t *pvt);
 bool ebv_local_set_op_mode(ebv_local_pwr_op_mode op_mode);
 bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode);
-bool ebv_local_status_update_modem(ebv_local_modem_status_t * status);
+bool ebv_local_status_update(ebv_local_device_status_t * status);
+
 void ebv_local_status_modem_str(ebv_local_modem_status_t *status, char *lte_mode_str, char *network_status_str, char *rf_mode_str);
+void ebv_local_status_general_str(ebv_local_general_status_t *status, char *status_str);
 
 #ifdef EBV_UNIT_TEST
 #warning "UNIT TEST ACTIVE"
 #define ebv_unit_test_static
 bool _ebv_local_parse_gnss_response(esp_response_t *response, ebv_gnss_data_t *pvt);
 bool _ebv_local_verify_gnss_response(uint8_t *payload, uint8_t payload_len, ebv_gnss_request_kind query_type, ebv_gnss_data_t *pvt);
+bool _ebv_esp_status_parser(uint8_t *data, uint16_t len, ebv_local_device_status_t * status);
+void _ebv_local_status_parser_modem(cw_unpack_context *uc, ebv_local_modem_status_t *status);
+void _ebv_local_status_parser_general(cw_unpack_context *uc, ebv_local_general_status_t *status);
 #else
 #define ebv_unit_test_static static
 #endif

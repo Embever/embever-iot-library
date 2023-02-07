@@ -2,6 +2,7 @@
 #define INC_EBV_CONF_H
 
 #include "ebv_esp_conf.h"
+#include "ebv_log_conf.h"
 
 #define MIN_IOT_MSG_MAX_LEN      64
 #define MED_IOT_MSG_MAX_LEN     256
@@ -30,6 +31,8 @@ typedef enum{
 #elif defined(__AVR__)
     #define IOT_MSG_MAX_LEN MIN_IOT_MSG_MAX_LEN
 #elif defined(STM32F103xB)
+    #define IOT_MSG_MAX_LEN MAX_IOT_MSG_MAX_LEN
+#elif defined(EBV_UNIT_TEST)
     #define IOT_MSG_MAX_LEN MAX_IOT_MSG_MAX_LEN
 #else
     #define IOT_MSG_MAX_LEN MIN_IOT_MSG_MAX_LEN

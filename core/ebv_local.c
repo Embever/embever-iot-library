@@ -42,6 +42,9 @@ static bool ebv_local_gnss_submit(esp_response_t *response);
 #ifndef EBV_UNIT_TEST
 static bool _ebv_local_parse_gnss_response(esp_response_t *response, ebv_gnss_data_t *pvt);
 static bool _ebv_local_verify_gnss_response(uint8_t *payload, uint8_t payload_len, ebv_gnss_request_kind query_type, ebv_gnss_data_t *pvt);
+static bool _ebv_esp_status_parser(uint8_t *data, uint16_t len, ebv_local_device_status_t * status);
+static void _ebv_local_status_parser_modem(cw_unpack_context *uc, ebv_local_modem_status_t *status);
+static void _ebv_local_status_parser_general(cw_unpack_context *uc, ebv_local_general_status_t *status);
 #endif
 
 extern esp_err_t esp_err;
@@ -426,12 +429,13 @@ bool ebv_local_set_rf_mode(enum ebv_modem_rf_mode rf_mode){
     return true;
 }
 
-bool ebv_local_status_update_modem(ebv_local_modem_status_t * status){
-    status->rf_mode = EBV_MODEM_RF_MODE_INVALID;
-    status->lte_mode = EBV_MODEM_LTE_MODE_INVALID;
-    status->network_status = EBV_MODEM_NETWORK_STATUS_INVALID;
-    // Keep it simple for now since there is only 1 configuration option available yet
-    uint8_t status_read_data[] = {0x91, 0x91, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D};
+bool ebv_local_status_update(ebv_local_device_status_t * status){
+    status->modem_status.rf_mode = EBV_MODEM_RF_MODE_INVALID;
+    status->modem_status.lte_mode = EBV_MODEM_LTE_MODE_INVALID;
+    status->modem_status.network_status = EBV_MODEM_NETWORK_STATUS_INVALID;
+    status->general_status.status = EBV_GENERAL_STATUS_INVALID;
+    // Keep it simple for now since there is no other way to submit status read
+    uint8_t status_read_data[] = {0x92, 0x91, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x91, 0xA7, 0x67, 0x65, 0x6E, 0x65, 0x72, 0x61, 0x6C};
     esp_packet_t pkg;
     ebv_esp_packetBuilderByArray(&pkg, ESP_CMD_STATUS, status_read_data, sizeof(status_read_data));
 
@@ -466,10 +470,15 @@ bool ebv_local_status_update_modem(ebv_local_modem_status_t * status){
         return false;
     }
 
-    // populate the status variable
+    bool ret = _ebv_esp_status_parser(response.payload, response.payload_len, status);
 
+    return true;
+}
+
+// main status response parser
+ebv_unit_test_static bool _ebv_esp_status_parser(uint8_t *data, uint16_t len, ebv_local_device_status_t * status){
     cw_unpack_context uc;
-    cw_unpack_context_init(&uc, response.payload, response.payload_len, NULL);
+    cw_unpack_context_init(&uc, data, len, NULL);
     cw_unpack_next(&uc);
     if(uc.item.type != CWP_ITEM_ARRAY){
         return false;
@@ -481,45 +490,80 @@ bool ebv_local_status_update_modem(ebv_local_modem_status_t * status){
         cw_unpack_next(&uc);
         if(uc.item.type == CWP_ITEM_ARRAY && uc.item.as.array.size == 2){
             cw_unpack_next(&uc);
-            if( uc.item.type == CWP_ITEM_STR &&
-                strncmp((const char *) uc.item.as.str.start, EBV_STATUS_GROUP_MODEM_KEY, sizeof(EBV_STATUS_GROUP_MODEM_KEY) - 1) == 0)
-            {
-                cw_unpack_next(&uc);
-                if(uc.item.type == CWP_ITEM_MAP){
-                    const uint8_t nof_status_records = uc.item.as.map.size;
-                    for(uint8_t i = 0; i < nof_status_records; i++){
-                        const uint8_t * status_record = uc.current;
-                        cw_unpack_next(&uc);
-                        if(uc.item.type == CWP_ITEM_STR){
-                            if(strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_RF_MODE_KEY, sizeof(EBV_STATUS_MODEM_RF_MODE_KEY) - 1) == 0){
-                                cw_unpack_next(&uc);
-                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_RF_MODE_COUNT){
-                                    status->rf_mode = (enum ebv_modem_rf_mode) uc.item.as.u64;
-                                }
-                            } else if( strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_LTE_STATUS_KEY, sizeof(EBV_STATUS_MODEM_LTE_STATUS_KEY) - 1) == 0 ){
-                                cw_unpack_next(&uc);
-                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_LTE_MODE_COUNT){
-                                    status->lte_mode = (enum ebv_modem_lte_mode) uc.item.as.u64;
-                                }
-                            } else if (strncmp((const char *) uc.item.as.str.start, EBV_STATUS_MODEM_NET_STATUS_KEY, sizeof(EBV_STATUS_MODEM_NET_STATUS_KEY) - 1) == 0){
-                                cw_unpack_next(&uc);
-                                if(uc.item.type == CWP_ITEM_POSITIVE_INTEGER && uc.item.as.u64 <= EBV_MODEM_NETWORK_STATUS_COUNT){
-                                    status->network_status = (enum ebv_modem_network_status) uc.item.as.u64;
-                                }
-                            }
-                        }
-
-                        uc.current = (uint8_t *) status_record;
-                        cw_skip_items(&uc, 2);
-                    }
+            if( uc.item.type == CWP_ITEM_STR ){
+                if(strncmp((const char *) uc.item.as.str.start, EBV_STATUS_GROUP_MODEM_KEY, sizeof(EBV_STATUS_GROUP_MODEM_KEY) - 1) == 0){
+                    cw_unpack_next(&uc);
+                    _ebv_local_status_parser_modem(&uc, &(status->modem_status));
+                } else if(strncmp((const char *) uc.item.as.str.start, EBV_STATUS_GROUP_GENERAL_KEY, sizeof(EBV_STATUS_GROUP_GENERAL_KEY) - 1) == 0){
+                    cw_unpack_next(&uc);
+                    _ebv_local_status_parser_general(&uc, &(status->general_status));
+                } else {
+                    // Unknown group key in response
                 }
+            } else {
+                // Group item key not found, maybe indicating an error?
             }
+        } else {
+            // Invalid status response item, maybe indicating an error?
         }
+
         uc.current = (uint8_t * ) status_group;
         cw_skip_items(&uc, 1);
     }
 
     return true;
+}
+
+ebv_unit_test_static void _ebv_local_status_parser_modem(cw_unpack_context *uc, ebv_local_modem_status_t *status){
+    // iterate the response object
+    if(uc->item.type == CWP_ITEM_MAP){
+        const uint8_t nof_status_records = uc->item.as.map.size;
+        for(uint8_t i = 0; i < nof_status_records; i++){
+            const uint8_t * status_record = uc->current;
+            cw_unpack_next(uc);
+            if(uc->item.type == CWP_ITEM_STR){
+                if(strncmp((const char *) uc->item.as.str.start, EBV_STATUS_MODEM_RF_MODE_KEY, sizeof(EBV_STATUS_MODEM_RF_MODE_KEY) - 1) == 0){
+                    cw_unpack_next(uc);
+                    if(uc->item.type == CWP_ITEM_POSITIVE_INTEGER && uc->item.as.u64 <= EBV_MODEM_RF_MODE_COUNT){
+                        status->rf_mode = (enum ebv_modem_rf_mode) uc->item.as.u64;
+                    }
+                } else if( strncmp((const char *) uc->item.as.str.start, EBV_STATUS_MODEM_LTE_STATUS_KEY, sizeof(EBV_STATUS_MODEM_LTE_STATUS_KEY) - 1) == 0 ){
+                    cw_unpack_next(uc);
+                    if(uc->item.type == CWP_ITEM_POSITIVE_INTEGER && uc->item.as.u64 <= EBV_MODEM_LTE_MODE_COUNT){
+                        status->lte_mode = (enum ebv_modem_lte_mode) uc->item.as.u64;
+                    }
+                } else if (strncmp((const char *) uc->item.as.str.start, EBV_STATUS_MODEM_NET_STATUS_KEY, sizeof(EBV_STATUS_MODEM_NET_STATUS_KEY) - 1) == 0){
+                    cw_unpack_next(uc);
+                    if(uc->item.type == CWP_ITEM_POSITIVE_INTEGER && uc->item.as.u64 <= EBV_MODEM_NETWORK_STATUS_COUNT){
+                        status->network_status = (enum ebv_modem_network_status) uc->item.as.u64;
+                    }
+                }
+            }
+            uc->current = (uint8_t *) status_record;
+            cw_skip_items(uc, 2);
+        }
+    }
+}
+
+ebv_unit_test_static void _ebv_local_status_parser_general(cw_unpack_context *uc, ebv_local_general_status_t *status){
+    
+    if(uc->item.type == CWP_ITEM_MAP){
+        const uint8_t nof_status_records = uc->item.as.map.size;
+        for(uint8_t i = 0; i < nof_status_records; i++){
+            const uint8_t * status_record = uc->current;
+            cw_unpack_next(uc);
+            if(uc->item.type == CWP_ITEM_STR){
+                if(strncmp((const char *) uc->item.as.str.start, EBV_STATUS_GENERAL_STATUS_KEY, sizeof(EBV_STATUS_GENERAL_STATUS_KEY) - 1) == 0){
+                    cw_unpack_next(uc);
+                    if(uc->item.type == CWP_ITEM_POSITIVE_INTEGER && uc->item.as.u64 <= EBV_GENERAL_STATUS_COUNT){
+                        status->status = (enum ebv_general_status) uc->item.as.u64;
+                    }
+                }
+            }
+            uc->current = (uint8_t *) status_record;
+            cw_skip_items(uc, 2);
+        }
+    }
 }
 
 #if EBV_STRINGIFY_EN == 1
@@ -599,6 +643,45 @@ void ebv_local_status_modem_str(ebv_local_modem_status_t *status,
             memcpy(rf_mode_str, "error", sizeof("error"));
             break;
     }
+
+    return;
+}
+
+void ebv_local_status_general_str(ebv_local_general_status_t *status, char *status_str){
+    switch (status->status){
+        case EBV_GENERAL_STATUS_CONNECTING:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_CONNECTING", sizeof("EBV_GENERAL_STATUS_CONNECTING"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_READY:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_READY", sizeof("EBV_GENERAL_STATUS_READY"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_BUSY_FOTA:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_BUSY_FOTA", sizeof("EBV_GENERAL_STATUS_BUSY_FOTA"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_GPS_ACTIVE:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_GPS_ACTIVE", sizeof("EBV_GENERAL_STATUS_GPS_ACTIVE"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_UNKNOWN:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_UNKNOWN", sizeof("EBV_GENERAL_STATUS_UNKNOWN"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_COUNT:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_COUNT", sizeof("EBV_GENERAL_STATUS_COUNT"));
+            break;
+        }
+        case EBV_GENERAL_STATUS_INVALID:{
+            memcpy(status_str, "EBV_GENERAL_STATUS_INVALID", sizeof("EBV_GENERAL_STATUS_INVALID"));
+            break;
+        }
+        default:
+            memcpy(status_str, "error", sizeof("error"));
+    }
+
+    return;
 }
 
 #endif

@@ -26,7 +26,7 @@
                                                                              _MOCK_I2C_CRC, _MOCK_I2C_FLAG                             \
                                                                         }
 // ESP GNSS UPDATE
-#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x55, ESP_CMD_GNSS_UPDATE}
+#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x56, ESP_CMD_GNSS_UPDATE}
 // ESP REMOTE_FILE
 #define MOCK_I2C_RESPONSE_ACK_READ_LOCAL_FILE                           {0x55, ESP_CMD_READ_LOCAL_FILE}
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_OPEN_WRITE_OK         {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x0C, 0x00,              \
@@ -39,7 +39,7 @@
 #define MOCK_I2C_DELAYED_RESPONSE_READ_LOCAL_FILE_WRITE_OK              {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x04, 0x00,              \
                                                                             _MOCK_I2C_READ_LOCAL_FILE_RESPONSE_HEADER, 0x00, 0x00,      \
                                                                         }
-#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x55, ESP_CMD_GNSS_UPDATE}
+#define MOCK_I2C_RESPONSE_ACK_GNSS_UPDATE                               {0x56, ESP_CMD_GNSS_UPDATE}
 // ESP CONFIG
 #define MOCK_I2C_RESPONSE_ACK_CONFIG                                    {0x55, ESP_CMD_CONFIG}
 #define MOCK_I2C_DELAYED_RESPONSE_CONFIG_OK                             {   _MOCK_I2C_DELAYED_RESPONSE_HEADER, 0x04, 0x00,              \
@@ -47,7 +47,7 @@
                                                                         }
 #define MOCK_I2C_DELAYED_RESPONSE_CONFIG_FAIL(ERR)                      MOCK_I2C_DELAYED_RESPONSE_FAIL(ESP_CMD_CONFIG, ERR)
 // ESP_CONFIG
-#define MOCK_I2C_RESPONSE_ACK_STATUS                                    {0x55, ESP_CMD_STATUS}
+#define MOCK_I2C_RESPONSE_ACK_STATUS                                    {0x56, ESP_CMD_STATUS}
 
 
 void mock_i2c_init();

@@ -49,6 +49,8 @@
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
 
+#define EBV_ESP_GET_LAST_ERROR(err_buffer_str) char err_buffer_str[35];ebv_iot_esp_err_str(ebv_iot_get_last_error_code(), err_buffer_str)
+
 typedef struct{
     uint32_t id;
     char type[16];
