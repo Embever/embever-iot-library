@@ -9,6 +9,9 @@
 		},
 		{
 			"path": "../../cwpack-master"
+		},
+		{
+			"path": "../core"
 		}
 	],
 	"settings": {
@@ -20,7 +23,8 @@
 			"bitset": "cpp",
 			"initializer_list": "cpp",
 			"unordered_map": "cpp",
-			"vector": "cpp"
+			"vector": "cpp",
+			"ebv_local.c": "cpp"
 		}
 	}
 }

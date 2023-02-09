@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../src"
+		},
+		{
+			"path": "../../core"
 		}
 	],
 	"settings": {
@@ -20,12 +23,14 @@
 			"${env:ARDUINO_BASE_SOURCE}/variants/standard",
 			"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
 			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
+			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/core",
+			"${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src",
+			"${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core",
 			"${env:AVR_BASE_SOURCE}/include",
 			"${env:AVR_BASE_SOURCE}/include/avr",
 			"${env:AVR_BASE_SOURCE}/include/compat",
 			"${env:AVR_BASE_SOURCE}/include/sys",
 			"${env:AVR_BASE_SOURCE}/include/util",
-			"${workspaceFolder}/../../src",
 		],
 		"C_Cpp.default.defines": [
 			"_DEBUG",
@@ -53,7 +58,8 @@
 			"string_view": "cpp",
 			"unordered_map": "cpp",
 			"vector": "cpp",
-			"ranges": "cpp"
+			"ranges": "cpp",
+			"ebv_iot.c": "cpp"
 		}
 	},
 	"tasks": {
