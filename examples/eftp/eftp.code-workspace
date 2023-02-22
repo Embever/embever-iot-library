@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../src"
+		},
+		{
+			"path": "../../core"
 		}
 	],
 	"settings": {
@@ -280,6 +283,13 @@
 				"command": "st-flash --format ihex write ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex"
 			},
 			{
+				"label": "STM32 Rebuild & Upload",
+				"type": "shell",
+				"group": "build",
+				"dependsOn":["Build for STM32"],
+				"command": "st-flash --format ihex write ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex"
+			},
+			{
 				"label": "Build for STM32 debug",
 				"type": "shell",
 				"command": "arduino-cli",
@@ -289,6 +299,20 @@
 					"${workspaceFolder}/build",
 					"-b",
 					"STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,opt=ogstd,dbg=enable,rtlib=nano",
+					"--warnings",
+					"all"
+				],
+			},
+			{
+				"label": "Build for STM32",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,rtlib=nano",
 					"--warnings",
 					"all"
 				],

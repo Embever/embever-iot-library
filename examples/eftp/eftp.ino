@@ -93,10 +93,11 @@ void setup() {
     const uint32_t file_len = mFile.size();
     p("File size on SD Card: %d\n\r", file_len);
 #endif
-        uint32_t index = 0;
+        int index = 0;
+        int write_len;
         do {
 #if USE_SD_CARD == 1
-            const unsigned int write_len = mFile.read(file_data, sizeof(file_data));
+            write_len = mFile.read(file_data, sizeof(file_data));
 #elif USE_STATIC_DATA == 1 || GENERATE_FILE_CONTENT == 1
             const int write_len = (index + FILE_DATA_TRANSMISSION_FRAME_LEN) <= file_len ? FILE_DATA_TRANSMISSION_FRAME_LEN : file_len % FILE_DATA_TRANSMISSION_FRAME_LEN; 
 #endif
@@ -121,11 +122,12 @@ void setup() {
                     } else {
                         // Something else
                         p("Unknown error during file transfer: %d, aborting\n\r", err);
+                        write_len = 0;
                         break;
                     }
                 }
             } while(!ret);
-        } while(index < file_len);
+        } while(write_len == sizeof(file_data));
         
         ebv_eftp_close();
         Serial.println("File transfer DONE");
