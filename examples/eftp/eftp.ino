@@ -16,6 +16,13 @@
 // #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
 // #define PIN_LED                           4       // LED, active HIGH
 
+// SD File List
+// CAAM.pdf                  70 KB
+// ESP.pdf                  383 KB
+// IMG.jpg                  1,7 MB
+// nRF.pdf                  6,8 MB
+// XBEE3.pdf                4,5 MB
+
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire.h"
@@ -23,12 +30,12 @@
 
 #define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_PACKET_OVERHEAD)  // The maximum payload size of an esp packet 
 
-#define USE_STATIC_DATA                 0                       // Use a preset data array for the upload
-#define GENERATE_FILE_CONTENT           0                       // Use a generated ( in runtime) data array for the upload
-#define GENERATED_FILE_CONTENT_LENGTH   4 * 1024                // The array size of the generated data
-#define REMOTE_FILE_NAME                "app_mcu_file_1"        // The name of the uploaded file in the cloud (in case of STATIC_DATA nad GENERATED_DATA)
-#define USE_SD_CARD                     1                       // Use a file from an SD card as data source for the upload
-#define SD_FILE_NAME                    "db_dn.pdf"             // The name of the file which will be uploaded
+#define USE_STATIC_DATA                 0                           // Use a preset data array for the upload
+#define GENERATE_FILE_CONTENT           0                           // Use a generated ( in runtime) data array for the upload
+#define GENERATED_FILE_CONTENT_LENGTH   4 * 1024                    // The array size of the generated data
+#define REMOTE_FILE_NAME                "app_mcu_file_1"            // The name of the uploaded file in the cloud (in case of STATIC_DATA nad GENERATED_DATA)
+#define USE_SD_CARD                     1                           // Use a file from an SD card as data source for the upload
+#define SD_FILE_NAME                    "CAAM.pdf"                   // The name of the file which will be uploaded
 // #define SD_FILE_NAME                    "nucleo.pdf"             // The name of the file which will be uploaded
 
 // Guard to not let use multiple data sources at the same time
@@ -84,6 +91,7 @@ void setup() {
     }
     char file_data[FILE_DATA_TRANSMISSION_FRAME_LEN] = {0};
     const uint32_t file_len = mFile.size();
+    p("File size on SD Card: %d\n\r", file_len);
 #endif
         uint32_t index = 0;
         do {
@@ -112,7 +120,7 @@ void setup() {
                         delay(1000);
                     } else {
                         // Something else
-                        p("Unknown error during file transfer: %d\n\r", err);
+                        p("Unknown error during file transfer: %d, aborting\n\r", err);
                         break;
                     }
                 }
