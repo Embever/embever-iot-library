@@ -41,7 +41,6 @@ void setup() {
     set_led(true);
     delay(1000);
     set_led(false);
-    
 }
 
 void loop(){
@@ -52,11 +51,10 @@ void loop(){
     if(ret){
         p("Event sent\n\r");
     } else {
-        p("Sending event failed\n\r");
-        ebv_esp_com_error_t err = ebv_iot_get_last_error_code();
-        p("ERROR CODE: %d\n\r", err);
-        p("ERROR MSG: ");
-        ebv_iot_dump_last_error();
+        esp_err_t err = ebv_iot_get_last_error_code();
+        char esp_err_str[32];
+        ebv_iot_esp_err_str(err, esp_err_str);
+        p("Sending event failed (%d) %s\n\r", err, esp_err_str);
     }
     delay(1000);
     set_led(false);

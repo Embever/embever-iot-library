@@ -4,57 +4,89 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        // {
+        //     "name": "dwdebug",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+        //     "args": [],
+        //     "stopAtEntry": false,
+        //     "cwd": "${workspaceFolder}",
+        //     "environment": [],
+        //     "externalConsole": false,
+        //     "setupCommands": [
+        //         { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+        //         { "text": "target remote localhost:4444", "ignoreFailures": false },
+        //     ],
+        //     "osx": {
+        //         "MIMode": "gdb",
+        //         "MIDebuggerPath": "${config:GDB_EXECUTABLE}",
+        //      },
+        // },
+        // {
+        //     "name": "qemu",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+        //     "args": [],
+        //     "stopAtEntry": true,
+        //     "cwd": "${workspaceFolder}",
+        //     "environment": [],
+        //     "externalConsole": false,
+        //     "setupCommands": [
+        //         { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+        //         { "text": "target remote localhost:1234", "ignoreFailures": false },
+        //     ],
+        //     "osx": {
+        //         "MIMode": "gdb",
+        //         "MIDebuggerPath": "${config:AVR-GDB_EXECUTABLE}",
+        //         //"preLaunchTask": "Rebuild and open terminal",
+        //         //"preDebugTask":"QEMU serial terminal",
+        //         "debugServerPath": "${config:QEMU_AVR_BIN}",
+        //         //"debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic -serial tcp::5678,server=on,wait=off",
+        //         "debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic",
+        //      },
+        // },
+        // {
+        //     "name": "STM32",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "logging": {
+        //         "engineLogging": true,
+        //         "programOutput": true,
+        //         "exceptions": true,
+        //         "moduleLoad": true,
+        //         "trace": true,
+        //         "traceResponse": true
+        //     },
+        //     "serverLaunchTimeout": 5000,
+        //     "filterStderr": true,
+        //     "filterStdout": false,
+        //     //"serverStarted": "INFO gdb-server.c: Listening at *:4242...",
+        //     "stopAtEntry": true,
+        //     "cwd": "${workspaceFolder}",
+        //     "externalConsole": true,
+        //     "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+        //     "miDebuggerPath": "/Users/macbook/Library/Arduino15/packages/STMicroelectronics/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin/arm-none-eabi-gdb",
+        //     "setupCommands": [
+        //         { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
+        //         { "text": "target remote localhost:4242", "ignoreFailures": false },
+        //         { "text": "set remote hardware-breakpoint-limit 6", "ignoreFailures": false },
+        //         { "text": "set remote hardware-watchpoint-limit 4", "ignoreFailures": false }  
+        //     ]
+        // },
         {
-            "name": "dwdebug",
-            "type": "cppdbg",
+            "name": "STM32_coretexdebug",
             "request": "launch",
-            "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "setupCommands": [
-                { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
-                { "text": "target remote localhost:4444", "ignoreFailures": false },
-            ],
-            "osx": {
-                "MIMode": "gdb",
-                "MIDebuggerPath": "${config:GDB_EXECUTABLE}",
-             },
-        },
-        {
-            "name": "qemu",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
-            "args": [],
-            "stopAtEntry": true,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "setupCommands": [
-                { "text": "file ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf", "description": "load file", "ignoreFailures": false},
-                { "text": "target remote localhost:1234", "ignoreFailures": false },
-            ],
-            "osx": {
-                "MIMode": "gdb",
-                "MIDebuggerPath": "${config:AVR-GDB_EXECUTABLE}",
-                //"preLaunchTask": "Rebuild and open terminal",
-                //"preDebugTask":"QEMU serial terminal",
-                "debugServerPath": "${config:QEMU_AVR_BIN}",
-                //"debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic -serial tcp::5678,server=on,wait=off",
-                "debugServerArgs": "-machine uno -bios ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf -s -S -nographic",
-             },
-        },
-        {
-            "name": "(lldb) Launch",
-            "type": "lldb",
-            "request": "launch",
-            "preLaunchTask": "Unit test -- Build",
-            "program": "${workspaceRoot}/unit_test/build/testrunner",
-            "args": [],
-            "cwd": "${fileDirname}",
-          }
+            "servertype": "stutil",
+            "type": "cortex-debug",
+            "armToolchainPath": "/Users/macbook/Library/Arduino15/packages/STMicroelectronics/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin",
+            "gdbPath": "/Users/macbook/Library/Arduino15/packages/STMicroelectronics/tools/xpack-arm-none-eabi-gcc/10.3.1-2.3/bin/arm-none-eabi-gdb",
+            "executable": "${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf",
+            "gdbTarget": "localhost:4242",
+            "interface": "swd",
+            "preLaunchTask": "Build for STM32 debug"
+        }
+          
     ]
 }
