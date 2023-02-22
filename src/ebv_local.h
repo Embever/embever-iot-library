@@ -73,6 +73,7 @@ enum ebv_modem_network_status{
 #define EBV_STATUS_MODEM_RF_MODE_KEY                    "rf_mode"
 #define EBV_STATUS_MODEM_LTE_STATUS_KEY                 "lte_mode"
 #define EBV_STATUS_MODEM_NET_STATUS_KEY                 "net_status"
+#define EBV_STATUS_MODEM_RLR_STATUS_KEY                 "rlr_status"
 
 #define EBV_STATUS_GROUP_GENERAL_KEY                      "general"
 #define EBV_STATUS_GENERAL_STATUS_KEY                     "status"
@@ -114,6 +115,7 @@ typedef struct{
     enum ebv_modem_rf_mode rf_mode;
     enum ebv_modem_lte_mode lte_mode;
     enum ebv_modem_network_status network_status;
+    bool reset_loop_restriction_active;
 } ebv_local_modem_status_t;
 
 enum ebv_general_status{

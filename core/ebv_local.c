@@ -433,6 +433,7 @@ bool ebv_local_status_update(ebv_local_device_status_t * status){
     status->modem_status.rf_mode = EBV_MODEM_RF_MODE_INVALID;
     status->modem_status.lte_mode = EBV_MODEM_LTE_MODE_INVALID;
     status->modem_status.network_status = EBV_MODEM_NETWORK_STATUS_INVALID;
+    status->modem_status.reset_loop_restriction_active = false;
     status->general_status.status = EBV_GENERAL_STATUS_INVALID;
     // Keep it simple for now since there is no other way to submit status read
     uint8_t status_read_data[] = {0x92, 0x91, 0xA5, 0x6D, 0x6F, 0x64, 0x65, 0x6D, 0x91, 0xA7, 0x67, 0x65, 0x6E, 0x65, 0x72, 0x61, 0x6C};
@@ -536,6 +537,10 @@ ebv_unit_test_static void _ebv_local_status_parser_modem(cw_unpack_context *uc, 
                     cw_unpack_next(uc);
                     if(uc->item.type == CWP_ITEM_POSITIVE_INTEGER && uc->item.as.u64 <= EBV_MODEM_NETWORK_STATUS_COUNT){
                         status->network_status = (enum ebv_modem_network_status) uc->item.as.u64;
+                    }
+                } else if (strncmp((const char *) uc->item.as.str.start, EBV_STATUS_MODEM_RLR_STATUS_KEY, sizeof(EBV_STATUS_MODEM_RLR_STATUS_KEY) - 1) == 0){
+                    if(uc->item.type == CWP_ITEM_BOOLEAN){
+                        status->reset_loop_restriction_active = uc->item.as.boolean;
                     }
                 }
             }
