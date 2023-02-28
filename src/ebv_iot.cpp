@@ -457,6 +457,7 @@ void _ebv_iot_build_uint8_list_by_array(ebv_iot_custom_msg_data_t *l, const uint
     cw_pack_array_size(&c, nof_elements);
     uint8_t i;
     for(i = 0; i < nof_elements; i++) {
+        // This is not working to catch a buffer shortage
         if( (l->buf_len - (c.current - c.start)) < _ebv_mpack_getUnsignedLen(array[i])){
             l->buf_len = 0;
             return;
