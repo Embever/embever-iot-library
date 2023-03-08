@@ -4,11 +4,10 @@
 			"path": "."
 		},
 		{
-			"name": "ebv_iot_lib",
-			"path": "../src"
+			"path": "../core"
 		},
 		{
-			"path": "../../cwpack-master"
+			"path": "../src"
 		}
 	],
 	"settings": {
@@ -20,7 +19,9 @@
 			"bitset": "cpp",
 			"initializer_list": "cpp",
 			"unordered_map": "cpp",
-			"vector": "cpp"
+			"vector": "cpp",
+			"ebv_i2c.h": "c",
+			"string.h": "c"
 		}
 	}
 }
