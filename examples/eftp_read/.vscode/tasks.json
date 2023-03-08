@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Echo vars",
+            "command": "echo",
+            "args": [
+                "${env:USERNAME}",
+                "workspaceFolder = ${workspaceFolder}",
+                "arduino_avr_path = ${env:AVR_BASE_SOURCE}"
+            ],
+            "type": "shell",
+            "problemMatcher": []
+        },
+        {
+            "label": "QEMU serial terminal in external window",
+            "type": "shell",
+            "command": "osascript -e 'tell app \"Terminal\" to do script \"telnet localhost 5678\"'",
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "QEMU serial terminal",
+            "type": "shell",
+            "command": "telnet localhost 5678",
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Rebuild and open terminal",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build For Debug"
+            ],
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#define EBV_EFTP_READ_CHUNK_SIZE IOT_MSG_MAX_LEN
+
 static bool ebv_eftp_validate_open_response(const uint8_t *response, const uint8_t response_len);
 static bool ebv_eftp_submit_esp_cmd(esp_packet_t *p, esp_response_t *r);
 static void ebv_eftp_eval_error(uint8_t *esp_respose_payload);
@@ -90,8 +92,29 @@ bool ebv_eftp_write(char *file_data, unsigned int file_data_len){
     return true;
 }
 
-uint8_t ebv_eftp_read(char *data, int data_len){
-    return 0;
+int ebv_eftp_read(char *data, int data_len){
+    esp_packet_t pkg;
+    if(data_len < EBV_EFTP_READ_CHUNK_SIZE ){
+        return -1;
+    }
+
+    pkg.data[0] = REMOTE_FILE_CMD_READ;
+    pkg.len = 1;
+
+    esp_response_t response;
+    bool ret = ebv_eftp_submit_esp_cmd(&pkg, &response);
+    if(!ret){
+        return -1;
+    }
+
+    // check file read operation result
+    if(response.has_error_code){
+        ebv_eftp_eval_error(response.payload);
+        return -1;
+    }
+
+    memcpy(data, response.payload, response.payload_len);
+    return response.payload_len;
 }
 
 bool ebv_eftp_close(){
