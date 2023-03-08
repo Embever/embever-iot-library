@@ -60,6 +60,8 @@ enum ebv_esp_command{
 #define ESP_RESPONSE_SOP_SOA_ID 0x56
 #define ESP_RESPONSE_SOP_SOR_ID 0x55
 
+#define ESP_DELAYED_RESPONSE_MAX_SIZE (IOT_MSG_MAX_LEN + ESP_DELAYED_RESPONSE_PAYLOAD_OVERHEAD)
+
 #define ESP_DL_PAYLOAD_KIND_ERROR   0xB3A5
 
 // ESP ERROR CODES
@@ -99,7 +101,7 @@ struct esp_response_s{
     uint8_t sop;
     uint8_t command;
     uint16_t len;
-    uint8_t response[IOT_MSG_MAX_LEN];
+    uint8_t response[ESP_DELAYED_RESPONSE_MAX_SIZE];
     uint16_t response_len;
     uint8_t *payload;
     uint16_t payload_len;
