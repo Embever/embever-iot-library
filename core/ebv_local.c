@@ -468,10 +468,15 @@ bool ebv_local_status_update(ebv_local_device_status_t * status){
 #endif
     if(response.has_error_code){
         esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        DEBUG_MSG_TRACE("Error code received : %d", esp_err);
         return false;
     }
 
     bool ret = _ebv_esp_status_parser(response.payload, response.payload_len, status);
+    if(ret == false){
+        DEBUG_MSG_TRACE("Status response parsing failed");
+        return false;
+    }
 
     return true;
 }

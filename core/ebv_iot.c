@@ -45,7 +45,9 @@
 #define LOG_MODULE_NAME EBV_IOT_LOG_NAME
 #include "ebv_log.h"
 
-#define UNUSED(...) (void)(__VA_ARGS__)
+#ifndef UNUSED
+    #define UNUSED(...) (void)(__VA_ARGS__)
+#endif
 
 #define EBV_MPACK_DEFAULT_SIZE          32
 #define EBV_STRLEN_MAXLEN               IOT_MSG_MAX_LEN
