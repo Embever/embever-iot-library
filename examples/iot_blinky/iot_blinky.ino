@@ -27,6 +27,7 @@
 static bool LED_state;
 
 bool parseLEDstate(ebv_action_t *a, bool *led_state);
+void print_fail_reason();
 
 void set_led(bool state){
     digitalWrite(PIN_LED, state);
@@ -46,6 +47,12 @@ void setup() {
     delay(1000);
     set_led(false);
     LED_state = false;
+    if( ebv_util_wait_device_ready(DEFAULT_NETWORK_ATTACH_TIMEOUT_SEC) == false){
+        p("Device is not ready, timeout reached\n\r");
+        print_fail_reason();
+        while(1);
+    }
+    p("Press the button to start...");
     while( digitalRead(PIN_BTN) );
 }
 
@@ -127,4 +134,16 @@ bool submitLEDstate(ebv_action_t *a, bool isLedOn){
         return true;
     }
     return false;
+}
+
+void print_fail_reason(){
+#if EBV_STRINGIFY_EN == 1       // defined on ebv_log_conf.h header file
+    EBV_ESP_GET_LAST_ERROR( esp_err_str );
+    ebv_local_device_status_t device_status;
+    ebv_local_status_update(&device_status);
+    char general_status[48];
+    ebv_local_status_general_str(&(device_status.general_status),general_status );
+    p("ESP error : %s, device status : %s \n\r", esp_err_str, general_status);
+    
+#endif
 }

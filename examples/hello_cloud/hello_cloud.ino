@@ -51,6 +51,11 @@ void setup() {
         p("Press the user button to send an event\n\r");
         while( digitalRead(PIN_BTN) );
 #endif
+        if( ebv_util_wait_device_ready(DEFAULT_NETWORK_ATTACH_TIMEOUT_SEC) == false){
+            p("Device is not ready, timeout reached\n\r");
+            print_fail_reason();
+            while(1);
+        }
         p("Sending hello_cloud event...\n\r");
         bool ret = ebv_iot_submitGenericEvent();            // Send event
         if(ret){

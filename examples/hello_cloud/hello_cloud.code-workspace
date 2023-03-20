@@ -59,7 +59,7 @@
 			"unordered_map": "cpp",
 			"vector": "cpp",
 			"ranges": "cpp",
-			"ebv_iot.c": "cpp"
+			"ebv_local.c": "cpp"
 		}
 	},
 	"tasks": {
