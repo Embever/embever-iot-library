@@ -41,6 +41,7 @@
 #include "ebv_esp.h"
 #include "ebv_eftp.h"
 #include "ebv_local.h"
+#include "ebv_util.h"
 #include "ebv_delay.h"
 #include "ebv_i2c.h"
 #include "ebv_esp_gpio.h"
