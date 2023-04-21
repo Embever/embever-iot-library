@@ -606,6 +606,13 @@ void ebv_iot_esp_err_str(esp_err_t err, char *err_str){
             strcpy(err_str, "ESP_ERR_RESOURCE_BUSY");
             break;
         }
+        case ESP_ERR_RESOURCE_NOT_AVAILABLE:{
+            strcpy(err_str, "ESP_ERR_RESOURCE_NOT_AVAILABLE");
+            break;
+        }
+        default:
+            strcpy(err_str, "UNKNOWN");
+            break;
     }
 }
 #endif

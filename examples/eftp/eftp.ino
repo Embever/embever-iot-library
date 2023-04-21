@@ -28,7 +28,7 @@
 #include "Wire.h"
 #include "ebv_boards.h"
 
-#define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_PACKET_OVERHEAD)  // The maximum payload size of an esp packet 
+#define FILE_DATA_TRANSMISSION_FRAME_LEN   (IOT_MSG_MAX_LEN - ESP_CMD_PACKET_OVERHEAD)  // The maximum payload size of an esp packet 
 
 #define USE_STATIC_DATA                 0                           // Use a preset data array for the upload
 #define GENERATE_FILE_CONTENT           0                           // Use a generated ( in runtime) data array for the upload
@@ -49,6 +49,8 @@
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
 
+void print_fail_reason();
+
 void setup() {
     Serial.begin(115200);
     ebv_iot_init();
@@ -58,6 +60,11 @@ void setup() {
     Serial.println("\n\reFTP sample");
     Serial.println("Press to start the file upload...");
     while(digitalRead(PIN_BTN));
+    if( ebv_util_wait_device_ready(DEFAULT_NETWORK_ATTACH_TIMEOUT_SEC) == false){
+        p("Device is not ready, timeout reached\n\r");
+        print_fail_reason();
+        while(1);
+    }
     Serial.println("Starting file upload");
 #if USE_SD_CARD == 1
     bool ret = ebv_eftp_open(SD_FILE_NAME, "w");
@@ -137,3 +144,15 @@ void setup() {
 }
 
 void loop(){}
+
+void print_fail_reason(){
+#if EBV_STRINGIFY_EN == 1       // defined on ebv_log_conf.h header file
+    EBV_ESP_GET_LAST_ERROR( esp_err_str );
+    ebv_local_device_status_t device_status;
+    ebv_local_status_update(&device_status);
+    char general_status[48];
+    ebv_local_status_general_str(&(device_status.general_status),general_status );
+    p("ESP error : %s, device status : %s \n\r", esp_err_str, general_status);
+    
+#endif
+}

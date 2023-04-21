@@ -54,6 +54,8 @@
 #define LOG_MODULE_NAME EBV_ESP_LOG_NAME
 #include "ebv_log.h"
 
+// #define CAAM_ESP_DEBUG                  // This macro allows a longer processing time for the CaaM FW to build responses, when the CaaM FW is in debug mode, it takes longer to answer and that would cause timeouts
+
 
 uint8_t DEVICE_ADDRESS = DEFAULT_DEVICE_ADDRESS;
 
@@ -156,6 +158,9 @@ bool ebv_esp_submitPacket(esp_packet_t *pkg){
     ebv_esp_sendCommand(pkg);
     esp_response_t response;
     ebv_delay(10);
+#ifdef CAAM_ESP_DEBUG
+    ebv_delay(50);
+#endif
     bool ret = ebv_esp_receiveResponse(pkg, &response);
     if(!ret){
         DEBUG_MSG_TRACE("No ACK response received");
@@ -226,7 +231,7 @@ bool ebv_esp_receiveResponse(esp_packet_t *pkg, esp_response_t *resp){
             resp->len = ebv_i2c_I2cRead();
             resp->len |= ((uint16_t) ebv_i2c_I2cRead()) << 8;
             DEBUG_MSG_TRACE("PKG header received: SOP:%x CMD:%x LEN:%d", resp->sop, resp->command, resp->len);
-            if ( resp->len > IOT_MSG_MAX_LEN){
+            if ( resp->len > ESP_DELAYED_RESPONSE_MAX_SIZE){
                 DEBUG_MSG_TRACE("Error: response packet size invalid (too big: %d)", resp->len);
                 return false;
             }
@@ -611,8 +616,8 @@ ebv_esp_resp_res_t ebv_esp_eval_delayed_resp(esp_response_t *resp, uint8_t trigg
 }
 
 static void ebv_esp_eval_error_resp(esp_response_t *resp){
-    resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_LEN]);
-    resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_LEN - ESP_CRC_LEN - ESP_FLAGS_LEN;
+    resp->payload = &(resp->response[ESP_DELAYED_RESPONSE_HEADER_SIZE]);
+    resp->payload_len = resp->len - ESP_DELAYED_RESPONSE_HEADER_SIZE - ESP_CRC_LEN - ESP_FLAGS_LEN;
     resp->has_error_code = false;
     if(resp->payload_len == 4){      // an error code exactly 4 bytes
         const uint16_t payload_id = (resp->payload[2] << 8) | (resp->payload[3]);

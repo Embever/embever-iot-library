@@ -6,5 +6,6 @@
 
 void test_ebv_eftp_open();
 void test_ebv_eftp_write();
+void test_ebv_eftp_read();
 
 #endif

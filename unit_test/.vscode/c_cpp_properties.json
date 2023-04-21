@@ -5,7 +5,10 @@
             "includePath": [
                 "${default}",
                 "${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src",
-                "${workspaceFolder}/fake_inc"
+                "${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core",
+                "${workspaceFolder}/fake_inc",
+                "${workspaceFolder}/mock",
+                "${workspaceFolder}/util"
             ],
             "macFrameworkPath": [
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"

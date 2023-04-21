@@ -2,7 +2,8 @@
 
 #include <string.h>
 
-#define MAX_I2C_BUFFER_LEN  512
+// #define MAX_I2C_BUFFER_LEN  64
+#define MAX_I2C_BUFFER_LEN  512 + 13
 #define I2C_BUFFERS         10
 
 struct i2c_buffer_s{
