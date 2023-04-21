@@ -8,10 +8,11 @@
 
 static bool ebv_eftp_validate_open_response(const uint8_t *response, const uint8_t response_len);
 static bool ebv_eftp_submit_esp_cmd(esp_packet_t *p, esp_response_t *r);
-static void ebv_eftp_eval_error(uint8_t *esp_respose_payload);
 
 static unsigned int _ebv_eft_last_open_file_size = 0;
 static enum ebv_esp_remote_file_error_codes _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_UNKNOWN;
+
+extern esp_err_t esp_err;
 
 // Open a file for read or write
 
@@ -54,15 +55,11 @@ bool ebv_eftp_open(const char *file_path, const char *mode){
     DEBUG_MSG("\n\r");
 #endif
     if(response.has_error_code){
-        ebv_eftp_eval_error(response.payload);
+        esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
         return false;
     }
 
     return ebv_eftp_validate_open_response(response.payload, response.payload_len);
-}
-
-bool ebv_eftp_open_with_size(char *filename, const char *mode, const int size){
-    return true;
 }
 
 bool ebv_eftp_write(char *file_data, unsigned int file_data_len){
@@ -83,15 +80,37 @@ bool ebv_eftp_write(char *file_data, unsigned int file_data_len){
 
     // check file write operation result
     if(response.has_error_code){
-        ebv_eftp_eval_error(response.payload);
+        esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
         return false;
     }
 
     return true;
 }
 
-uint8_t ebv_eftp_read(char *data, int data_len){
-    return 0;
+int ebv_eftp_read(char *data, int data_len){
+    esp_packet_t pkg;
+
+    pkg.data[0] = REMOTE_FILE_CMD_READ;
+    pkg.data[1] = 0x91;
+    cw_pack_context c;
+    cw_pack_context_init(&c, &pkg.data[2], sizeof(pkg.data) - 2, NULL);
+    cw_pack_unsigned(&c, data_len);
+    pkg.len = 2 + (c.current - c.start);
+
+    esp_response_t response;
+    bool ret = ebv_eftp_submit_esp_cmd(&pkg, &response);
+    if(!ret){
+        return -1;
+    }
+
+    // check file read operation result
+    if(response.has_error_code){
+        esp_err = ebv_esp_get_delayed_resp_err_code(response.payload);
+        return -1;
+    }
+
+    memcpy(data, response.payload, response.payload_len);
+    return response.payload_len;
 }
 
 bool ebv_eftp_close(){
@@ -126,10 +145,20 @@ static bool ebv_eftp_submit_esp_cmd(esp_packet_t *pkg, esp_response_t *r){
         return false;
     }
 
+    if(r->has_error_code){
+        esp_err = ebv_esp_get_delayed_resp_err_code(r->payload);
+        return false;
+    }
+
     return true;
 }
 
+unsigned int ebv_eftp_get_current_file_len(){
+    return _ebv_eft_last_open_file_size;
+}
+
 static bool ebv_eftp_validate_open_response(const uint8_t *response, const uint8_t response_len){
+    _ebv_eft_last_open_file_size = 0;
     if(response_len < 3){
         DEBUG_MSG_TRACE("Response too short: &d", response_len);
         return false;
@@ -161,24 +190,4 @@ static bool ebv_eftp_validate_open_response(const uint8_t *response, const uint8
     }
 
     return true;
-}
-
-static void ebv_eftp_eval_error(uint8_t *esp_respose_payload){
-    uint16_t esp_error_code = (esp_respose_payload[0] << 8) | esp_respose_payload[1];
-    switch (esp_error_code){
-        case ESP_ERR_RESOURCE_BUSY:
-            _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY;
-            break;
-        case ESP_ERR_INVALID_CMD_DATA:
-            _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_INVALID_REQUEST;
-            break;
-        case ESP_ERR_INTERNAL_ERROR:
-            _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_OPEN_FAILED;
-            break;
-        default:
-            _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_UNKNOWN;
-        break;
-    }
-
-    return;
 }
