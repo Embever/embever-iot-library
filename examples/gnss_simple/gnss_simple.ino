@@ -27,11 +27,13 @@ void setup() {
     Serial.begin(115200);
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
-    p("\n\rSimple GNSS sample starting\n\r");
+    p("\n\rSimple GNSS sample starting\r\n");
+    // p("Press the button to start GPS acquisitions\r\n");
+    // while( digitalRead(PIN_BTN) );
 }
 
 void loop(){
-    // while( digitalRead(PIN_BTN) );
+  
     ebv_gnss_data_t gnss_data;
     bool ret = ebv_local_query_gnss(&gnss_data);
     if(ret){
