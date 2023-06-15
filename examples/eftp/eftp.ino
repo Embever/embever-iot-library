@@ -121,7 +121,8 @@ void setup() {
                     index += write_len;
                     p("File write: %d / %d\n\r", index, file_len);
                 } else {
-                    ebv_esp_remote_file_error_codes err =  ebv_eftp_get_latest_error_code();
+                    esp_err_t err =  ebv_iot_get_last_error_code();
+                    p("Received error code %d\r\n", err);
                     if(err == EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY){
                         // Need to wait a bit, the file buffer is full on the CaaM side
                         Serial.println("Resource busy, retrying...");
