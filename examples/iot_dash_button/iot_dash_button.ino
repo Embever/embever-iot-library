@@ -9,10 +9,10 @@
 // Arduino pin  5 -- PIN_BTN
 // Arduino pin  4 -- PIN_BTN
 
-// #define PIN_EBV_IRQ      ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
-// #define PIN_EBV_READY    ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
-// #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
-// #define PIN_LED                           4       // LED, active HIGH
+#define PIN_EBV_IRQ                       11       // ESP IRQ signal connected here
+#define PIN_EBV_READY                     10       // ESP READY signal connected here
+#define PIN_BTN                            2       // Push button, with pullup resistor, the btn pulling the signal low
+#define PIN_LED                           A1       // LED, active LOW
 
 #include "ebv_iot.h"
 #include "print_serial.h"
@@ -26,7 +26,7 @@ bool send_dash_event(char btn_id);
 void print_fail_reason();
 
 void set_led(bool state){
-    digitalWrite(PIN_LED, state);
+    digitalWrite(PIN_LED, !state);
 }
 
 EBV_SETUP_ARDUINO_CB;

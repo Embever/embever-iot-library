@@ -9,10 +9,10 @@
 // Arduino pin  5 -- PIN_BTN
 // Arduino pin  4 -- PIN_BTN
 
-// #define PIN_EBV_IRQ      ARDUINO_AVR_PIN_A2       // ESP IRQ signal connected here
-// #define PIN_EBV_READY    ARDUINO_AVR_PIN_A3       // ESP READY signal connected here
-// #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
-// #define PIN_LED                           4       // LED, active HIGH
+#define PIN_EBV_IRQ                       11       // ESP IRQ signal connected here
+#define PIN_EBV_READY                     10       // ESP READY signal connected here
+#define PIN_BTN                            2       // Push button, with pullup resistor, the btn pulling the signal low
+#define PIN_LED                           A1       // LED, active LOW
 
 #include "ebv_iot.h"
 #include "print_serial.h"
@@ -24,9 +24,13 @@
 #define LED_ACTION_VALUE_TRUE   "on"
 #define LED_ACTION_VALUE_FALSE  "off"
 
+#define BTN_EVNT_TYPE   "buttonPressed"
+#define BTN_EVNT_KEY    "id"
+
 static bool LED_state;
 
 bool parseLEDstate(ebv_action_t *a, bool *led_state);
+bool send_btn_event(char btn_id);
 void print_fail_reason();
 
 void set_led(bool state){
@@ -36,12 +40,20 @@ void set_led(bool state){
 EBV_SETUP_ARDUINO_CB;
 LOG_SETUP_ARDUINO;
 
+static volatile bool is_btn_pressed = false;
+
+static void btn_irq_cb(){
+    is_btn_pressed = true;
+    return;
+}
+
 void setup() {
     Serial.begin(115200);  // start serial for output
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
     p("\n\rIoT Blinky starting\n\r");
     pinMode(PIN_BTN, INPUT);
+    attachInterrupt(digitalPinToInterrupt(PIN_BTN), btn_irq_cb, FALLING);
     pinMode(PIN_LED, OUTPUT);
     set_led(true);
     delay(1000);
@@ -53,11 +65,12 @@ void setup() {
         while(1);
     }
     p("Press the button to start...");
-    while( digitalRead(PIN_BTN) );
+    while( is_btn_pressed == false );
+    is_btn_pressed = false;
 }
 
 void loop(){
-    p("Fetching\n\r");
+    p("Fetching... ");
     esp_response_t response;
     bool ret;
     ebv_ret_t ebv_ret;
@@ -94,7 +107,18 @@ void loop(){
 end:
     memset(&action, 0, sizeof(ebv_action_t));
     waitForDevice();
-    delay(5000);
+    if(is_btn_pressed){
+        is_btn_pressed = false;
+        p("Sending BTN pressed event...\r\n");
+        if( send_btn_event('1') == true){
+            p("BTN event sent successfully\r\n");
+        } else {
+            p("Failed to send BTN event\r\n");
+        }
+        waitForDevice();
+    } else {
+        delay(5000);
+    }
     // while( digitalRead(PIN_BTN) );
 }
 
@@ -134,6 +158,12 @@ bool submitLEDstate(ebv_action_t *a, bool isLedOn){
         return true;
     }
     return false;
+}
+
+bool send_btn_event(char btn_id){
+    ebv_iot_initGenericEvent(BTN_EVNT_TYPE);
+    ebv_iot_addGenericPayload(BTN_EVNT_KEY, btn_id);
+    return ebv_iot_submitGenericEvent();
 }
 
 void print_fail_reason(){
