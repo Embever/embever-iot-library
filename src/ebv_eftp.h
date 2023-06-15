@@ -19,13 +19,6 @@ enum ebv_esp_file_result_code{
     EBV_ESP_FILE_REQUEST_PARSE_ERROR
 };
 
-enum ebv_esp_remote_file_error_codes{
-    EBV_ESP_REMOTE_FILE_ERROR_UNKNOWN = 0,
-    EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY,
-    EBV_ESP_REMOTE_FILE_ERROR_INVALID_REQUEST,
-    EBV_ESP_REMOTE_FILE_ERROR_OPEN_FAILED
-};
-
 bool ebv_eftp_open(const char *file_path, const char *mode);
 bool ebv_eftp_open_with_size(char *filename, const char *mode, const int size);
 bool ebv_eftp_write(char *file_data, unsigned int file_data_len);

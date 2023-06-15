@@ -10,7 +10,6 @@ static bool ebv_eftp_validate_open_response(const uint8_t *response, const uint8
 static bool ebv_eftp_submit_esp_cmd(esp_packet_t *p, esp_response_t *r);
 
 static unsigned int _ebv_eft_last_open_file_size = 0;
-static enum ebv_esp_remote_file_error_codes _ebv_eftp_last_error_code = EBV_ESP_REMOTE_FILE_ERROR_UNKNOWN;
 
 extern esp_err_t esp_err;
 
@@ -120,9 +119,7 @@ bool ebv_eftp_close(){
     return ebv_eftp_submit_esp_cmd(&pkg, NULL);
 }
 
-enum ebv_esp_remote_file_error_codes ebv_eftp_get_latest_error_code(){
-    return _ebv_eftp_last_error_code;
-}
+
 
 static bool ebv_eftp_submit_esp_cmd(esp_packet_t *pkg, esp_response_t *r){
     if(r == NULL){
