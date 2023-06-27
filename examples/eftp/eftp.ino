@@ -123,7 +123,7 @@ void setup() {
                 } else {
                     esp_err_t err =  ebv_iot_get_last_error_code();
                     p("Received error code %d\r\n", err);
-                    if(err == EBV_ESP_REMOTE_FILE_ERROR_RESOURCE_BUSY){
+                    if(err == ESP_ERR_RESOURCE_BUSY){
                         // Need to wait a bit, the file buffer is full on the CaaM side
                         Serial.println("Resource busy, retrying...");
                         delay(1000);
