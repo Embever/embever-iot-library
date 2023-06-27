@@ -13,6 +13,11 @@
 // #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
 // #define PIN_LED                           4       // LED, active HIGH
 
+#define PIN_EBV_IRQ                       11       // ESP IRQ signal connected here
+#define PIN_EBV_READY                     10       // ESP READY signal connected here
+#define PIN_BTN                            2       // Push button, with pullup resistor, the btn pulling the signal low
+#define PIN_LED                           A1       // LED, active LOW
+
 #include "ebv_iot.h"
 #include "print_serial.h"
 #include "Wire.h"
@@ -31,6 +36,7 @@ void setup() {
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
     p("\r\nPower down mode test sample\r\n");
+    p("Press the button to start...\r\n");
     while( digitalRead(PIN_BTN) );
 }
 
@@ -59,7 +65,7 @@ void loop(){
         return;
     }
     p("Sleep mode activated\r\n");
-    delay_min(1);
+    delay_min(5);
     p("Put CaaM board back to online mode...\r\n");
     ebv_local_set_op_mode(EBV_OP_MODE_ONLINE);
 }
