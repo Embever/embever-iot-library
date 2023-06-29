@@ -36,7 +36,7 @@ bool ebv_util_wait_device_ready(unsigned int timeout_sec){
         if(gen_status == EBV_GENERAL_STATUS_BUSY_FOTA){
             return false;
         }
-        ebv_delay(2000);
+        ebv_delay(5000);
         gen_status = ebv_util_get_general_device_status();
         timeout_sec--;
     }
