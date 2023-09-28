@@ -9,7 +9,7 @@ Embever IoT library
 Documentation
 -------------
 The latest |EIOT| online documentation is always available from
-`here <https://embever.com>`_.
+`here <https://start.embever.com>`_.
 
 |EIOT| documentation can be locally build with Sphinx, to see more
 instructions, following `this <https://www.sphinx-doc.org/en/master/usage/installation.html>`_ link.
