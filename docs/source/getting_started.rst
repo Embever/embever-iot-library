@@ -296,8 +296,8 @@ Setting up the Embever IoT library in Arduino IDE
 To be able to use the Embever IoT library, it need to be installed to the Arduino IDE first. The Embever IoT library is depends on the CWPack library.
 
 Download the libraries from the following links by the download source code button and select the .zip option:
-  * `Embever IoT Library <https://gitlab.com/embever-public/embever-iot-library>`_
-  * `CWPack Library <https://gitlab.com/embever-public/cwpack>`_
+  * `Embever IoT Library <https://github.com/Embever/embever-iot-library>`_
+  * `CWPack Library <https://github.com/Embever/cwpack>`_
 
 Add the downloaded files to the Arduino IDE:
   * 1 Open Arduino ID

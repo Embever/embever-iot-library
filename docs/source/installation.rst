@@ -13,7 +13,7 @@ Install as an Arduino library
 The easiest way to install the |EIOT| is to add it as an external library since
 the structure of the |EIOT| repository is design to be compatible with an Arduino library. 
 
-The |EIOT| is distributed on GitLab where can be downloaded as a compressed
+The |EIOT| is distributed on Github where can be downloaded as a compressed
 file (to get more information about handling a compressed libraries in Arduino IDE
 please refer the following `article <https://www.arduino.cc/en/guide/libraries>`_).
 Installing by arduino-cli is also possible using the ``arduino-cli lib install``

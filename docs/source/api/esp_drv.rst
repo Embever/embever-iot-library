@@ -17,4 +17,4 @@ There are 2 main rules in the ESP:
 * |slave| which is the Embever IoT device
 
 To read more about the the |ESP| refer the following documentation:
-`ESP protocol definition <https://gitlab.com/embever-public/embever-iot-library/-/blob/main/docs/source/res/EmbeverSerialProtocol.pdf>`_
+`ESP protocol definition <https://github.com/Embever/embever-iot-library/blob/main/docs/source/res/EmbeverSerialProtocol.pdf>`_

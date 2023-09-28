@@ -1,0 +1,50 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - 'github_ci'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python 
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.7'
+
+      - name: Install dependencies
+        run: |
+          pip install -U sphinx
+          pip install -U sphinx-rtd-theme
+
+      - name: Build Documentation
+        run: sphinx-build -b html ./docs/source ./docs/build
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Install dependencies
+        run: |
+          pip install -U sphinx
+          pip install -U sphinx-rtd-theme
+
+      - name: Build Documentation
+        run: |
+          sphinx-build -b html ./docs/source ./docs/build
+          mkdir public
+          cp -r ./docs/build/* public
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          publish_dir: ./public
