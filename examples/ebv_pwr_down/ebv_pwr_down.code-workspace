@@ -5,6 +5,8 @@
 		},
 		{
 			"path": "../../src"
+		},{
+			"path": "../../core"
 		}
 	],
 	"settings": {

@@ -22,6 +22,12 @@
     #else
         #define MODULE_LOG_EN 0
     #endif
+#elif LOG_MODULE_NAME == EBV_EFTP_LOG_NAME
+    #if EBV_EFTP_LOG_EN == 1
+        #define MODULE_LOG_EN 1
+    #else
+        #define MODULE_LOG_EN 0
+    #endif
 #endif
 
 #if MODULE_LOG_EN == 1

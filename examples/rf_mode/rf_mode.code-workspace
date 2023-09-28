@@ -1,0 +1,346 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../src"
+		}
+	],
+	"settings": {
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder}/**",
+			"${workspaceFolder}/Wire",
+			"${env:ARDUINO_BASE_SOURCE}/cores/arduino",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/EEPROM/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/HID/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SoftwareSerial/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/Wire/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
+			"${env:ARDUINO_BASE_SOURCE}/variants/standard",
+			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
+			"${env:AVR_BASE_SOURCE}/include",
+			"${env:AVR_BASE_SOURCE}/include/avr",
+			"${env:AVR_BASE_SOURCE}/include/compat",
+			"${env:AVR_BASE_SOURCE}/include/sys",
+			"${env:AVR_BASE_SOURCE}/include/util",
+			"${workspaceFolder}/../../src",
+			"/Applications/Arduino.app/Contents/Java/libraries/SD/src"
+		],
+		"C_Cpp.default.defines": [
+			"_DEBUG",
+			"UNICODE",
+			"_UNICODE",
+			"F_CPU=16000000L",
+			"ARDUINO=10805",
+			"ARDUINO_AVR_UNO",
+			"ARDUINO_ARCH_AVR",
+			"USBCON"
+		],
+		"C_Cpp.default.browse.path": [
+			"${env:ARDUINO_BASE_SOURCE}",
+			"${env:AVR_BASE_SOURCE}",
+			"${workspaceRoot}/**"
+		],
+		"files.associations": {
+			"__bit_reference": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"initializer_list": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"ranges": "cpp",
+			"iterator": "cpp",
+			"istream": "cpp"
+		},
+		"cSpell.words": [
+			"eftp"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"inputs": [
+			{
+				"id": "target_hw",
+				"type": "pickString",
+				"description": "Pick your target",
+				"options": [
+					{
+						"label": "Arduino Nano",
+						"value": "arduino:avr:nano"
+					},
+					{
+						"label": "ESP32",
+						"value": "esp32:esp32:pico32"
+					},
+					{
+						"label": "Nucleo_F103",
+						"value": "STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB"
+					},
+					{
+						"label": "Nucleo_F103 Debug",
+						"value": "STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,opt=ogstd,dbg=enable,rtlib=nano"
+					}
+				],
+				"default": "arduino:avr:nano"
+			}
+		],
+		"tasks": [
+			{
+				"label": "Clean Build",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}",
+					"--warnings",
+					"all",
+					"--clean"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": "$gcc"
+			},
+			{
+				"label": "Build",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}",
+					"--warnings",
+					"all"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": "$gcc"
+			},
+			{
+				"label": "Build For Debug",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--optimize-for-debug",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"${input:target_hw}"
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": "$gcc"
+			},
+			{
+				"label": "Flash using bootloader",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"upload",
+					"-v",
+					"--input-dir",
+					"${workspaceFolder}/build",
+					"-p",
+					"${config:TARGET_SERIAL_PORT}",
+					"-b",
+					"${input:target_hw}",
+				],
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Flash with Usbtiny ISP",
+				"type": "shell",
+				"command": "${config:ARDUINO_AVRDUDE_PATH}/bin/avrdude -p atmega328p -c usbtiny -C ${config:ARDUINO_AVRDUDE_PATH}/etc/avrdude.conf -V -U flash:w:${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex:i",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Flash with Usbtiny DWIRE",
+				"type": "shell",
+				"command": "echo l ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.elf | ${config:DWIRE_EXECUTABLE} device usbtiny1",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Build and Flash",
+				"type": "shell",
+				"group": "build",
+				"dependsOrder": "sequence",
+				"dependsOn": [
+					"Build",
+					"Flash using bootloader"
+				],
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Serial monitor",
+				"type": "shell",
+				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
+				"group": "build",
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true,
+					"clear": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Build, Flash and Monitor",
+				"type": "shell",
+				"group": "build",
+				"dependsOrder": "sequence",
+				"dependsOn": [
+					"Build",
+					"Flash using bootloader",
+					"Serial monitor"
+				],
+				"isBackground": false,
+				"presentation": {
+					"echo": true,
+					"reveal": "always",
+					"focus": false,
+					"panel": "shared",
+					"showReuseMessage": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "STM32 Upload",
+				"type": "shell",
+				"group": "build",
+				"command": "st-flash --format ihex write ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex"
+			},
+			{
+				"label": "Build for STM32 debug",
+				"type": "shell",
+				"command": "arduino-cli",
+				"args": [
+					"compile",
+					"--output-dir",
+					"${workspaceFolder}/build",
+					"-b",
+					"STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,opt=ogstd,dbg=enable,rtlib=nano",
+					"--warnings",
+					"all"
+				],
+			},
+			{
+				"label": "Unit test -- Build",
+				"type": "shell",
+				"options": {
+					"cwd": "${workspaceFolder}/unit_test"
+				},
+				"group": "build",
+				"command": "make",
+				"problemMatcher": {
+					"owner": "cpp",
+					"fileLocation": [
+						"relative",
+						"${workspaceFolder}/build"
+					],
+					"pattern": {
+						"regexp": "^([^:]*):([0-9]*):([0-9]*):(.warning|.error):(.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				}
+			},
+			{
+				"label": "Unit test -- Build and Run",
+				"type": "shell",
+				"options": {
+					"cwd": "${workspaceFolder}/unit_test"
+				},
+				"group": "build",
+				"command": "make && ./build/testrunner",
+				"problemMatcher": {
+					"owner": "cpp",
+					"fileLocation": [
+						"relative",
+						"${workspaceFolder}/build"
+					],
+					"pattern": {
+						"regexp": "^([^:]*):([0-9]*):([0-9]*):(.warning|.error):(.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				}
+			}
+		]
+	},
+}

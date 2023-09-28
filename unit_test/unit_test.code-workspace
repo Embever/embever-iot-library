@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../../cwpack-master"
+		},
+		{
+			"path": "../src"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"__locale": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"array": "cpp",
+			"bitset": "cpp",
+			"initializer_list": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"ebv_local.c": "cpp",
+			"ebv_i2c.h": "c",
+			"string.h": "c"
+		}
+	}
+}

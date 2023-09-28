@@ -6,4 +6,7 @@
 #include <string.h>
 #include <math.h>
 
+#define LOW         0
+#define HIGH        1
+
 #endif

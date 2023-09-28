@@ -39,7 +39,9 @@
 #include <stdint.h>
 
 #include "ebv_esp.h"
+#include "ebv_eftp.h"
 #include "ebv_local.h"
+#include "ebv_util.h"
 #include "ebv_delay.h"
 #include "ebv_i2c.h"
 #include "ebv_esp_gpio.h"
@@ -47,6 +49,8 @@
 
 #define EBV_SETUP_ARDUINO_CB    EBV_SETUP_ARDUINO_WIRE_CB EBV_ESP_SETUP_ARDUINO_GPIO_CB;
 #define EBV_REGISTER_ARDUINO_CB EBV_I2C_REGISTER_ARDUINO_WIRE; EBV_ESP_REGISTER_ARDUINO_GPIO_CB; EBV_DELAY_REGISTER_ARDUINO;
+
+#define EBV_ESP_GET_LAST_ERROR(err_buffer_str) char err_buffer_str[35];ebv_iot_esp_err_str(ebv_iot_get_last_error_code(), err_buffer_str)
 
 typedef struct{
     uint32_t id;
@@ -61,7 +65,7 @@ typedef struct{
 
 typedef struct{
     uint8_t *body;
-    uint8_t len;
+    uint16_t len;
     bool result;
 } ebv_iot_event;
 
@@ -69,7 +73,7 @@ bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);
 bool _ebv_iot_addFloatPayload(const char * k, float v);
 bool _ebv_iot_addDoublePayload(const char * k, double v);
-bool _ebv_iot_addStringPayload(const char * k, char * v);
+bool _ebv_iot_addStringPayload(const char * k, const char * v);
 bool _ebv_iot_addCharPayload(const char * k, char v);
 
 // Overloaded payload packer
@@ -99,5 +103,8 @@ bool ebv_iot_submitEvent(ebv_iot_event *e);
 bool ebv_iot_submitGenericEvent();
 bool ebv_iot_initGenericEvent(const char * evnt_type);
 bool ebv_iot_initGenericResponse();
+esp_err_t ebv_iot_get_last_error_code();
+void ebv_iot_dump_last_error();
+void ebv_iot_esp_err_str(esp_err_t err, char *err_str);
 
 #endif

@@ -5,28 +5,32 @@
 		},
 		{
 			"path": "../../src"
+		},
+		{
+			"path": "../../core"
 		}
 	],
 	"settings": {
 		"C_Cpp.default.includePath": [
-				"${workspaceFolder}/**",
-				"${workspaceFolder}/Wire",
-				"${env:ARDUINO_BASE_SOURCE}/cores/arduino",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/EEPROM/src",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/HID/src",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/SoftwareSerial/src",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/Wire/src",
-                "${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
-                "${env:ARDUINO_BASE_SOURCE}/variants/standard",
-				"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
-				"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
-				"${env:AVR_BASE_SOURCE}/include",
-				"${env:AVR_BASE_SOURCE}/include/avr",
-				"${env:AVR_BASE_SOURCE}/include/compat",
-				"${env:AVR_BASE_SOURCE}/include/sys",
-				"${env:AVR_BASE_SOURCE}/include/util",
-                "${workspaceFolder}/../../src",
+			"${workspaceFolder}/**",
+			"${workspaceFolder}/Wire",
+			"${env:ARDUINO_BASE_SOURCE}/cores/arduino",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/EEPROM/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/HID/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SoftwareSerial/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/SPI/src",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/Wire/src",
+			"${env:ARDUINO_BASE_SOURCE}/variants/standard",
+			"${env:ARDUINO_BASE_SOURCE}/libraries/ebv_esp_master",
+			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/src",
+			"${env:ARDUINO_USR_LIB_SOURCE}/cwpack-master/core",
+			"${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/src",
+			"${env:ARDUINO_USR_LIB_SOURCE}/embever-iot-library/core",
+			"${env:AVR_BASE_SOURCE}/include",
+			"${env:AVR_BASE_SOURCE}/include/avr",
+			"${env:AVR_BASE_SOURCE}/include/compat",
+			"${env:AVR_BASE_SOURCE}/include/sys",
+			"${env:AVR_BASE_SOURCE}/include/util",
 		],
 		"C_Cpp.default.defines": [
 			"_DEBUG",
@@ -41,7 +45,7 @@
 		"C_Cpp.default.browse.path": [
 			"${env:ARDUINO_BASE_SOURCE}",
 			"${env:AVR_BASE_SOURCE}",
-            "${workspaceRoot}/**"
+			"${workspaceRoot}/**"
 		],
 		"files.associations": {
 			"__bit_reference": "cpp",
@@ -54,18 +58,36 @@
 			"string_view": "cpp",
 			"unordered_map": "cpp",
 			"vector": "cpp",
-			"ranges": "cpp"
+			"ranges": "cpp",
+			"ebv_local.c": "cpp"
 		}
 	},
 	"tasks": {
 		"version": "2.0.0",
 		"inputs": [
 			{
-			  "id": "target_hw",
-			  "type":"pickString",
-			  "description": "Pick your target",
-			  "options": ["arduino:avr:nano", "esp32:esp32:pico32"],
-			  "default": "arduino:avr:nano"
+				"id": "target_hw",
+				"type": "pickString",
+				"description": "Pick your target",
+				"options": [
+					{
+						"label": "Arduino Nano",
+						"value": "arduino:avr:nano"
+					},
+					{
+						"label": "ESP32",
+						"value": "esp32:esp32:pico32"
+					},
+					{
+						"label": "Nucleo_F103",
+						"value": "STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB"
+					},
+					{
+						"label": "Nucleo_F103 Debug",
+						"value": "STMicroelectronics:stm32:Nucleo_64:pnum=NUCLEO_F103RB,xserial=generic,usb=none,xusb=FS,opt=ogstd,dbg=enable,rtlib=nano"
+					}
+				],
+				"default": "arduino:avr:nano"
 			}
 		],
 		"tasks": [
@@ -92,7 +114,7 @@
 					"panel": "shared",
 					"showReuseMessage": true
 				},
-				"problemMatcher":"$gcc"
+				"problemMatcher": "$gcc"
 			},
 			{
 				"label": "Build",
@@ -116,7 +138,7 @@
 					"panel": "shared",
 					"showReuseMessage": true
 				},
-				"problemMatcher":"$gcc"
+				"problemMatcher": "$gcc"
 			},
 			{
 				"label": "Build For Debug",
@@ -139,7 +161,7 @@
 					"panel": "shared",
 					"showReuseMessage": true
 				},
-				"problemMatcher":"$gcc"
+				"problemMatcher": "$gcc"
 			},
 			{
 				"label": "Flash using bootloader",
@@ -203,7 +225,7 @@
 				"dependsOrder": "sequence",
 				"dependsOn": [
 					"Build",
-					"Flash with Arduino bootloader"
+					"Flash using bootloader"
 				],
 				"isBackground": false,
 				"presentation": {
@@ -212,22 +234,6 @@
 					"focus": false,
 					"panel": "shared",
 					"showReuseMessage": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "Serial monitor",
-				"type": "shell",
-				"command": "minicom -D ${config:TARGET_SERIAL_PORT} -b 115200 ",
-				"group": "build",
-				"isBackground": false,
-				"presentation": {
-					"echo": true,
-					"reveal": "always",
-					"focus": false,
-					"panel": "shared",
-					"showReuseMessage": true,
-					"clear": true
 				},
 				"problemMatcher": []
 			},
@@ -266,6 +272,12 @@
 					"showReuseMessage": true
 				},
 				"problemMatcher": []
+			},
+			{
+				"label": "STM32 Upload",
+				"type": "shell",
+				"group": "build",
+				"command": "st-flash --format ihex write ${workspaceFolder}/build/${config:ARDUINO_SKETCH_NAME}.hex"
 			},
 			{
 				"label": "Unit test -- Build",
@@ -316,5 +328,5 @@
 				}
 			}
 		]
-	}
+	},
 }
