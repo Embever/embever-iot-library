@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Embever IoT library" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-embever-caam-development-board">The Embever CaaM development board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-operating-conditions">Recommended Operating Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jumper-configuration">Jumper Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wiring-up-the-hardware">Wiring up the hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#powering-the-embever-caam-development-board">Powering the Embever CaaM development board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#digital-communication-logic-level">Digital communication logic level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#communication-with-the-embever-caam-development-board">Communication with the Embever CaaM development board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#embever-iot-software-library">Embever IoT software library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#introducing-the-embever-cloud-system">Introducing the Embever Cloud System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#activating-the-embever-account">Activating the Embever Account</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started-with-the-api">Getting Started with the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-an-access-token">Getting an access token</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-action">Creating an action</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-events-from-the-device">Getting events from the Device</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connecting-the-device-to-the-embever-cloud-system">Connecting the device to the Embever Cloud System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-the-arduino-environment">Setting up the Arduino environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-the-embever-iot-library-in-arduino-ide">Setting up the Embever IoT library in Arduino IDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-the-hello-cloud-example">Modifying the Hello_Cloud example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integration_guide.html">Integration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="salesforce/index.html">Salesforce Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<p>This document serves as a guide through the basic steps that are necessary to start building  IoT applications with the Embever Cloud as a Module Development Kit and gives a brief overview of our stack.
+The goal is to provide just enough information to be able to get familiar with the IoT world without being too overwhelming. To be able to complete this guide, an Arduino compatible hardware will be necessary.</p>
+<section id="the-embever-caam-development-board">
+<h2>The Embever CaaM development board<a class="headerlink" href="#the-embever-caam-development-board" title="Permalink to this heading"></a></h2>
+<p>In the process of getting to know the CaaM board, let it start with a feature highlight.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/CaaM_overview.png"><img alt="Embever CaaM Development Board" src="_images/CaaM_overview.png" style="width: 600px;" /></a>
+</figure>
+<ul class="simple">
+<li><p><strong>1</strong> Battery connector, JST2B 2mm pitch</p></li>
+<li><p><strong>2</strong> nanoSIM adapter</p></li>
+<li><p><strong>3</strong> Cellular antenna connector, U.FL</p></li>
+<li><p><strong>4</strong> GPS antenna connector, U.FL</p></li>
+<li><p><strong>5</strong> Reset button</p></li>
+<li><p><strong>6</strong> Status indicator LED, blue</p></li>
+<li><p><strong>7</strong> SIM chip, eSIM</p></li>
+<li><p><strong>8</strong> Buck/Boost voltage regulator circuitry</p></li>
+<li><p><strong>9</strong> GPS/LTE modem, LTE-M1, NB-IOT</p></li>
+</ul>
+</section>
+<section id="recommended-operating-conditions">
+<span id="rec-op-conds"></span><h2>Recommended Operating Conditions<a class="headerlink" href="#recommended-operating-conditions" title="Permalink to this heading"></a></h2>
+<table class="docutils align-center" id="id1">
+<caption><span class="caption-text">Recommended Operating Conditions</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Min</p></th>
+<th class="head"><p>Max</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Operating Voltage</p></td>
+<td><p>1.8</p></td>
+<td><p>5.5</p></td>
+<td><p>V</p></td>
+</tr>
+<tr class="row-odd"><td><p>VDD_GPIO</p></td>
+<td><p>1.8</p></td>
+<td><p>3.6</p></td>
+<td><p>V</p></td>
+</tr>
+<tr class="row-even"><td><p>Operating Temperature</p></td>
+<td><p>-20</p></td>
+<td><p>85</p></td>
+<td><p>°C</p></td>
+</tr>
+<tr class="row-odd"><td><p>Peak Power Consumption</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>A</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="jumper-configuration">
+<h2>Jumper Configuration<a class="headerlink" href="#jumper-configuration" title="Permalink to this heading"></a></h2>
+<p>Solder jumpers can be used to modify the behavior of the hardware. The location of these solder jumpers are shown in the following figure:</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/SJ_HL.png"><img alt="Embever CaaM Development Board Solder Jumpers" src="_images/SJ_HL.png" style="width: 600px;" /></a>
+</figure>
+<p>The solder jumpers have the following functionalities:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Solder Jumpers</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Solder jumper</p></th>
+<th class="head"><p>Functionality</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SJ1</p></td>
+<td><p>Short to activate the external SIM card.</p>
+<p>If this solder jumper is shorted, the modem starts using the nanoSIM instead of the eSIM.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>SJ3</p></td>
+<td><p>Short to set the GPIO logic level to 3.3V.</p>
+<p>There is the option to select the voltage level of the GPIO pins, which can be anything between 1.8v and VCC.</p>
+<p>It can be useful when you wish to interface with a device which is running on a lower voltage level than 3.3v.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>SJ2</p></td>
+<td><p>Short to connect the board VCC with the TAG connector VCC pin.</p>
+<p>It might be required by an external programmer if the firmware of the modem is to be updated manually.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>SJ4</p></td>
+<td><p>Short to activate pullup resistors on i2c lines.</p>
+<p>The pullup resistors are necessary to communicate with the device.</p>
+<p>Use external pullup resistors if you do not wish to use the internal ones.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="wiring-up-the-hardware">
+<span id="getting-started-hw-wiring"></span><h2>Wiring up the hardware<a class="headerlink" href="#wiring-up-the-hardware" title="Permalink to this heading"></a></h2>
+<p>For using the Embever CaaM development board, it has to be connected to an external device. To establish digital communication with the CaaM development board, there are a few necessary signals that need to be connected.
+The following figure shows the location of these signals by board versions:</p>
+<details>
+<summary><a>CaaM board revision 2</a></summary><figure class="align-center">
+<a class="reference internal image-reference" href="_images/ESP_HL_Rev1.png"><img alt="Embever CaaM Development Board ESP Signals" src="_images/ESP_HL_Rev1.png" style="width: 400px;" /></a>
+</figure>
+<table class="docutils align-center" id="id3">
+<caption><span class="caption-text">ESP Pinout</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>VIN</p></td>
+<td><p>Supply Voltage input</p></td>
+</tr>
+<tr class="row-odd"><td><p>GND</p></td>
+<td><p>Ground</p></td>
+</tr>
+<tr class="row-even"><td><p>PWR_EN</p></td>
+<td><p>Enable power, active LOW, enabled by default</p></td>
+</tr>
+<tr class="row-odd"><td><p>VDD_IO</p></td>
+<td><p>Supply Voltage for GPIO Pins</p></td>
+</tr>
+<tr class="row-even"><td><p>3V3</p></td>
+<td><p>Internal voltage regulator output</p></td>
+</tr>
+<tr class="row-odd"><td><p>SDA</p></td>
+<td><p>ESP data line</p></td>
+</tr>
+<tr class="row-even"><td><p>SCL</p></td>
+<td><p>ESP clock line</p></td>
+</tr>
+<tr class="row-odd"><td><p>IRQ</p></td>
+<td><p>ESP logic line, active low</p></td>
+</tr>
+<tr class="row-even"><td><p>READY</p></td>
+<td><p>ESP logic line, active high</p></td>
+</tr>
+</tbody>
+</table>
+</details><details>
+<summary><a>CaaM board revision 2.1</a></summary><figure class="align-center">
+<a class="reference internal image-reference" href="_images/ESP_HL.png"><img alt="Embever CaaM Development Board ESP Signals" src="_images/ESP_HL.png" style="width: 400px;" /></a>
+</figure>
+<table class="docutils align-center" id="id4">
+<caption><span class="caption-text">ESP Pinout</span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>VIN</p></td>
+<td><p>Supply Voltage input</p></td>
+</tr>
+<tr class="row-odd"><td><p>GND</p></td>
+<td><p>Ground</p></td>
+</tr>
+<tr class="row-even"><td><p>PWR_EN</p></td>
+<td><p>Enable power, active LOW</p></td>
+</tr>
+<tr class="row-odd"><td><p>VDD_IO</p></td>
+<td><p>Supply Voltage for GPIO Pins</p></td>
+</tr>
+<tr class="row-even"><td><p>3V3</p></td>
+<td><p>Internal voltage regulator output</p></td>
+</tr>
+<tr class="row-odd"><td><p>SDA</p></td>
+<td><p>ESP data line</p></td>
+</tr>
+<tr class="row-even"><td><p>SCL</p></td>
+<td><p>ESP clock line</p></td>
+</tr>
+<tr class="row-odd"><td><p>IRQ</p></td>
+<td><p>ESP logic line, active low</p></td>
+</tr>
+<tr class="row-even"><td><p>READY</p></td>
+<td><p>ESP logic line, active high</p></td>
+</tr>
+</tbody>
+</table>
+</details>
+<br></br></section>
+<section id="powering-the-embever-caam-development-board">
+<h2>Powering the Embever CaaM development board<a class="headerlink" href="#powering-the-embever-caam-development-board" title="Permalink to this heading"></a></h2>
+<p>There are multiple ways to supply the Embever CaaM development board.
+The JST connector can be used to attach an external battery.
+The VIN pin can also be used to supply power from the pin header.
+The specification that needs to be considered is the input voltage range that the CaaM development board can safely use and the current delivery capability of the external power source.
+To get those values, take a look at the <a class="reference internal" href="#rec-op-conds"><span class="std std-ref">Recommended Operating Conditions</span></a>.</p>
+<p>On the other hand, the CaaM development board can also be used to provide power output through the 3V3 pin.
+It can provide 3.3 Volt to an external device (150mA max).</p>
+</section>
+<section id="digital-communication-logic-level">
+<h2>Digital communication logic level<a class="headerlink" href="#digital-communication-logic-level" title="Permalink to this heading"></a></h2>
+<p>It is necessary to match the logic level between an external device and the Embever CaaM development board to establish stable communication.
+This is possible by supplying any voltage in the supported voltage range to the VDD_IO pin.
+To omit the wiring for this pin, the SJ3 solder jumper can be used to set the logic voltage level to VCC which is 3.3 Volt.</p>
+</section>
+<section id="communication-with-the-embever-caam-development-board">
+<h2>Communication with the Embever CaaM development board<a class="headerlink" href="#communication-with-the-embever-caam-development-board" title="Permalink to this heading"></a></h2>
+<p>To address digital communication with the Embever CaaM development board a lightweight protocol is used, the Embever Serial Protocol (ESP).
+For more information about it, see <a class="reference internal" href="api/esp_drv.html#esp-prot-drv"><span class="std std-ref">Embever Serial Protocol driver</span></a>.</p>
+<p>To use the Embever Serial Protocol, connect an external device based on the following table:</p>
+<table class="docutils align-center" id="id5">
+<caption><span class="caption-text">ESP Wiring</span><a class="headerlink" href="#id5" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SDA</p></td>
+<td><p>Serial Data</p></td>
+</tr>
+<tr class="row-odd"><td><p>SCL</p></td>
+<td><p>Serial Clock</p></td>
+</tr>
+<tr class="row-even"><td><p>READY</p></td>
+<td><p>Device ready to receive</p></td>
+</tr>
+<tr class="row-odd"><td><p>IRQ</p></td>
+<td><p>Data available to read</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">Note: Make sure to use an Arduino board that fulfils the voltage level requirements. The Embever CaaM board is not 5V tolerant. For example, to be able to use an Arduino UNO board, a voltage level shifter might be necessary.</div>
+</div>
+</section>
+<section id="embever-iot-software-library">
+<h2>Embever IoT software library<a class="headerlink" href="#embever-iot-software-library" title="Permalink to this heading"></a></h2>
+<p>To make it even simpler, Embever provides an additional software library that handles the ESP on its own.
+There is no need to fully understand our protocol and implement a custom software library to be able to use the Embever CaaM development board.
+With this simplicity, starting to work on an IoT application was never that easy, without the heavy proprietary communication protocol handling.
+The Embever IoT software library is platform-independent and does not contain any peripheral drivers. In this way, it can be easily integrated into any existing environment.
+To create sample applications, we chose the Arduino framework to make communication possible between an external device and the Embever CaaM development kit.
+In our mind, the Arduino Framework is a great tool to show how things work and the idea is easily adaptable to other platforms as well.</p>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>To summarize the above topics before starting to work with the examples:</dt><dd><ul class="simple">
+<li><p>Configure the hardware by shorting the right solder jumpers based on the required behavior</p></li>
+<li><p>Connect the CaaM board with an external device</p></li>
+<li><p>Supply power to the system, the easiest way is to use a lithium polymer battery with a JST connector</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="introducing-the-embever-cloud-system">
+<h2>Introducing the Embever Cloud System<a class="headerlink" href="#introducing-the-embever-cloud-system" title="Permalink to this heading"></a></h2>
+<p>Embever IoT Core is responsible to handle all messaging to and from a device. The Embever IoT Core provides an API to easily send and receive data from a device.
+Besides this, it can also be used to manage resources like devices and firmwares.</p>
+<section id="activating-the-embever-account">
+<h3>Activating the Embever Account<a class="headerlink" href="#activating-the-embever-account" title="Permalink to this heading"></a></h3>
+<p>When an order is submitted for the Embever Cloud As A Module development kit, an account is automatically created with the given details and an email is sent to activate the newly created account.
+To set up the account simply follow the link in the received email. With the personal credentials, logging in to the <a class="reference external" href="https://console.embever.com">Embever Cloud console</a> or to
+the <a class="reference external" href="https://api.embever.com">Embever Cloud Browsable API</a> is now possible.</p>
+<p>To manage the resources use the Embever Cloud Browsable API. Go to the <a class="reference external" href="https://api.embever.com/v2/devices/">https://api.embever.com/v2/devices/</a> where all the personal devices should be listed.</p>
+</section>
+<section id="getting-started-with-the-api">
+<h3>Getting Started with the API<a class="headerlink" href="#getting-started-with-the-api" title="Permalink to this heading"></a></h3>
+</section>
+<section id="getting-an-access-token">
+<h3>Getting an access token<a class="headerlink" href="#getting-an-access-token" title="Permalink to this heading"></a></h3>
+<p>The API uses JWT tokens to authorize requests to resources. To obtain an access toke an application token is necessary.
+To create an application token, use the <a class="reference external" href="https://api.embever.com/v2/tokens/">tokens endpoint</a> in the Embever Cloud Browsable API and make a POST request with an alias.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;alias&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppTokenHelloWorld&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The response should be similar:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/tokens/45/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;alias&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppTokenHelloWorld&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJhbGlhcyI6IkldfhelsseInVzZXJfaWQiOjE4fQ.MT1Zp2emXHjew8nqYF3CrbjIfk6eqH6zrandtokenBhlpJ9jPlpKChs6lbeybnL1AMgq3R68g&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;organisation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b4ask977-05c5-470f-a936-d3340bff&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;application&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-01-28T08:26:12.892335Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The token is displayed only once. Keep it secure as this is used to get the access and refresh tokens to access personal resources in the Embever IoT Core.</p>
+</div>
+<p>Obtaining an access token is now possible by posting an application token to the <code class="docutils literal notranslate"><span class="pre">/authenticate</span></code> endpoint.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request POST &#39;https://api.embever.com/v2/authenticate/&#39; \</span>
+<span class="go">--header &#39;Content-Type: application/json&#39; \</span>
+<span class="go">--data-raw &#39;{</span>
+<span class="go">    &quot;application_token&quot; : &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJhbGlhcyI6IkldfhelsseInVzZXJfaWQiOjE4fQ.MT1Zp2emXHjew8nqYF3CrbjIfk6eqH6zrandtokenBhlpJ9jPlpKChs6lbeybnL1AMgq3R68g&quot;</span>
+<span class="go">}&#39;</span>
+
+<span class="go">{</span>
+<span class="go">    &quot;refresh&quot;: &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVz2QwZDQ1N2M2NDBhYWIzNzk2NmI2ZmYwMjBmMTQiLCJ1c2VyX2lkIjoxOH0.lC-3jlgeOBYuk5Ul3zTqRFpVA1SEouJ3sHKkSH5Q&quot;,</span>
+<span class="go">    &quot;access&quot;: &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&quot;</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>Access token can now be passed to the Authorization header to access the resources in the API.</p>
+<p>To confirm the above steps, let’s try to get a devices by using the <code class="docutils literal notranslate"><span class="pre">curl</span></code> utility.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request GET &#39;https://api.embever.com/v2/devices/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+
+<span class="go">[</span>
+<span class="go">    {</span>
+<span class="go">    &quot;url&quot;: &quot;https://api.embever.com/v2/devices/EzJei1BX/&quot;,</span>
+<span class="go">    &quot;id&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">    &quot;name&quot;: &quot;HelloWorldDevice&quot;,</span>
+<span class="go">    &quot;activated&quot;: true,</span>
+<span class="go">    &quot;application&quot;: null,</span>
+<span class="go">    &quot;type&quot;: &quot;other&quot;,</span>
+<span class="go">    &quot;webhooks&quot;: null,</span>
+<span class="go">    &quot;meta&quot;: null,</span>
+<span class="go">    &quot;sim&quot;: &quot;123456789019876&quot;,</span>
+<span class="go">    &quot;created_at&quot;: &quot;2022-01-25T15:58:37.293802Z&quot;</span>
+<span class="go">    }</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>Accessing other resources in the API using the access token is also possible.</p>
+</section>
+<section id="creating-an-action">
+<h3>Creating an action<a class="headerlink" href="#creating-an-action" title="Permalink to this heading"></a></h3>
+<p>The following example shows how to create actions in the API.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request POST &#39;https://api.embever.com/v2/actions/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+<span class="go">--header &#39;Content-Type: application/json&#39; \</span>
+<span class="go">--data-raw &#39;{</span>
+<span class="go">    &quot;device&quot;: {</span>
+<span class="go">        &quot;id&quot;: &quot;EzJei1BX&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;type&quot;: &quot;setLED&quot;,</span>
+<span class="go">    &quot;payload&quot;: {</span>
+<span class="go">        &quot;LED&quot;: &quot;on&quot;</span>
+<span class="go">    }</span>
+<span class="go">}&#39;</span>
+
+<span class="go">{</span>
+<span class="go">    &quot;url&quot;: &quot;https://api.embever.com/v2/actions/1003691/&quot;,</span>
+<span class="go">    &quot;id&quot;: 1003691,</span>
+<span class="go">    &quot;device&quot;: {</span>
+<span class="go">        &quot;id&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">        &quot;name&quot;: &quot;HelloWorldDevice&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;type&quot;: &quot;setLED&quot;,</span>
+<span class="go">    &quot;payload&quot;: {</span>
+<span class="go">        &quot;LED&quot;: &quot;on&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;status&quot;: {},</span>
+<span class="go">    &quot;webhooks&quot;: null,</span>
+<span class="go">    &quot;service_level&quot;: 0,</span>
+<span class="go">    &quot;cancelled&quot;: false,</span>
+<span class="go">    &quot;finished&quot;: false,</span>
+<span class="go">    &quot;result&quot;: null,</span>
+<span class="go">    &quot;created_at&quot;: &quot;2022-01-28T09:32:25.379189Z&quot;,</span>
+<span class="go">    &quot;result_code&quot;: null,</span>
+<span class="go">    &quot;expiry_date&quot;: null,</span>
+<span class="go">    &quot;expired&quot;: false</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-events-from-the-device">
+<h3>Getting events from the Device<a class="headerlink" href="#getting-events-from-the-device" title="Permalink to this heading"></a></h3>
+<p>The following example shows how to get events from the API.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request GET &#39;https://api.embever.com/v2/devices/EzJb1BX/events/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+
+<span class="go">[</span>
+<span class="go">    {</span>
+<span class="go">        &quot;url&quot;: &quot;https://api.embever.com/v2/events/70664807/&quot;,</span>
+<span class="go">        &quot;id&quot;: 70664807,</span>
+<span class="go">        &quot;device&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">        &quot;sim&quot;: &quot;123456789019876&quot;,</span>
+<span class="go">        &quot;type&quot;: &quot;wakeUp&quot;,</span>
+<span class="go">        &quot;payload&quot;: {</span>
+<span class="go">            &quot;lat&quot;: 525841746,</span>
+<span class="go">            &quot;lon&quot;: 122812903</span>
+<span class="go">        },</span>
+<span class="go">        &quot;created_at&quot;: &quot;2022-01-13T16:09:21.991434Z&quot;</span>
+<span class="go">    },</span>
+<span class="go">    ...</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>For more details please visit the <a class="reference external" href="https://api-docs.embever.com/">Embever core API documentations</a>.</p>
+</section>
+<section id="connecting-the-device-to-the-embever-cloud-system">
+<h3>Connecting the device to the Embever Cloud System<a class="headerlink" href="#connecting-the-device-to-the-embever-cloud-system" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="setting-up-the-arduino-environment">
+<h2>Setting up the Arduino environment<a class="headerlink" href="#setting-up-the-arduino-environment" title="Permalink to this heading"></a></h2>
+<p>The Arduino IDE is a well known integrated development environment to support all kinds of Arduino compatible devices.
+The Arduino IDE needs to be installed in order to compile the Embever IoT library.
+Moreover there are 2 necessary modifications that need to be done on the Arduino Wire library before it would be usable to work with the Embever IoT library.
+The Embever IoT library needs to send longer messages that the default Arduino Wire library can handle. The easiest way to locate them is to get information about the Arduino Core library location.
+The Arduino IDE carries this information under the Preference sub menu.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/Arduino_IDE_code_HL.png"><img alt="Embever CaaM Development Board Solder Jumpers" src="_images/Arduino_IDE_code_HL.png" style="width: 600px;" /></a>
+</figure>
+<p>The following path shows the location of the arduino core. Using this example, in this case the files can found in the following location:
+<code class="docutils literal notranslate"><span class="pre">/Users/macbook/Library/Arduino15/packages/arduino/hardware/avr/1.8.3/libraries/Wire/src/Wire.h`</span></code>
+<code class="docutils literal notranslate"><span class="pre">/Users/macbook/Library/Arduino15/packages/arduino/hardware/avr/1.8.3/libraries/Wire/src/utility/twi.h</span></code></p>
+<div class="line-block">
+<div class="line">Note: This location will vary on other systems!</div>
+</div>
+<p>Change the following lines according to the following:</p>
+<table class="docutils align-center" id="id6">
+<caption><span class="caption-text">Wiring library modifications</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Location</p></th>
+<th class="head"><p>Change from</p></th>
+<th class="head"><p>Change to</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Wire.h</span></code></p></td>
+<td><p>line 29</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">BUFFER_LENGTH</span> <span class="pre">32</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">BUFFER_LENGTH</span> <span class="pre">128</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Twi.h</span></code></p></td>
+<td><p>line 34</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">TWI_BUFFER_LENGTH</span> <span class="pre">32</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">TWI_BUFFER_LENGTH</span> <span class="pre">128</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>With this modification, the Embever IoT library will be able to send the right messages over I2C.</p>
+</section>
+<section id="setting-up-the-embever-iot-library-in-arduino-ide">
+<h2>Setting up the Embever IoT library in Arduino IDE<a class="headerlink" href="#setting-up-the-embever-iot-library-in-arduino-ide" title="Permalink to this heading"></a></h2>
+<p>To be able to use the Embever IoT library, it need to be installed to the Arduino IDE first. The Embever IoT library is depends on the CWPack library.</p>
+<dl class="simple">
+<dt>Download the libraries from the following links by the download source code button and select the .zip option:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Embever/embever-iot-library">Embever IoT Library</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Embever/cwpack">CWPack Library</a></p></li>
+</ul>
+</dd>
+<dt>Add the downloaded files to the Arduino IDE:</dt><dd><ul class="simple">
+<li><p>1 Open Arduino ID</p></li>
+<li><p>2 Select: <code class="docutils literal notranslate"><span class="pre">Sketch</span> <span class="pre">/</span> <span class="pre">Include</span> <span class="pre">Library</span> <span class="pre">/</span> <span class="pre">Add</span> <span class="pre">.ZIP</span> <span class="pre">Library…</span></code></p></li>
+<li><p>3 Add both downloaded files in this way</p></li>
+</ul>
+</dd>
+</dl>
+<p>To open an example from the Embever IoT library from the Arduino IDE select <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">/</span> <span class="pre">Examples</span> <span class="pre">/</span> <span class="pre">Embever</span> <span class="pre">IoT</span> <span class="pre">Library</span> <span class="pre">/</span> <span class="pre">Hello_Cloud</span></code>.
+Compile the Sketch and Upload to the device and open the Serial Terminal from the Arduino IDE to see the logs.</p>
+<p>To see the result in the Embever Cloud System go to the…</p>
+</section>
+<section id="modifying-the-hello-cloud-example">
+<h2>Modifying the Hello_Cloud example<a class="headerlink" href="#modifying-the-hello-cloud-example" title="Permalink to this heading"></a></h2>
+<p>Extending the Hello_Cloud example is a great way to get familiar with the Embever IoT library and with the Embever Cloud System.
+Let’s extend the existing payload by adding another key value pair to it. Add the following line just under line 31:
+ebv_iot_addGenericPayload(“description”, “first_demo”);</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/Hello_Cloud_mod.png"><img alt="The modified hello_cloud sketch" src="_images/Hello_Cloud_mod.png" style="width: 600px;" /></a>
+</figure>
+<p>Verify the result in the cloud system after the sketch was uploaded to the device.
+Working with the Embever IoT solution is fun because it has a lot of potential to build and deploy the IoT applications of the future.
+To see more examples, dig deeper in the library and read about the whole API, check the Embever IoT library documentation here.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Embever IoT library" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

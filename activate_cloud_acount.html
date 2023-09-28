@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activating the Embever Account &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integration_guide.html">Integration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="salesforce/index.html">Salesforce Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Activating the Embever Account</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/activate_cloud_acount.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="activating-the-embever-account">
+<h1>Activating the Embever Account<a class="headerlink" href="#activating-the-embever-account" title="Permalink to this heading"></a></h1>
+<p>When an order is submitted for the Embever Cloud As A Module development kit, an account is automatically created with the given details and an email is sent to activate the newly created account.
+To set up the account simply follow the link in the received email. With the personal credentials, logging in to the <a class="reference external" href="https://console.embever.com">Embever Cloud console</a> or to
+the <a class="reference external" href="https://api.embever.com">Embever Cloud Browsable API</a> is now possible.</p>
+<p>To manage the resources use the Embever Cloud Browsable API. Go to the <a class="reference external" href="https://api.embever.com/v2/devices/">https://api.embever.com/v2/devices/</a> where all the personal devices should be listed.</p>
+</section>
+<section id="getting-started-with-the-api">
+<h1>Getting Started with the API<a class="headerlink" href="#getting-started-with-the-api" title="Permalink to this heading"></a></h1>
+</section>
+<section id="getting-an-access-token">
+<h1>Getting an access token<a class="headerlink" href="#getting-an-access-token" title="Permalink to this heading"></a></h1>
+<p>The API uses JWT tokens to authorize requests to resources. To obtain an access toke an application token is necessary.
+To create an application token, use the <a class="reference external" href="https://api.embever.com/v2/tokens/">tokens endpoint</a> in the Embever Cloud Browsable API and make a POST request with an alias.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;alias&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppTokenHelloWorld&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The response should be similar:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/tokens/45/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;alias&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppTokenHelloWorld&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJhbGlhcyI6IkldfhelsseInVzZXJfaWQiOjE4fQ.MT1Zp2emXHjew8nqYF3CrbjIfk6eqH6zrandtokenBhlpJ9jPlpKChs6lbeybnL1AMgq3R68g&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;organisation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;b4ask977-05c5-470f-a936-d3340bff&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;application&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-01-28T08:26:12.892335Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The token is displayed only once. Keep it secure as this is used to get the access and refresh tokens to access personal resources in the Embever IoT Core.</p>
+</div>
+<p>Obtaining an access token is now possible by posting an application token to the <code class="docutils literal notranslate"><span class="pre">/authenticate</span></code> endpoint.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request POST &#39;https://api.embever.com/v2/authenticate/&#39; \</span>
+<span class="go">--header &#39;Content-Type: application/json&#39; \</span>
+<span class="go">--data-raw &#39;{</span>
+<span class="go">    &quot;application_token&quot; : &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJhbGlhcyI6IkldfhelsseInVzZXJfaWQiOjE4fQ.MT1Zp2emXHjew8nqYF3CrbjIfk6eqH6zrandtokenBhlpJ9jPlpKChs6lbeybnL1AMgq3R68g&quot;</span>
+<span class="go">}&#39;</span>
+
+<span class="go">{</span>
+<span class="go">    &quot;refresh&quot;: &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVz2QwZDQ1N2M2NDBhYWIzNzk2NmI2ZmYwMjBmMTQiLCJ1c2VyX2lkIjoxOH0.lC-3jlgeOBYuk5Ul3zTqRFpVA1SEouJ3sHKkSH5Q&quot;,</span>
+<span class="go">    &quot;access&quot;: &quot;eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&quot;</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>Access token can now be passed to the Authorization header to access the resources in the API.</p>
+<p>To confirm the above steps, let’s try to get a devices by using the <code class="docutils literal notranslate"><span class="pre">curl</span></code> utility.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request GET &#39;https://api.embever.com/v2/devices/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+
+<span class="go">[</span>
+<span class="go">    {</span>
+<span class="go">    &quot;url&quot;: &quot;https://api.embever.com/v2/devices/EzJei1BX/&quot;,</span>
+<span class="go">    &quot;id&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">    &quot;name&quot;: &quot;HelloWorldDevice&quot;,</span>
+<span class="go">    &quot;activated&quot;: true,</span>
+<span class="go">    &quot;application&quot;: null,</span>
+<span class="go">    &quot;type&quot;: &quot;other&quot;,</span>
+<span class="go">    &quot;webhooks&quot;: null,</span>
+<span class="go">    &quot;meta&quot;: null,</span>
+<span class="go">    &quot;sim&quot;: &quot;123456789019876&quot;,</span>
+<span class="go">    &quot;created_at&quot;: &quot;2022-01-25T15:58:37.293802Z&quot;</span>
+<span class="go">    }</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>Accessing other resources in the API using the access token is also possible.</p>
+</section>
+<section id="creating-an-action">
+<h1>Creating an action<a class="headerlink" href="#creating-an-action" title="Permalink to this heading"></a></h1>
+<p>The following example shows how to create actions in the API.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request POST &#39;https://api.embever.com/v2/actions/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+<span class="go">--header &#39;Content-Type: application/json&#39; \</span>
+<span class="go">--data-raw &#39;{</span>
+<span class="go">    &quot;device&quot;: {</span>
+<span class="go">        &quot;id&quot;: &quot;EzJei1BX&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;type&quot;: &quot;setLED&quot;,</span>
+<span class="go">    &quot;payload&quot;: {</span>
+<span class="go">        &quot;LED&quot;: &quot;on&quot;</span>
+<span class="go">    }</span>
+<span class="go">}&#39;</span>
+
+<span class="go">{</span>
+<span class="go">    &quot;url&quot;: &quot;https://api.embever.com/v2/actions/1003691/&quot;,</span>
+<span class="go">    &quot;id&quot;: 1003691,</span>
+<span class="go">    &quot;device&quot;: {</span>
+<span class="go">        &quot;id&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">        &quot;name&quot;: &quot;HelloWorldDevice&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;type&quot;: &quot;setLED&quot;,</span>
+<span class="go">    &quot;payload&quot;: {</span>
+<span class="go">        &quot;LED&quot;: &quot;on&quot;</span>
+<span class="go">    },</span>
+<span class="go">    &quot;status&quot;: {},</span>
+<span class="go">    &quot;webhooks&quot;: null,</span>
+<span class="go">    &quot;service_level&quot;: 0,</span>
+<span class="go">    &quot;cancelled&quot;: false,</span>
+<span class="go">    &quot;finished&quot;: false,</span>
+<span class="go">    &quot;result&quot;: null,</span>
+<span class="go">    &quot;created_at&quot;: &quot;2022-01-28T09:32:25.379189Z&quot;,</span>
+<span class="go">    &quot;result_code&quot;: null,</span>
+<span class="go">    &quot;expiry_date&quot;: null,</span>
+<span class="go">    &quot;expired&quot;: false</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-events-from-the-device">
+<h1>Getting events from the Device<a class="headerlink" href="#getting-events-from-the-device" title="Permalink to this heading"></a></h1>
+<p>The following example shows how to get events from the API.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl --location --request GET &#39;https://api.embever.com/v2/devices/EzJb1BX/events/&#39; \</span>
+<span class="go">--header &#39;Authorization: Bearer eyJ0eXAiOiJKdsdfOiJUBGsMiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjQzMA0ZTgyODA5YmI1MzEwZmQ3MzczNSIsInVzZXJfaWQi.dDjwoOpOpxvysqw1-Iotthq9Zrpx1BQQxBzk2Z7h&#39;</span>
+
+<span class="go">[</span>
+<span class="go">    {</span>
+<span class="go">        &quot;url&quot;: &quot;https://api.embever.com/v2/events/70664807/&quot;,</span>
+<span class="go">        &quot;id&quot;: 70664807,</span>
+<span class="go">        &quot;device&quot;: &quot;EzJei1BX&quot;,</span>
+<span class="go">        &quot;sim&quot;: &quot;123456789019876&quot;,</span>
+<span class="go">        &quot;type&quot;: &quot;wakeUp&quot;,</span>
+<span class="go">        &quot;payload&quot;: {</span>
+<span class="go">            &quot;lat&quot;: 525841746,</span>
+<span class="go">            &quot;lon&quot;: 122812903</span>
+<span class="go">        },</span>
+<span class="go">        &quot;created_at&quot;: &quot;2022-01-13T16:09:21.991434Z&quot;</span>
+<span class="go">    },</span>
+<span class="go">    ...</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>For more details please visit the <a class="reference external" href="https://api-docs.embever.com/">Embever core API documentations</a>.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

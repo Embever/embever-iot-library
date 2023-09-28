@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integration Guide &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Sample Applications" href="samples/index.html" />
+    <link rel="prev" title="Logging Module" href="api/logging.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Integration Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#integrating-the-delay-func">Integrating the Embever Delay Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrating-the-gpio-drv">Integrating the Embever GPIO Driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrating-the-embever-i2c-driver">Integrating the Embever I<sup>2</sup>C Driver</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#void-wire-begin-uint8-t-address">void wire_begin (uint8_t address)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#size-t-wire-write-uint8-t-data">size_t wire_write (uint8_t data)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-wire-end">void wire_end ()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#void-wire-requestfrom-uint8-t-address-uint8-t-nof-bytes">void wire_requestFrom(uint8_t address, uint8_t nof_bytes)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-wire-available">int wire_available ()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#int-wire-read">int wire_read()</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="salesforce/index.html">Salesforce Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Integration Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/integration_guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="integration-guide">
+<span id="id1"></span><h1>Integration Guide<a class="headerlink" href="#integration-guide" title="Permalink to this heading"></a></h1>
+<p>To be able to use the Embever IoT library the Integration Layer needs to be set up.
+The Integration Layer provides access to the hardware resources in order to establish communication
+with an Embever IoT device. For more information about the Integration Layer refer to the <a class="reference internal" href="api/integration_layer.html#integration-layer"><span class="std std-ref">The Integration Layer</span></a>
+topic under the API section.</p>
+<p>Integrating the Embever IoT library will take 3 parts: the Embever I<sup>2</sup>C driver, the Embever GPIO driver and
+the Embever Delay Function.
+The integration layer needs to be set up before using the other parts of the Embever IoT library.</p>
+<section id="integrating-the-delay-func">
+<h2>Integrating the Embever Delay Function<a class="headerlink" href="#integrating-the-delay-func" title="Permalink to this heading"></a></h2>
+<p>The Embever Delay Function is necessary to the Embever IoT Library to detect timeout events.
+The following example shows how to set up the Embever Delay Function using the Arduino framework.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ebv_delay_register</span><span class="p">(</span><span class="n">delay</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The functions passed to the delay registration routine expects only 1 argument, which defines the delay value in milliseconds.</p>
+</div>
+<p>The function definition is the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">ebv_delay_register</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">delay</span><span class="p">)(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">ms</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="integrating-the-gpio-drv">
+<h2>Integrating the Embever GPIO Driver<a class="headerlink" href="#integrating-the-gpio-drv" title="Permalink to this heading"></a></h2>
+<p>The Embever GPIO Driver requires 2 functions to be able to read the digital signals on the designed pins.
+To set it up, you need to provide those 2 functions and then register them on <code class="docutils literal notranslate"><span class="pre">ebv_esp_gpio_cb</span></code> (more details bellow).
+Take a look at the following code sample, using the Arduino framework:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define PIN_EBV_IRQ     ARDUINO_PIN_A2</span>
+<span class="cp">#define PIN_EBV_READY   ARDUINO_PIN_A3</span>
+
+<span class="c1">// Interface function for reading the ready state</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">gpio_readReady</span><span class="p">(){</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">digitalRead</span><span class="p">(</span><span class="n">PIN_EBV_READY</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Interface function for reading the irq state</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">gpio_readIrq</span><span class="p">(){</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">digitalRead</span><span class="p">(</span><span class="n">PIN_EBV_IRQ</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The above example shows the 2 required interface functions which can fullfil the Embever GPIO Driver requirements.
+The functions should have <code class="docutils literal notranslate"><span class="pre">boolean</span></code> return type based on the following logic.</p>
+<table class="docutils align-center" id="id2">
+<caption><span class="caption-text">Return value logic</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>GPIO Pin logic level</p></th>
+<th class="head"><p>Function return</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HIGH</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>LOW</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>After defining those functions they should be registered into the Embever GPIO Driver using the <code class="docutils literal notranslate"><span class="pre">ebv_esp_gpio_cb</span></code> structure.
+A possible implementation might look’s like the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">ebv_esp_gpio_cb</span><span class="w"> </span><span class="n">gpio_cb</span><span class="p">;</span>
+<span class="n">gpio_cb</span><span class="p">.</span><span class="n">readReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gpio_readReady</span><span class="p">;</span>
+<span class="n">gpio_cb</span><span class="p">.</span><span class="n">readIRQ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gpio_readIrq</span><span class="p">;</span>
+<span class="n">ebv_esp_gpio_registerGpio</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gpio_cb</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="integrating-the-embever-i2c-driver">
+<h2>Integrating the Embever I<sup>2</sup>C Driver<a class="headerlink" href="#integrating-the-embever-i2c-driver" title="Permalink to this heading"></a></h2>
+<p>To integrate the Embever I<sup>2</sup>C Driver, a few interface functions need to be set up.
+Starting with a possible implementation first and then discussing them in details.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">wire_begin</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">address</span><span class="p">){</span>
+<span class="w">    </span><span class="n">Wire</span><span class="p">.</span><span class="n">beginTransmission</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">wire_end</span><span class="p">(){</span>
+<span class="w">    </span><span class="n">Wire</span><span class="p">.</span><span class="n">endTransmission</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">wire_available</span><span class="p">(){</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Wire</span><span class="p">.</span><span class="n">available</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">size_t</span><span class="w"> </span><span class="nf">wire_write</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">data</span><span class="p">){</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Wire</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">wire_requestFrom</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">nof_bytes</span><span class="p">){</span>
+<span class="w">    </span><span class="n">Wire</span><span class="p">.</span><span class="n">requestFrom</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">nof_bytes</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">wire_read</span><span class="p">(){</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Wire</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="void-wire-begin-uint8-t-address">
+<h3>void wire_begin (uint8_t address)<a class="headerlink" href="#void-wire-begin-uint8-t-address" title="Permalink to this heading"></a></h3>
+<p>Initiate the device address by the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter and prepare the peripheral to transmit data
+(but don’t transmit anything to the bus yet).</p>
+</section>
+<section id="size-t-wire-write-uint8-t-data">
+<h3>size_t wire_write (uint8_t data)<a class="headerlink" href="#size-t-wire-write-uint8-t-data" title="Permalink to this heading"></a></h3>
+<p>Copy <code class="docutils literal notranslate"><span class="pre">data</span></code> to the internal buffer. Not sending anything to the bus yet. Return 1 if the operation was successful, return 0 if not.</p>
+</section>
+<section id="void-wire-end">
+<h3>void wire_end ()<a class="headerlink" href="#void-wire-end" title="Permalink to this heading"></a></h3>
+<p>Flushes the internal buffers, if any, by writing them to the I<sup>2</sup>C bus and issue a stop sequence.</p>
+</section>
+<section id="void-wire-requestfrom-uint8-t-address-uint8-t-nof-bytes">
+<h3>void wire_requestFrom(uint8_t address, uint8_t nof_bytes)<a class="headerlink" href="#void-wire-requestfrom-uint8-t-address-uint8-t-nof-bytes" title="Permalink to this heading"></a></h3>
+<p>Issues a read sequence on the I<sup>2</sup>C bus and tries to read <code class="docutils literal notranslate"><span class="pre">nof_bytes</span></code> from device specified by <code class="docutils literal notranslate"><span class="pre">address</span></code>.
+Puts the incoming data into an internal buffer.</p>
+</section>
+<section id="int-wire-available">
+<h3>int wire_available ()<a class="headerlink" href="#int-wire-available" title="Permalink to this heading"></a></h3>
+<p>Returns the number of received bytes during the last transaction.</p>
+</section>
+<section id="int-wire-read">
+<h3>int wire_read()<a class="headerlink" href="#int-wire-read" title="Permalink to this heading"></a></h3>
+<p>Reads the incoming data from the internal buffer. This function reads and returns only 1 byte from the internal buffer.
+This function should called only if there are data in the internal buffer only. If the internal buffer is empty, should return with -1.</p>
+<p>As the above topic suggest, implementing the required I<sup>2</sup>C driver can be more challenging than the Embever GPIO Driver implementation.
+Using an internal receive and transmit buffer might also be necessary to fullfil the requirements. The Embever I<sup>2</sup>C Driver interface
+was inspired by the Arduino Wire library. To get more information about the working principles and the expectation of the Embever I<sup>2</sup>C
+Driver, take look at the <a class="reference external" href="https://github.com/arduino/ArduinoCore-avr">Arduino Wire library</a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/logging.html" class="btn btn-neutral float-left" title="Logging Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="samples/index.html" class="btn btn-neutral float-right" title="Sample Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

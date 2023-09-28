@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embever IoT Messaging &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Embever GNSS" href="ebv_esp_gnss.html" />
+    <link rel="prev" title="API documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Embever IoT Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-exchange-with-the-embever-cloud-system">Data exchange with the Embever Cloud system</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-embever-cloud-event">The Embever Cloud Event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-embever-cloud-action">The Embever Cloud Action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-embever-cloud-response">The Embever Cloud Response</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#message-type-rules">Message type rules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sending-data-to-the-cloud-with-the-eiot">Sending data to the cloud with the Embever IoT library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-documentation">API documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ebv_esp_gnss.html">Embever GNSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="esp_drv.html">Embever Serial Protocol driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integration_layer.html">The Integration Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../integration_guide.html">Integration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../salesforce/index.html">Salesforce Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API documentation</a></li>
+      <li class="breadcrumb-item active">Embever IoT Messaging</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ebv_iot_msg.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="embever-iot-messaging">
+<span id="ebv-iot-msg"></span><h1>Embever IoT Messaging<a class="headerlink" href="#embever-iot-messaging" title="Permalink to this heading"></a></h1>
+<p>The Embever IoT Messaging layer is the top layer of the Embever IoT library and
+is the only one that the user application shall interact with.
+The Embever IoT Messaging layer contains all the necessary functions
+which can be required during transferring data between the cloud and devices.
+The high level functions are designed to be easy to understand and simple to use.</p>
+<section id="data-exchange-with-the-embever-cloud-system">
+<h2>Data exchange with the Embever Cloud system<a class="headerlink" href="#data-exchange-with-the-embever-cloud-system" title="Permalink to this heading"></a></h2>
+<p>To be able to use the Embever IoT solutions successfully, a few working principles need to be clarified.
+Exchanging data with the Embever Cloud System is done in 3 major forms:</p>
+<ul class="simple">
+<li><p>Events</p></li>
+<li><p>Actions</p></li>
+<li><p>Responses</p></li>
+</ul>
+<section id="the-embever-cloud-event">
+<h3>The Embever Cloud Event<a class="headerlink" href="#the-embever-cloud-event" title="Permalink to this heading"></a></h3>
+<p>An event is the way to send data from the device to the cloud and has
+two fiels:</p>
+<ul class="simple">
+<li><p><strong>type</strong> <em>(string)</em>: event kind</p></li>
+<li><p><strong>payload</strong> <em>(key-pair string)</em>: event content</p></li>
+</ul>
+<p>This fields can be used freely during designing an application.
+The <strong>payload</strong> is organized by key-value pairs like the following:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;led_state&quot;</span><span class="p">:</span><span class="s2">&quot;on&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="the-embever-cloud-action">
+<h3>The Embever Cloud Action<a class="headerlink" href="#the-embever-cloud-action" title="Permalink to this heading"></a></h3>
+<p>An action is the way to send data from the cloud to the device and has four fields:</p>
+<ul class="simple">
+<li><p><strong>type</strong> <em>(string)</em>: action kind</p></li>
+<li><p><strong>id</strong> <em>(integer)</em>: action unique identification</p></li>
+<li><p><strong>payload</strong> <em>(key-pair string)</em>: action content</p></li>
+<li><p><strong>service_level</strong> <em>(integer)</em>: sets the action lifetime and supports 3 different service levels:</p>
+<ul>
+<li><p><strong>0</strong>: The action lives in the cloud while it has been sent to the device</p></li>
+<li><p><strong>1</strong>: The action lives in the cloud while a response is not submitted for it</p></li>
+<li><p><strong>2</strong>: The action lives in the cloud while a successful response is not submitted to it</p></li>
+</ul>
+</li>
+</ul>
+<p>For example, an action with <strong>service level 0</strong> will be in the cloud while it is not queried by the device.
+As soon as the device queries it, it will be marked in the cloud and not be sent to the device anymore.
+On the other hand, actions with <strong>service level 1</strong> or <strong>2</strong> will be send all the time, when
+the device queries actions until a response is not submitted for them.
+The difference between <strong>service level 1</strong> and <strong>service level 2</strong> is manner of the response result.
+In case of <strong>service level 1</strong> the action will be marked and not be sent to the device again if it get
+any valid response, the result code in this response can be indicate failure or success, the action will be marked
+in both cases. In case of <strong>service level 2</strong> the action will be marked only if the response contain a success result code.</p>
+<p>The <strong>id</strong> is automatically assigned on the cloud side and can be omitted, the other fields can be used freely during designing an application.
+The <strong>payload</strong> is organized by key-value pairs.</p>
+</section>
+<section id="the-embever-cloud-response">
+<h3>The Embever Cloud Response<a class="headerlink" href="#the-embever-cloud-response" title="Permalink to this heading"></a></h3>
+<p>A response is a way to set the result of an action. It is a special type of event, where the corresponding action identifier
+should be carried by the device and sent to the cloud.
+It has tree fields:</p>
+<ul class="simple">
+<li><p><strong>id</strong> <em>(integer)</em>: should match the corresponding action</p></li>
+<li><p><strong>result_code</strong> <em>(integer)</em>: should be <strong>0</strong> for success and <strong>1</strong> for failure (as default on unix systems)</p></li>
+<li><p><strong>payload</strong> <em>(key-pair string)</em>: response <em>optional</em> content</p></li>
+</ul>
+<p>As seen, the organization of the user payload is made by key-value pairs just like a JSON object.
+This form makes possible to easily separate and identify each value during their transfer
+to the cloud.</p>
+</section>
+<section id="message-type-rules">
+<h3>Message type rules<a class="headerlink" href="#message-type-rules" title="Permalink to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">type</span></code> field of an Embever IoT message is used to identify the corresponding message.
+There are some rules in this naming schema which need to be fulfil. The rules are the followings:</p>
+<ul class="simple">
+<li><p>Can not start with <code class="docutils literal notranslate"><span class="pre">_</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">_sensor1</span></code> is invalid)</p></li>
+<li><p>Can not be one of the following, this are reserved for the Embever Cloud System</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">getFile</span></code></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="sending-data-to-the-cloud-with-the-eiot">
+<h2>Sending data to the cloud with the Embever IoT library<a class="headerlink" href="#sending-data-to-the-cloud-with-the-eiot" title="Permalink to this heading"></a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ebv_iot_initGenericEvent</span><span class="p">(</span><span class="s">&quot;event_type_1&quot;</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;key1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;value1&quot;</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;key2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;value2&quot;</span><span class="p">);</span>
+<span class="n">ebv_iot_submitGenericEvent</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Sending data to the cloud is as simple as the above lines of code.
+First create an event and set its type. The type can be any string which fullfils the mentioned rules.</p>
+<p>Next, specify a 2 key-value pair as part of the payload. Call this function several times if
+you want to add more fields to the payload.
+Finally, call the last function to submit the event to the cloud.</p>
+<p>Let’s see a practical example: sending temperature data of an apartment to the cloud.
+A possible implementation would be the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">ebv_iot_initGenericEvent</span><span class="p">(</span><span class="s">&quot;Temperature&quot;</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;living_room&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">24.7</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;bath_room&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">28.2</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;kitchen&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">26.1</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;bed_room&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">23</span><span class="p">);</span>
+<span class="n">ebv_iot_addGenericPayload</span><span class="p">(</span><span class="s">&quot;is_alarm_triggered&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">ebv_iot_submitGenericEvent</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>The sample above covers temperature data from 4 different places around the apartment and indicating an alarm state too.
+The equivalent data in JSON is the following:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;living_room&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">24.7</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;bath_room&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">28.2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;kitchen&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mf">26.1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;bed_room&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;is_alarm_triggered&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="api-documentation">
+<h2>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this heading"></a></h2>
+<div class="line-block">
+<div class="line">Header file: <code class="file docutils literal notranslate"><span class="pre">ebv_iot.h</span></code></div>
+<div class="line">Source file: <code class="file docutils literal notranslate"><span class="pre">ebv_iot.cpp</span></code></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ebv_esp_gnss.html" class="btn btn-neutral float-right" title="Embever GNSS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

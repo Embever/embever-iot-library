@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logging Module &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Integration Guide" href="../integration_guide.html" />
+    <link rel="prev" title="The Integration Layer" href="integration_layer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ebv_iot_msg.html">Embever IoT Messaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ebv_esp_gnss.html">Embever GNSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="esp_drv.html">Embever Serial Protocol driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integration_layer.html">The Integration Layer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Logging Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-log-mod">Setting up the Logging Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../integration_guide.html">Integration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../salesforce/index.html">Salesforce Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API documentation</a></li>
+      <li class="breadcrumb-item active">Logging Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/logging.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="logging-module">
+<h1>Logging Module<a class="headerlink" href="#logging-module" title="Permalink to this heading"></a></h1>
+<p>The Logging Module makes it possible to write logs by calling a simple function.
+The usage is the same as the standard <code class="docutils literal notranslate"><span class="pre">printf</span></code> function:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="p">(</span><span class="s">&quot;Starting application: version %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">app_version</span><span class="p">);</span>
+</pre></div>
+</div>
+<section id="setting-up-the-log-mod">
+<h2>Setting up the Logging Module<a class="headerlink" href="#setting-up-the-log-mod" title="Permalink to this heading"></a></h2>
+<p>The process of setting up the Logging Module is similar to the process which is used by the Integration Layer.
+For example, using the Arduino Serial Library, the setup would be the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Integration function</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">log_print</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">){</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">(){</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Integration function registration</span>
+<span class="w">    </span><span class="n">p_registerPrint</span><span class="p">(</span><span class="n">log_print</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>As the code examples shows, the registered function should be able to handle a string argument.
+Setting up the Logging Module using the Arduino framework can be done by using the predefined support macros:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">LOG_SETUP_ARDUINO</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span><span class="w">  </span><span class="c1">// start serial for output</span>
+<span class="w">    </span><span class="n">LOG_REGISTER_ARDUINO</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="integration_layer.html" class="btn btn-neutral float-left" title="The Integration Layer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../integration_guide.html" class="btn btn-neutral float-right" title="Integration Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usecases &mdash; embever-iot-lib 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Embever IoT Core Salesforce App" href="core_salesforce_app.html" />
+    <link rel="prev" title="Connecting Your Salesforce Organisation to Embever IoT Core" href="connector.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            embever-iot-lib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integration_guide.html">Integration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../samples/index.html">Sample Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tools.html">Tools</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Salesforce Integration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="connector.html">Connecting Your Salesforce Organisation to Embever IoT Core</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Usecases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synchronizing-devices-to-salesforce">Synchronizing devices to Salesforce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiving-events-on-salesforce">Receiving Events on Salesforce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-action-from-salesforce">Creating an Action from Salesforce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cancelling-an-action-from-salesforce">Cancelling an Action from Salesforce</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiving-response-of-an-action-to-salesforce">Receiving response of an Action to Salesforce</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core_salesforce_app.html">Embever IoT Core Salesforce App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_salesforce_example_app.html">Embever IoT Core Salesforce Example App</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">embever-iot-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Salesforce Integration</a></li>
+      <li class="breadcrumb-item active">Usecases</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/salesforce/usecases.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usecases">
+<h1>Usecases<a class="headerlink" href="#usecases" title="Permalink to this heading"></a></h1>
+<section id="synchronizing-devices-to-salesforce">
+<h2>Synchronizing devices to Salesforce<a class="headerlink" href="#synchronizing-devices-to-salesforce" title="Permalink to this heading"></a></h2>
+<p>When you synchronizing all the devices to Salesforce from the Embever IoT Core console, a the Device Message Platfrom Event is published to
+your salesforce organisation for each device in your salesforce connection.</p>
+<p>Example:  Payload of the device message Platfrom message on Synchronize Devices</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DateTime__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:46:39.357Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedById&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0057Q000002LlABCQA0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DeviceName__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HellowWorldDev&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:46:40.212Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__ApplicationId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1c43d388-ab3b-4677-9f51-05dfg597a02d&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Activated__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DeviceType__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;other&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="receiving-events-on-salesforce">
+<h2>Receiving Events on Salesforce<a class="headerlink" href="#receiving-events-on-salesforce" title="Permalink to this heading"></a></h2>
+<p>All the events from the devices connected to your salesforce organisation will be published to the Inbound message Platform event with type event.
+You can read from the Inbound message Platform event from your salesforce instance and can use it further.
+E.g.
+Event in Embever IoT Core</p>
+<blockquote>
+<div><div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/events/15032/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15032</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;sim&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;89777777777777766&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wakeUp&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">525841746</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">112812903</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T08:45:13.889841Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Correspondig message received on Subscribing to the Inbound Message Platform event (embevercore__Inbound__e)</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DateTime__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T08:45:13.889Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusChangedAt__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Name__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wakeUp&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusName__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__ContextId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedById&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0057Q000002LlABCQA0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__CreatedByCore__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T08:45:15.364Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Type__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;event&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Id__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15032</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Payload__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;lat\&quot;: 525841746, \&quot;lon\&quot;: 112812903}&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-an-action-from-salesforce">
+<h2>Creating an Action from Salesforce<a class="headerlink" href="#creating-an-action-from-salesforce" title="Permalink to this heading"></a></h2>
+<p>An Action in Embever IoT Core is the way to send message to the Device to perform certain actions. To create action on Embever IoT core
+you can simply publish to the Outbound Message Platform event from your Salesforce organisation.</p>
+<p>Example
+Message published on Outbound Message Platform Event to create ‘setLED’ action for device ‘xyzA’.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Operation__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Name__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Payload__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{ \&quot;LED\&quot;: \&quot;off\&quot; }&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__ServiceLevel__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__ContextId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a027Q00000198BpQAI&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Corresponding action created in the Embever IoT Core is as follows</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/actions/5530/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5530</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HellowWorldDev&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;LED&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">    </span><span class="nt">&quot;webhooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;service_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cancelled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;finished&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T09:32:23.779159Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expired&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>On creating an action Embever IoT core also publishes a message to the Inbound Message Platform with the information on action created and the corresponding action id.
+Example: The payload of the Inbound message for action created is given below. The attributes ‘embevercore__StatusName__c’ contains the status ‘action_created’ and ‘embevercore__Id__c’
+is the id of the action in Embever IoT Core.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DateTime__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T10:35:07.068Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusChangedAt__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Name__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusName__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;action_created&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__ContextId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a027Q00000198BpQAI&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__StatusId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedById&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0057Q000002LlABCQA0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__CreatedByCore__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;CreatedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T10:35:07.896Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Type__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Id__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5530</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;embevercore__Payload__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="cancelling-an-action-from-salesforce">
+<h2>Cancelling an Action from Salesforce<a class="headerlink" href="#cancelling-an-action-from-salesforce" title="Permalink to this heading"></a></h2>
+<p>There are cases you nolonger want the action to be sent to the devices, in that case you can easily cancel the actions from salesforce.
+To cancel an action you can use the same Outbound Message Platform event with the operation ‘cancel’.</p>
+<p>Example
+Cancel the action with action id 5530, publish the following message to Outbound Message Platform event</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Operation__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cancel&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Id__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5530</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Corresponding action in the Embever IoT Core is as follows, note the cancelled attribute is changed to true.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/actions/5530/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5530</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HellowWorldDev&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;LED&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">    </span><span class="nt">&quot;webhooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;service_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cancelled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;finished&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T09:32:23.779159Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expired&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>On cancelling an action Embever IoT core also publishes a message to the Inbound Message Platform with the information on action cancelled and the corresponding action id.
+Example: The payload of the Inbound message for action cancelled is given below. The attributes ‘embevercore__StatusName__c’ contains the status ‘action_cancelled and ‘embevercore__Id__c’
+is the id of the cancelled action in Embever IoT Core.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DateTime__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T10:41:36.891Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusChangedAt__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Name__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusName__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;action_cancelled&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__ContextId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a027Q00000198BpQAI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;CreatedById&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0057Q000002LlABCQA0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__CreatedByCore__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;CreatedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T10:41:37.603Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Type__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Id__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5530</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Payload__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="receiving-response-of-an-action-to-salesforce">
+<h2>Receiving response of an Action to Salesforce<a class="headerlink" href="#receiving-response-of-an-action-to-salesforce" title="Permalink to this heading"></a></h2>
+<p>A device can send the response for an action. This response is stored as an object on the result attribute of the action. For all the devices connected
+to the salesforce instance, on receiving the response from the device Embever IoT core publishes the message to the Inbound Message Platfrom event of
+the connected salesforce organisations.</p>
+<p>Example: Action on Embever IoT Core with a result</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.embever.com/v2/actions/5531/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5531</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HellowWorldDev&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;LED&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;action_sent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:50.814981+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;action_delivered&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:50.866270+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;response_received&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:50.962695+00:00&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;webhooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;service_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cancelled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;finished&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;led&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T10:35:07.068386Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expired&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Corresponding message on the Salesforce Inbound Message Platform Event is given below. On recevieng the response the attribute ‘embevercore__StatusName__c’ contains
+‘response_received’, ‘embevercore__StatusId__c’ contains the status id from the Embever IoT Core and ‘embevercore__Payload__c’ contains the result of the action.</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DateTime__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:50.962Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusChangedAt__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:50.952Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Name__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;setLED&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusName__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;response_received&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__ContextId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a027Q00000198BpQAI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__DeviceId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyzA&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__StatusId__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2522</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;CreatedById&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0057Q000002LlABCQA0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__CreatedByCore__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;CreatedDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-23T11:07:57.017Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Type__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Id__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5531</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;embevercore__Payload__c&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;led\&quot;: \&quot;off\&quot;}&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="connector.html" class="btn btn-neutral float-left" title="Connecting Your Salesforce Organisation to Embever IoT Core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core_salesforce_app.html" class="btn btn-neutral float-right" title="Embever IoT Core Salesforce App" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Embever GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
