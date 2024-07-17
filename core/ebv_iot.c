@@ -65,6 +65,7 @@ typedef struct{
     uint8_t elements;                       // Count of the elements in the mpacked content
     bool isBufferReady;                     // Flag for indicating the budder status
     cw_pack_context c;                      // mpack struct for keep track about the packing
+    bool overflow;
 } ebv_mpack;
 
 ebv_mpack _ebv_mpack;
@@ -391,12 +392,21 @@ bool ebv_iot_submitGenericEvent(){
     return ret;
 }
 
+static int mpack_overflow_handler(struct cw_pack_context *ctx, unsigned long overflow){
+    UNUSED(ctx);
+    UNUSED(overflow);
+    _ebv_mpack.overflow = true;
+    return 0;
+}
+
 bool ebv_iot_initGenericEvent(const char * evnt_type){
     memset(_ebv_mpack.buff, 0, sizeof(_ebv_mpack.buff));
     _ebv_mpack.size = sizeof(_ebv_mpack.buff);
     _ebv_mpack.elements = 0;
     _ebv_mpack.isBufferReady = true;
-    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), NULL);
+    _ebv_mpack.overflow = false;
+    esp_err = EBV_ESP_COM_ERROR_NONE;
+    cw_pack_context_init(&_ebv_mpack.c, _ebv_mpack.buff, sizeof(_ebv_mpack.buff), mpack_overflow_handler);
     cw_pack_array_size(&_ebv_mpack.c, 1);
     cw_pack_array_size(&_ebv_mpack.c, 2);
     // TODO Need to check if the next string fit in the mem or not
@@ -419,6 +429,9 @@ bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_unsigned(&_ebv_mpack.c, v);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
@@ -427,6 +440,9 @@ bool _ebv_iot_addSignedPayload(const char * k, int v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_signed(&_ebv_mpack.c, v);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
@@ -435,6 +451,9 @@ bool _ebv_iot_addFloatPayload(const char * k, float v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_float(&_ebv_mpack.c, v);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
@@ -443,6 +462,9 @@ bool _ebv_iot_addDoublePayload(const char * k, double v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_double(&_ebv_mpack.c, v);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
@@ -457,6 +479,9 @@ bool _ebv_iot_addStringPayload(const char * k, const char * v){
     // TODO: Check remaining space in buffer
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, v, v_len);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
@@ -465,6 +490,9 @@ bool _ebv_iot_addCharPayload(const char * k, const char v){
     uint8_t k_len = __ebv_iot_strlen(k);
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, &v, 1);
+    if(_ebv_mpack.overflow){
+        return false;
+    }
     _ebv_mpack.elements++;
     return true;
 }
