@@ -13,6 +13,8 @@
 // #define PIN_BTN                           5       // Push button, with pullup resistor, the btn pulling the signal low
 // #define PIN_LED                           4       // LED, active HIGH
 
+
+
 // #define EBV_GPS_WITH_PARAMS
 
 #include "ebv_iot.h"
@@ -29,13 +31,14 @@ void setup() {
     Serial.begin(115200);
     EBV_REGISTER_ARDUINO_CB;
     LOG_REGISTER_ARDUINO;
+    pinMode(USER_BTN, INPUT);
     p("\n\rGNSS Report sample starting\n\r");
 }
 
 void loop(){
     bool ret = false;
 
-    while( digitalRead(PIN_BTN) );
+    while( digitalRead(USER_BTN) );
 
     if( ebv_util_wait_device_ready(DEFAULT_NETWORK_ATTACH_TIMEOUT_SEC) == false){
         p("Device is not ready, timeout reached\n\r");

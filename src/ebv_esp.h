@@ -78,16 +78,16 @@ typedef enum {
     ESP_ERR_INVALID_CMD_DATA = 0x0102,
     ESP_ERR_INVALID_RESP_DATA,
     ESP_ERR_INVALID_RESP_CMD_ID,
-    ESP_ERR_NETWORK_ABSENT,                           // Network temporary unavailable, trying it again may solve the problem
-    ESP_ERR_INVALID_CLOUD_RESPONSE,                   // IoT message validation failed, broken response from the cloud
-    ESP_ERR_INTERNAL_ERROR,                           // Internal error, not handled exception, bug
-    ESP_ERR_NETWORK_OFFLINE,                          // Network is not available, LTE data link is disabled by the rf_mode setting
-    ESP_ERR_NETWORK_ACCESS_DENIED,                    // Network is not for data transmission, rf_mode set to RADIO_TEST or FOTA is running
-    ESP_ERR_NETWORK_UNREGISTERED,                     // Network is not registered, modem is working on a the network attach.
-    ESP_ERR_NETWORK_REG_FAILED,                       // Network attachment failed. The system gave up trying to attach to the network
-    ESP_ERR_UNKNOWN,                                  // Unhandled error
-    ESP_ERR_RESOURCE_BUSY,
-    ESP_ERR_RESOURCE_NOT_AVAILABLE
+    ESP_ERR_NETWORK_ABSENT,                             // Network temporary unavailable, trying it again may solve the problem
+    ESP_ERR_INVALID_CLOUD_RESPONSE,                     // IoT message validation failed, broken response from the cloud
+    ESP_ERR_INTERNAL_ERROR,                             // Internal error, not handled exception, bug
+    ESP_ERR_NETWORK_OFFLINE,                            // Network is not available, LTE data link is disabled by the rf_mode setting
+    ESP_ERR_NETWORK_ACCESS_DENIED,                      // Network is not for data transmission, rf_mode set to RADIO_TEST or FOTA is running
+    ESP_ERR_NETWORK_UNREGISTERED,                       // Network is not registered, modem is working on a the network attach.
+    ESP_ERR_NETWORK_REG_FAILED,                         // Network attachment failed. The system gave up trying to attach to the network
+    ESP_ERR_UNKNOWN,                                    // Unhandled error
+    ESP_ERR_RESOURCE_BUSY,                              // Introduced for EFTP read / write operation, means that the file cache is full in case of write, or it is empty in case of read
+    ESP_ERR_RESOURCE_NOT_AVAILABLE                      // Introduced for EFTP read / write operation, means the file is not available because there was an error during the open operation
 } esp_err_t;
 
 struct esp_packet_s{
