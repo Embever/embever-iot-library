@@ -78,12 +78,12 @@ bool _ebv_iot_addCharPayload(const char * k, char v);
 
 // Overloaded payload packer
 #ifdef __cplusplus
-    void ebv_iot_addGenericPayload(const char * key, unsigned int value);
-    void ebv_iot_addGenericPayload(const char * key, int value);
-    void ebv_iot_addGenericPayload(const char * key, float value);
-    void ebv_iot_addGenericPayload(const char * key, double value);
-    void ebv_iot_addGenericPayload(const char * key, const char * value);
-    void ebv_iot_addGenericPayload(const char * key, const char value);
+    bool ebv_iot_addGenericPayload(const char * key, unsigned int value);
+    bool ebv_iot_addGenericPayload(const char * key, int value);
+    bool ebv_iot_addGenericPayload(const char * key, float value);
+    bool ebv_iot_addGenericPayload(const char * key, double value);
+    bool ebv_iot_addGenericPayload(const char * key, const char * value);
+    bool ebv_iot_addGenericPayload(const char * key, const char value);
 #else
     #define ebv_iot_addGenericPayload(key,value) _Generic( value,                                  \
                                                     unsigned int:   _ebv_iot_addUnsignedPayload,      \
