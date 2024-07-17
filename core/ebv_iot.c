@@ -59,18 +59,7 @@
 
 esp_err_t esp_err;
 
-typedef struct{
-    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
-    uint16_t size;                           // The current size of the buffer
-    uint8_t elements;                       // Count of the elements in the mpacked content
-    bool isBufferReady;                     // Flag for indicating the budder status
-    cw_pack_context c;                      // mpack struct for keep track about the packing
-    bool overflow;
-} ebv_mpack;
-
 ebv_mpack _ebv_mpack;
-
-
 
 // Static functions
 static uint16_t __ebv_iot_strlen(const char * s);
@@ -491,6 +480,15 @@ bool _ebv_iot_addCharPayload(const char * k, const char v){
     cw_pack_str(&_ebv_mpack.c, k, k_len);
     cw_pack_str(&_ebv_mpack.c, &v, 1);
     if(_ebv_mpack.overflow){
+        return false;
+    }
+    _ebv_mpack.elements++;
+    return true;
+}
+
+bool ebv_iot_addObjectPayload(const char *obj, uint16_t obj_len){
+    cw_pack_insert(&_ebv_mpack.c, obj, obj_len);
+    if(_ebv_mpack.c.return_code == CWP_RC_BUFFER_OVERFLOW){
         return false;
     }
     _ebv_mpack.elements++;

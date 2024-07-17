@@ -69,12 +69,32 @@ typedef struct{
     bool result;
 } ebv_iot_event;
 
+typedef struct{
+    uint8_t buff[IOT_MSG_MAX_LEN];          // This is the mpack buffer
+    uint16_t size;                          // The current size of the buffer
+    uint8_t elements;                       // Count of the elements in the mpacked content
+    bool isBufferReady;                     // Flag for indicating the budder status
+    cw_pack_context c;                      // mpack struct for keep track about the packing
+    bool overflow;
+} ebv_mpack;
+
 bool _ebv_iot_addUnsignedPayload(const char * k, unsigned int v);
 bool _ebv_iot_addSignedPayload(const char * k, int v);
 bool _ebv_iot_addFloatPayload(const char * k, float v);
 bool _ebv_iot_addDoublePayload(const char * k, double v);
 bool _ebv_iot_addStringPayload(const char * k, const char * v);
 bool _ebv_iot_addCharPayload(const char * k, char v);
+/**
+ *   @brief Add an object to the payload
+ *   @param obj Pointer to the object
+ *   @param obj_len Length of the object
+ *   @note   Adding an object will increase the individual elements of the payload.
+ *           Care should be taken when using this function.
+ *           Best practice is to pass objects which are standalone elements of the payload
+ *   @retval true if the object was added successfully
+ *   @retval false if the object was not added
+*/
+bool ebv_iot_addObjectPayload(const char *obj, uint16_t obj_len);
 
 // Overloaded payload packer
 #ifdef __cplusplus
